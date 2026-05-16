@@ -1,0 +1,18 @@
+{
+  "name": "Mohan's Portfolio",
+  "short_name": "MS Portfolio",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/Actual_Logo.ico",
+      "sizes": "48x48 64x64 96x96 128x128 256x256",
+      "type": "image/x-icon",
+      "purpose": "any"
+    }
+  ]
+}

@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mohan6201.vercel.app"),
+  metadataBase: new URL("https://msportfolio.vercel.app"),
   title: "MS Portfolio | Mohana Srinivasan",
   description:
     "AWS DevOps Engineer with 4+ years building production-grade cloud infrastructure, CI/CD pipelines, and Kubernetes deployments on AWS — currently at Swirepay.",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     "Docker", "Kubernetes", "Terraform", "GitHub Actions",
     "Mohana Srinivasan", "Swirepay", "Hyderabad",
   ],
-  authors: [{ name: "Mohana Srinivasan", url: "https://mohan6201.vercel.app" }],
+  authors: [{ name: "Mohana Srinivasan", url: "https://msportfolio.vercel.app" }],
   creator: "Mohana Srinivasan",
   icons: {
     icon: [
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     description:
       "Portfolio of Mohana Srinivasan — AWS DevOps Engineer specialising in cloud infrastructure, CI/CD automation, and Kubernetes deployments.",
     type: "website",
-    url: "https://mohan6201.vercel.app",
+    url: "https://msportfolio.vercel.app",
     siteName: "Mohana Srinivasan",
     locale: "en_US",
   },
@@ -64,7 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@type": "Person",
     name: "Mohana Srinivasan",
     jobTitle: "AWS DevOps Engineer",
-    url: "https://mohan6201.vercel.app",
+    url: "https://msportfolio.vercel.app",
     email: "mohandevopssme@gmail.com",
     worksFor: { "@type": "Organization", name: "Swirepay" },
     sameAs: [

@@ -193,7 +193,7 @@ export const projects: Project[] = [
     description: "This very portfolio — built with Next.js 15, TypeScript, Tailwind v4, LibSQL, and deployed on Vercel. Features AI chatbot, blog CMS, admin dashboard, and full analytics.",
     align: "right",
     image: "/images/Reactp2.png",
-    link: "https://mohan6201.vercel.app",
+    link: "https://msportfolio.vercel.app",
     github: "https://github.com/Mohan6201",
     tech: ["Next.js 15", "TypeScript", "Tailwind", "LibSQL", "Vercel", "Gemini AI"],
     responsibilities: [

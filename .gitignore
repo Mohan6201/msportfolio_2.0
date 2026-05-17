@@ -26,3 +26,15 @@ dist-ssr
 # Virtual Environments
 .venv
 .env
+
+# Next.js
+.next/
+out/
+
+# Claude Code local memory
+.claude/
+
+# SQLite local database
+portfolio.db
+portfolio.db-shm
+portfolio.db-wal

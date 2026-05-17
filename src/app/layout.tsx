@@ -32,13 +32,9 @@ export const metadata: Metadata = {
   authors: [{ name: "Mohana Srinivasan", url: "https://mohan6201.vercel.app" }],
   creator: "Mohana Srinivasan",
   icons: {
-    icon: [
-      { url: "/icons/ms-icon.svg", type: "image/svg+xml" },
-      { url: "/icons/ms-icon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icons/ms-icon-16.png", sizes: "16x16", type: "image/png" },
-    ],
-    shortcut: "/icons/ms-icon-32.png",
-    apple: "/icons/ms-icon-180.png",
+    icon: "/icons/actual_icon.ico",
+    shortcut: "/icons/actual_icon.ico",
+    apple: "/icons/actual_icon.ico",
   },
   openGraph: {
     title: "MS Portfolio | Mohana Srinivasan",

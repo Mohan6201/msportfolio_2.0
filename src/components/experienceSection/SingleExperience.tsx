@@ -1,7 +1,13 @@
+"use client";
 import { motion } from "framer-motion";
-import { fadeIn } from "../../framerMotion/variants";
+import { fadeIn } from "@/lib/motion";
+import type { Experience } from "@/data/portfolio.config";
 
-const SingleExperience = ({ experience }) => {
+interface SingleExperienceProps {
+  experience: Experience;
+}
+
+const SingleExperience = ({ experience }: SingleExperienceProps) => {
   return (
     <motion.div
       variants={fadeIn("right", 0)}
@@ -14,9 +20,9 @@ const SingleExperience = ({ experience }) => {
       <p className="text-orange">{experience.company}</p>
       <p className="text-lightGrey">{experience.date}</p>
       <ul className="list-disc mt-4 pl-4">
-        {experience.responsibilities.map((resp, index) => {
-          return <li key={index}>{resp}</li>;
-        })}
+        {experience.responsibilities.map((resp, index) => (
+          <li key={index}>{resp}</li>
+        ))}
       </ul>
     </motion.div>
   );

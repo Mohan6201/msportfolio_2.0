@@ -1,4 +1,9 @@
-const ExperienceInfo = ({ number, text }) => {
+interface ExperienceInfoProps {
+  number: string;
+  text: string;
+}
+
+const ExperienceInfo = ({ number, text }: ExperienceInfoProps) => {
   return (
     <div className="flex flex-col justify-center items-center">
       <p className="font-bold text-6xl text-cyan">{number}</p>

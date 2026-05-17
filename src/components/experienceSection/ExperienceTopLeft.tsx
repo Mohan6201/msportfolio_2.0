@@ -12,7 +12,8 @@ const ExperienceTopLeft = () => {
         <ExperienceInfo number="10+" text="Projects" />
       </div>
       <p className="text-center">
-        With 3.5 years of experience in DevOps and cloud infrastructure, delivering dynamic, user-friendly applications across various domains.
+        With 3.5 years of experience in DevOps and cloud infrastructure, delivering dynamic,
+        user-friendly applications across various domains.
       </p>
     </div>
   );

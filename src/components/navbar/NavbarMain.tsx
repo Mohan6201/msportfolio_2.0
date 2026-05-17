@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-scroll";
 import NextLink from "next/link";
-import { Menu, X, Terminal } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import CommandPalette from "@/components/ui/CommandPalette";
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 
@@ -38,12 +38,15 @@ export default function NavbarMain() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <NextLink href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-cyan/10 border border-cyan/20 flex items-center justify-center group-hover:bg-cyan/20 group-hover:border-cyan/40 transition-all duration-300">
-              <Terminal className="w-4 h-4 text-cyan" />
-            </div>
+          <NextLink href="/" className="flex items-center gap-2.5 group">
+            <img
+              src="/icons/ms-logo.svg"
+              alt="MS Logo"
+              className="w-9 h-9 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(0,212,255,0.6)]"
+            />
             <span className="font-mono font-semibold text-white text-sm hidden sm:block">
-              <span className="text-cyan">~/</span>mohana
+              <span className="text-orange">M</span><span className="text-cyan">S</span>
+              <span className="text-lightGrey/50 ml-1">Portfolio</span>
             </span>
           </NextLink>
 

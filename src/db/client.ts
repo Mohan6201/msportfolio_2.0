@@ -36,4 +36,15 @@ await db.executeMultiple(`
     email      TEXT    NOT NULL UNIQUE,
     created_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS kt_documents (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    title       TEXT    NOT NULL,
+    filename    TEXT    NOT NULL UNIQUE,
+    category    TEXT    NOT NULL DEFAULT 'DevOps',
+    level       TEXT    NOT NULL DEFAULT 'Reference',
+    file_data   BLOB    NOT NULL,
+    file_size   INTEGER NOT NULL DEFAULT 0,
+    uploaded_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
 `);

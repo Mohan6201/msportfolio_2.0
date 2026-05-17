@@ -82,6 +82,36 @@ export async function getAllSubscribers() {
   return r.rows;
 }
 
+// ── KT Documents ──────────────────────────────────────────────────────────────
+
+export async function insertKTDocument(
+  title: string, filename: string, category: string, level: string, fileData: Buffer
+) {
+  await db.execute({
+    sql: "INSERT OR REPLACE INTO kt_documents (title, filename, category, level, file_data, file_size) VALUES (?, ?, ?, ?, ?, ?)",
+    args: [title, filename, category, level, fileData, fileData.length],
+  });
+}
+
+export async function getKTDocuments() {
+  const r = await db.execute(
+    "SELECT id, title, filename, category, level, file_size, uploaded_at FROM kt_documents ORDER BY uploaded_at DESC"
+  );
+  return r.rows;
+}
+
+export async function getKTDocumentFile(id: number) {
+  const r = await db.execute({
+    sql: "SELECT title, filename, file_data FROM kt_documents WHERE id=?",
+    args: [id],
+  });
+  return r.rows[0] ?? null;
+}
+
+export async function deleteKTDocument(id: number) {
+  await db.execute({ sql: "DELETE FROM kt_documents WHERE id=?", args: [id] });
+}
+
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
 export async function getStats() {

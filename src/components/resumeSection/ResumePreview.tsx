@@ -1,12 +1,13 @@
 "use client";
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Download, ExternalLink, FileText, Loader2 } from "lucide-react";
+import { Download, ExternalLink, FileText, Loader2, Minimize2 } from "lucide-react";
+import { usePDFViewer } from "@/components/ui/PDFViewer";
 
 const PDF_URL = "/assets/Mohana Srinivasan (Resume).pdf";
 
 export default function ResumePreview() {
   const [loaded, setLoaded] = useState(false);
+  const { openPDF } = usePDFViewer();
 
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -26,6 +27,14 @@ export default function ResumePreview() {
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => openPDF(PDF_URL, "Mohana Srinivasan — Resume")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-orange/30 text-orange text-xs font-mono hover:bg-orange/10 transition-all duration-200"
+            title="Open in PiP viewer"
+          >
+            <Minimize2 className="w-3 h-3" />
+            PiP View
+          </button>
           <a
             href={PDF_URL}
             target="_blank"
@@ -67,6 +76,10 @@ export default function ResumePreview() {
       {/* Fallback for mobile / unsupported browsers */}
       <p className="text-center text-xs font-mono text-lightGrey/40 mt-4">
         PDF not rendering?{" "}
+        <button onClick={() => openPDF(PDF_URL, "Mohana Srinivasan — Resume")} className="text-orange hover:text-orange/80 transition-colors">
+          Open PiP viewer
+        </button>
+        {" · "}
         <a href={PDF_URL} target="_blank" rel="noopener noreferrer" className="text-cyan hover:text-lightCyan transition-colors">
           Open in new tab →
         </a>

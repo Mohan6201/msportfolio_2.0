@@ -6,6 +6,7 @@ import ScrollProgress from "@/components/ui/ScrollProgress";
 import BackToTop from "@/components/ui/BackToTop";
 import CursorGlow from "@/components/ui/CursorGlow";
 import CommandPalette from "@/components/ui/CommandPalette";
+import { PDFViewerProvider } from "@/components/ui/PDFViewer";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -32,8 +33,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Mohana Srinivasan", url: "https://mohan6201.vercel.app" }],
   creator: "Mohana Srinivasan",
   icons: {
-    icon: "/icons/actual_icon.ico",
-    shortcut: "/icons/actual_icon.ico",
+    icon: [
+      { url: "/icons/ms-logo.svg", type: "image/svg+xml" },
+      { url: "/icons/actual_icon.ico", sizes: "any" },
+    ],
+    shortcut: "/icons/ms-logo.svg",
     apple: "/icons/actual_icon.ico",
   },
   openGraph: {
@@ -83,13 +87,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="font-body text-white relative overflow-x-hidden bg-darkBrown">
-        <CursorGlow />
-        <ScrollProgress />
-        {children}
-        <BackToTop />
-        <ChatWidget />
-        <Analytics />
-        <SpeedInsights />
+        <PDFViewerProvider>
+          <CursorGlow />
+          <ScrollProgress />
+          {children}
+          <BackToTop />
+          <ChatWidget />
+          <Analytics />
+          <SpeedInsights />
+        </PDFViewerProvider>
       </body>
     </html>
   );

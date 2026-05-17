@@ -132,7 +132,7 @@ export default function ChatWidget() {
                   Mohan&apos;s AI Assistant
                 </p>
                 <p className="text-xs text-lightGrey mt-0.5 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-cyan" /> Powered by Claude
+                  <Sparkles className="w-3 h-3 text-cyan" /> Powered by MOJOMO
                 </p>
               </div>
             </div>

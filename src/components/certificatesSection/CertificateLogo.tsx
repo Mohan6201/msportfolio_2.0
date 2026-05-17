@@ -1,30 +1,31 @@
-// components/certificatesSection/CertificateLogo.jsx
-import React, { useState } from "react";
+"use client";
+import { useState } from "react";
 
-// Generate consistent color from issuer name
-const getBackgroundColor = (issuer) => {
+const domainMap: Record<string, string> = {
+  "Guvi": "guvi.in",
+  "3Edge Solutions Pvt Ltd": "3edge.in",
+  "Korber Supply Chain": "koerber-supplychain.com",
+  "RedSys9 Tech Pvt Ltd": "red9systech.com",
+};
+
+const getBackgroundColor = (issuer: string) => {
   if (!issuer) return "#ccc";
   let hash = 0;
   for (let i = 0; i < issuer.length; i++) {
     hash = issuer.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const hue = hash % 360;
-  return `hsl(${hue}, 60%, 80%)`; // pastel-style colors
+  return `hsl(${hash % 360}, 60%, 80%)`;
 };
 
-const CertificateLogo = ({ issuer }) => {
+interface CertificateLogoProps {
+  issuer: string;
+}
+
+const CertificateLogo = ({ issuer }: CertificateLogoProps) => {
   const [imageError, setImageError] = useState(false);
-
-  const domainMap = {
-    "Guvi": "guvi.in",
-    "3Edge Solutions Pvt Ltd": "3edge.in",
-    "Korber Supply Chain": "koerber-supplychain.com",
-    "RedSys9 Tech Pvt Ltd": "red9systech.com",
-  };
-
   const domain = domainMap[issuer];
   const logoUrl = domain ? `https://logo.clearbit.com/${domain}` : null;
-  const fallbackLetter = issuer?.charAt(0).toUpperCase() || "?";
+  const fallbackLetter = issuer?.charAt(0).toUpperCase() ?? "?";
   const backgroundColor = getBackgroundColor(issuer);
 
   return (
@@ -40,9 +41,7 @@ const CertificateLogo = ({ issuer }) => {
           onError={() => setImageError(true)}
         />
       ) : (
-        <span className="text-sm font-semibold text-gray-800">
-          {fallbackLetter}
-        </span>
+        <span className="text-sm font-semibold text-gray-800">{fallbackLetter}</span>
       )}
     </div>
   );

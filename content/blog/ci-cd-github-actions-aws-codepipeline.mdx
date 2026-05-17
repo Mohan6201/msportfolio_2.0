@@ -1,0 +1,100 @@
+---
+title: "Building CI/CD Pipelines with GitHub Actions and AWS CodePipeline"
+date: "2025-03-15"
+description: "A deep dive into automating deployments using GitHub Actions workflows and AWS CodePipeline for scalable, reliable CI/CD in production environments."
+tags: ["AWS", "CI/CD", "GitHub Actions", "DevOps"]
+readTime: "8 min read"
+---
+
+Continuous integration and continuous delivery (CI/CD) are the backbone of modern DevOps. In this post I'll walk through how I built the deployment pipeline for **Txenia AI/ML WMS** — combining GitHub Actions for code validation with AWS CodePipeline for infrastructure-level orchestration.
+
+## Why Two Pipeline Tools?
+
+At first glance, using both GitHub Actions and AWS CodePipeline seems redundant. Here's the split that worked for us:
+
+- **GitHub Actions** handles the developer-facing layer — linting, unit tests, Docker image builds, and pushing to ECR. It runs on every pull request so engineers get instant feedback.
+- **AWS CodePipeline** handles the infrastructure layer — pulling the tested image, running CloudFormation change sets, and orchestrating blue/green deployments to ECS. It has native IAM integration and fits naturally inside an AWS-only stack.
+
+## Phase 1: GitHub Actions Workflow
+
+```yaml
+name: Build & Push to ECR
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/txenia-app:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/txenia-app:$IMAGE_TAG
+```
+
+The `github.sha` tag is key — every image is uniquely identified by the commit that produced it, making rollbacks a single tag swap.
+
+## Phase 2: AWS CodePipeline Structure
+
+The pipeline has four stages:
+
+| Stage | Action | Description |
+|-------|--------|-------------|
+| Source | ECR image push event | Triggers when a new image lands in ECR |
+| Build | CodeBuild | Runs integration tests against a staging ECS task |
+| Approve | Manual gate | A team lead approves before prod |
+| Deploy | ECS blue/green | Shifts traffic with CodeDeploy |
+
+```json
+{
+  "pipeline": {
+    "name": "txenia-prod",
+    "stages": [
+      { "name": "Source", "actions": [{ "actionTypeId": { "category": "Source", "provider": "ECR" } }] },
+      { "name": "Deploy", "actions": [{ "actionTypeId": { "category": "Deploy", "provider": "CodeDeployToECS" } }] }
+    ]
+  }
+}
+```
+
+## Monitoring the Pipeline
+
+Every stage emits CloudWatch Events. I set up an SNS topic that routes failures to a Slack channel via a Lambda function. The alert body includes the pipeline name, stage, execution ID, and a direct link to the console — so on-call engineers can jump straight to the failure without hunting through logs.
+
+```python
+import boto3, json, urllib.request
+
+def handler(event, context):
+    detail = event["detail"]
+    msg = f":red_circle: *{detail['pipeline']}* failed at *{detail['stage']}*\n" \
+          f"Execution: `{detail['execution-id']}`"
+    urllib.request.urlopen(urllib.request.Request(
+        SLACK_WEBHOOK, data=json.dumps({"text": msg}).encode()
+    ))
+```
+
+## Key Lessons
+
+1. **Pin action versions** — `@v4` not `@main`. Floating tags have caused production surprises industry-wide.
+2. **Separate build and deploy IAM roles** — the GitHub Actions role can push to ECR; it cannot touch ECS. CodePipeline's role can deploy to ECS; it cannot read GitHub secrets.
+3. **Add a drift-detection step** — a weekly CodeBuild job that runs `aws cloudformation detect-stack-drift` and pages if anything has changed outside the pipeline catches manual console changes before they become incidents.
+
+The full pipeline cut our average deployment time from 45 minutes (manual) to 8 minutes, with zero unplanned downtime in the first six months.

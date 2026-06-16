@@ -7,6 +7,14 @@ import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import Image from "next/image";
 import type { ProfileRow, SocialLinkRow } from "@/domains/profile/services/profile.service";
 
+const PIPELINE_STAGES = [
+  { label: "Code",    status: "done",    color: "green"  },
+  { label: "Build",   status: "done",    color: "cyan"   },
+  { label: "Test",    status: "done",    color: "cyan"   },
+  { label: "Deploy",  status: "active",  color: "orange" },
+  { label: "Monitor", status: "idle",    color: "purple" },
+];
+
 const TECH_BADGES = [
   { label: "AWS",            cls: "text-orange  border-orange/25  bg-orange/5"  },
   { label: "Docker",         cls: "text-cyan    border-cyan/25    bg-cyan/5"    },
@@ -108,15 +116,21 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden grid-bg">
-      {/* Ambient glow — no canvas, no matrix */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-40 -right-60 w-[700px] h-[700px] rounded-full bg-cyan/4 blur-[140px]" />
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-orange/4 blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-cyan/2 blur-[180px]" />
+      {/* Background image + ambient glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{ backgroundImage: "url('/images/profile/hero-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}
+        />
+        <div className="absolute -top-40 -right-60 w-[700px] h-[700px] rounded-full bg-cyan/5 blur-[140px]" />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-orange/5 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-cyan/3 blur-[180px]" />
+        {/* Diagonal grid accent */}
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan/3 via-transparent to-orange/2" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 pb-20">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-20 sm:pt-24 pb-16 sm:pb-20">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
           {/* ── Left ── */}
           <motion.div
@@ -220,6 +234,40 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
                   <p className="text-[10px] text-lightGrey mt-0.5 font-mono">{label}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Mini pipeline stages */}
+            <div className="w-full max-w-[300px]">
+              <p className="text-[9px] font-mono text-lightGrey/40 uppercase tracking-widest mb-2 text-center">CI/CD Pipeline</p>
+              <div className="flex items-center justify-between gap-0">
+                {PIPELINE_STAGES.map((s, i) => (
+                  <div key={s.label} className="flex items-center flex-1">
+                    <div className={`flex flex-col items-center gap-1 flex-1`}>
+                      <div className={`w-2 h-2 rounded-full ${
+                        s.status === "done"   ? "bg-green shadow-[0_0_6px_rgba(0,255,136,0.8)]" :
+                        s.status === "active" ? "bg-orange shadow-[0_0_6px_rgba(255,107,53,0.8)] animate-pulse" :
+                        "bg-darkGrey border border-white/10"
+                      }`} />
+                      <span className={`text-[8px] font-mono ${
+                        s.status === "done"   ? "text-green/80" :
+                        s.status === "active" ? "text-orange/80" :
+                        "text-lightGrey/30"
+                      }`}>{s.label}</span>
+                    </div>
+                    {i < PIPELINE_STAGES.length - 1 && (
+                      <div className="relative h-[1px] flex-1 mx-0.5 overflow-hidden">
+                        <div className={`absolute inset-0 ${s.status === "done" ? "bg-green/30" : "bg-white/10"}`} />
+                        {s.status === "done" && (
+                          <div
+                            className="absolute top-0 left-0 w-2 h-full bg-green/70 rounded-full"
+                            style={{ animation: "flow-dot 1.8s linear infinite", animationDelay: `${i * 0.4}s` }}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Tech badges */}

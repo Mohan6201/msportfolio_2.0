@@ -110,6 +110,48 @@
   100% { top: 100%; opacity: 0; }
 }
 
+@keyframes flow-dot {
+  0%   { left: -12px; opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { left: calc(100% + 12px); opacity: 0; }
+}
+
+@keyframes flow-dot-v {
+  0%   { top: -12px; opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { top: calc(100% + 12px); opacity: 0; }
+}
+
+@keyframes stage-in {
+  0%   { transform: scale(0.75); opacity: 0; }
+  60%  { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes dash-flow {
+  from { background-position: 0 0; }
+  to   { background-position: 0 32px; }
+}
+
+@keyframes build-pulse {
+  0%, 100% { opacity: 0.6; transform: scaleX(0.97); }
+  50%       { opacity: 1;   transform: scaleX(1); }
+}
+
+@keyframes neon-flicker {
+  0%, 95%, 100% { opacity: 1; }
+  96%           { opacity: 0.6; }
+  97%           { opacity: 1; }
+  98%           { opacity: 0.5; }
+}
+
+@keyframes slide-right {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
 /* ═══════════════════════════════════════════════
    BASE
 ═══════════════════════════════════════════════ */
@@ -358,6 +400,54 @@ body {
 .blog-prose tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
 .blog-prose blockquote { border-left: 3px solid var(--color-cyan); padding-left: 1.25rem; margin: 1.75rem 0; color: rgba(226,234,246,0.65); font-style: italic; }
 
+
+/* ── Pipeline utilities ── */
+.pipeline-connector {
+  position: relative;
+  overflow: visible;
+}
+.pipeline-connector::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+}
+.flow-dot {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 6px var(--color-cyan);
+  animation: flow-dot 2s linear infinite;
+  pointer-events: none;
+}
+.flow-dot-v {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 6px var(--color-cyan);
+  animation: flow-dot-v 2s linear infinite;
+  pointer-events: none;
+}
+.timeline-flow {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,212,255,0.5) 0px,
+    rgba(0,212,255,0.5) 6px,
+    transparent 6px,
+    transparent 14px
+  );
+  animation: dash-flow 1.2s linear infinite;
+}
+.neon-flicker { animation: neon-flicker 8s linear infinite; }
+.stage-in { animation: stage-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
 
 /* DevOps Toolkit form inputs */
 .input-field { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius: 0.75rem; padding: 0.5rem 0.75rem; color: #fff; font-family: var(--font-mono); font-size: 0.75rem; outline: none; transition: border-color 0.2s; }

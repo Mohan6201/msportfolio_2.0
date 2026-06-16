@@ -55,8 +55,8 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
                 </p>
                 <p className="text-lightGrey mb-3">
                   Over <span className="text-green font-semibold">{yrsNum}+ years</span>, I&apos;ve designed
-                  CI/CD pipelines, containerised microservices with Docker and Kubernetes,
-                  and automated infrastructure with Terraform — reducing deployment times
+                  CI/CD pipelines, containerised microservices with Docker on AWS ECS,
+                  and automated infrastructure with Terraform &amp; Ansible — reducing deployment times
                   from <span className="text-cyan">hours to minutes</span>.
                 </p>
                 <p className="text-lightGrey">
@@ -128,7 +128,7 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
               {[
                 { label: "Location",   value: profile.location,       color: "cyan" },
                 { label: "Status",     value: "Open to Work",         color: "green" },
-                { label: "Focus",      value: "AWS + K8s",            color: "orange" },
+                { label: "Focus",      value: "AWS + Docker/ECS",     color: "orange" },
                 { label: "Experience", value: `${yrsNum}+ Years`,     color: "purple" },
               ].map(({ label, value, color }) => (
                 <div key={label} className={`glass rounded-xl p-3 border border-${color}/12`}>

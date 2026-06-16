@@ -106,7 +106,7 @@ export default function ProjectsMain({ projects, githubUrl }: {
           </div>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 xl:grid-cols-2 gap-6">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {projects.map((project, i) => (
             <ProjectCard key={project.id} project={project} index={i} />
           ))}

@@ -2,48 +2,102 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createAuthClient } from "better-auth/react";
+import Image from "next/image";
 import {
-  Eye, Mail, MessageSquare, Users,
-  User, Zap, Briefcase, FolderOpen, Award, Link2,
-  LogOut, RefreshCw, BarChart2,
+  LayoutDashboard, User, Briefcase, Zap, FolderOpen, Award, FileText,
+  BookOpen, Tag, Users, Target, Shuffle, Mail, MessageSquare, Bell,
+  Settings, ShieldCheck, LogOut, Search, Plus, ChevronDown,
 } from "lucide-react";
-import { OverviewTab }       from "./tabs/OverviewTab";
-import { MessagesTab }       from "./tabs/MessagesTab";
-import { CommentsTab }       from "./tabs/CommentsTab";
-import { SubscribersTab }    from "./tabs/SubscribersTab";
-import { ProfileTab }        from "./tabs/ProfileTab";
-import { SkillsTab }         from "./tabs/SkillsTab";
-import { ExperienceTab }     from "./tabs/ExperienceTab";
-import { ProjectsTab }       from "./tabs/ProjectsTab";
-import { CertificationsTab } from "./tabs/CertificationsTab";
-import { SocialLinksTab }    from "./tabs/SocialLinksTab";
-import { AnalyticsTab }      from "./tabs/AnalyticsTab";
+
+import { DashboardHome }      from "./tabs/DashboardHome";
+import { ProfileTab }         from "./tabs/ProfileTab";
+import { SkillsTab }          from "./tabs/SkillsTab";
+import { ExperienceTab }      from "./tabs/ExperienceTab";
+import { ProjectsTab }        from "./tabs/ProjectsTab";
+import { CertificationsTab }  from "./tabs/CertificationsTab";
+import { SocialLinksTab }     from "./tabs/SocialLinksTab";
+import { MessagesTab }        from "./tabs/MessagesTab";
+import { CommentsTab }        from "./tabs/CommentsTab";
+import { SubscribersTab }     from "./tabs/SubscribersTab";
+import { AnalyticsTab }       from "./tabs/AnalyticsTab";
 
 const authClient = createAuthClient();
 
-type Tab =
-  | "overview" | "messages" | "comments" | "subscribers" | "analytics"
-  | "profile"  | "skills"   | "experience" | "projects" | "certifications" | "social";
+type Section =
+  | "dashboard" | "profile" | "experience" | "skills" | "projects"
+  | "certifications" | "social" | "blog"
+  | "kt-documents" | "kt-categories"
+  | "users" | "job-preferences" | "job-matches"
+  | "messages" | "comments" | "newsletter"
+  | "analytics" | "site-settings" | "admin-account";
 
-interface TabDef { id: Tab; label: string; icon: React.ReactNode; group: "engage" | "cms" }
+interface NavItem { id: Section; label: string; icon: React.ElementType }
+interface NavGroup { label: string; items: NavItem[] }
 
-const TABS: TabDef[] = [
-  { id: "overview",       label: "Overview",       icon: <Eye className="w-4 h-4" />,          group: "engage" },
-  { id: "analytics",     label: "Analytics",      icon: <BarChart2 className="w-4 h-4" />,    group: "engage" },
-  { id: "messages",       label: "Messages",       icon: <Mail className="w-4 h-4" />,          group: "engage" },
-  { id: "comments",       label: "Comments",       icon: <MessageSquare className="w-4 h-4" />, group: "engage" },
-  { id: "subscribers",    label: "Subscribers",    icon: <Users className="w-4 h-4" />,         group: "engage" },
-  { id: "profile",        label: "Profile",        icon: <User className="w-4 h-4" />,          group: "cms" },
-  { id: "skills",         label: "Skills",         icon: <Zap className="w-4 h-4" />,           group: "cms" },
-  { id: "experience",     label: "Experience",     icon: <Briefcase className="w-4 h-4" />,     group: "cms" },
-  { id: "projects",       label: "Projects",       icon: <FolderOpen className="w-4 h-4" />,    group: "cms" },
-  { id: "certifications", label: "Certifications", icon: <Award className="w-4 h-4" />,         group: "cms" },
-  { id: "social",         label: "Social Links",   icon: <Link2 className="w-4 h-4" />,         group: "cms" },
+const NAV: NavGroup[] = [
+  {
+    label: "OVERVIEW",
+    items: [{ id: "dashboard", label: "Dashboard", icon: LayoutDashboard }],
+  },
+  {
+    label: "CONTENT",
+    items: [
+      { id: "profile",        label: "Profile",        icon: User },
+      { id: "experience",     label: "Experience",     icon: Briefcase },
+      { id: "skills",         label: "Skills",         icon: Zap },
+      { id: "projects",       label: "Projects",       icon: FolderOpen },
+      { id: "certifications", label: "Certifications", icon: Award },
+      { id: "blog",           label: "Blog Posts",     icon: FileText },
+    ],
+  },
+  {
+    label: "KT CENTRE",
+    items: [
+      { id: "kt-documents",  label: "Documents",  icon: BookOpen },
+      { id: "kt-categories", label: "Categories", icon: Tag },
+    ],
+  },
+  {
+    label: "ACCOUNT CENTRE",
+    items: [
+      { id: "users",           label: "Users",           icon: Users },
+      { id: "job-preferences", label: "Job Preferences", icon: Target },
+      { id: "job-matches",     label: "Job Matches",     icon: Shuffle },
+    ],
+  },
+  {
+    label: "ENGAGEMENT",
+    items: [
+      { id: "messages",   label: "Messages",   icon: Mail },
+      { id: "comments",   label: "Comments",   icon: MessageSquare },
+      { id: "newsletter", label: "Newsletter", icon: Bell },
+    ],
+  },
+  {
+    label: "SETTINGS",
+    items: [
+      { id: "analytics",    label: "Analytics",    icon: LayoutDashboard },
+      { id: "social",       label: "Social Links",  icon: Shuffle },
+      { id: "site-settings", label: "Site Settings", icon: Settings },
+      { id: "admin-account", label: "Admin Account", icon: ShieldCheck },
+    ],
+  },
 ];
 
+function ComingSoon({ label }: { label: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-64 gap-3">
+      <div className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center text-xl">🚧</div>
+      <p className="text-[#e0e0e0] font-mono text-sm capitalize">{label.replace(/-/g, " ")}</p>
+      <p className="text-[#555] font-mono text-xs">Coming soon</p>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
-  const [tab, setTab] = useState<Tab>("overview");
+  const [active, setActive]       = useState<Section>("dashboard");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [search, setSearch]       = useState("");
   const router = useRouter();
 
   const logout = async () => {
@@ -51,75 +105,131 @@ export default function AdminDashboard() {
     router.push("/admin/login");
   };
 
-  const engageTabs = TABS.filter(t => t.group === "engage");
-  const cmsTabs    = TABS.filter(t => t.group === "cms");
+  const navigate = (s: string) => setActive(s as Section);
 
-  const tabBtn = (t: TabDef) => (
-    <button
-      key={t.id}
-      onClick={() => setTab(t.id)}
-      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-        tab === t.id
-          ? "bg-cyan text-black"
-          : "bg-black/30 border border-lightBrown text-lightGrey hover:border-cyan/40 hover:text-cyan"
-      }`}
-    >
-      {t.icon} {t.label}
-    </button>
-  );
+  const renderContent = () => {
+    const key = `${active}-${refreshKey}`;
+    switch (active) {
+      case "dashboard":      return <DashboardHome key={key} onNavigate={navigate} />;
+      case "profile":        return <ProfileTab key={key} />;
+      case "experience":     return <ExperienceTab key={key} />;
+      case "skills":         return <SkillsTab key={key} />;
+      case "projects":       return <ProjectsTab key={key} />;
+      case "certifications": return <CertificationsTab key={key} />;
+      case "social":         return <SocialLinksTab key={key} />;
+      case "messages":       return <MessagesTab key={key} />;
+      case "comments":       return <CommentsTab key={key} />;
+      case "newsletter":     return <SubscribersTab key={key} />;
+      case "analytics":      return <AnalyticsTab key={key} />;
+      default:               return <ComingSoon label={active} />;
+    }
+  };
 
   return (
-    <main className="min-h-screen bg-darkBrown px-4 py-16">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h1 className="text-3xl font-bold text-white font-special">Admin Dashboard</h1>
-            <p className="text-lightGrey text-sm mt-1 font-mono">MS Portfolio Control Center</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setRefreshKey(k => k + 1)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-lightBrown text-lightGrey hover:border-cyan hover:text-cyan transition-colors text-sm"
-            >
-              <RefreshCw className="w-4 h-4" /> Refresh
-            </button>
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors text-sm"
-            >
-              <LogOut className="w-4 h-4" /> Logout
-            </button>
+    <div className="flex h-screen bg-[#0d0d0d] overflow-hidden">
+
+      {/* ── Sidebar ───────────────────────────────────────────────────────── */}
+      <aside className="w-60 flex-shrink-0 flex flex-col h-full bg-[#111111] border-r border-[#1e1e1e] overflow-y-auto scrollbar-hide">
+
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 px-4 py-5 border-b border-[#1e1e1e] flex-shrink-0">
+          <Image src="/icons/Actual_Logo.ico" alt="MS" width={30} height={30} className="rounded-lg flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="text-[#e0e0e0] font-bold text-[13px] leading-tight truncate">MS Portfolio</p>
+            <p className="text-[#555] text-[10px] font-mono">CMS Admin</p>
           </div>
         </div>
 
-        {/* Tab groups */}
-        <div className="flex flex-col gap-3 mb-8">
-          <div>
-            <p className="text-[10px] font-mono text-lightGrey/40 uppercase tracking-widest mb-2">Engagement</p>
-            <div className="flex flex-wrap gap-2">{engageTabs.map(tabBtn)}</div>
-          </div>
-          <div>
-            <p className="text-[10px] font-mono text-lightGrey/40 uppercase tracking-widest mb-2">Content Management</p>
-            <div className="flex flex-wrap gap-2">{cmsTabs.map(tabBtn)}</div>
-          </div>
-        </div>
+        {/* Nav groups */}
+        <nav className="flex-1 px-3 py-4 flex flex-col gap-5">
+          {NAV.map((group) => (
+            <div key={group.label}>
+              <p className="text-[#444] text-[9px] font-mono uppercase tracking-widest mb-2 px-2">
+                {group.label}
+              </p>
+              <div className="flex flex-col gap-0.5">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = active === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { setActive(item.id); setRefreshKey(k => k); }}
+                      className={`flex items-center gap-2.5 w-full text-left px-2.5 py-2 rounded-lg text-[13px] font-mono transition-all duration-150 ${
+                        isActive
+                          ? "bg-[#00ff88]/8 text-[#00ff88] border-l-2 border-[#00ff88] pl-[9px]"
+                          : "text-[#666] hover:text-[#bbb] hover:bg-[#ffffff05] border-l-2 border-transparent pl-[9px]"
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="truncate">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
 
-        {/* Tab content */}
-        <div key={`${tab}-${refreshKey}`}>
-          {tab === "overview"       && <OverviewTab />}
-          {tab === "analytics"      && <AnalyticsTab />}
-          {tab === "messages"       && <MessagesTab />}
-          {tab === "comments"       && <CommentsTab />}
-          {tab === "subscribers"    && <SubscribersTab />}
-          {tab === "profile"        && <ProfileTab />}
-          {tab === "skills"         && <SkillsTab />}
-          {tab === "experience"     && <ExperienceTab />}
-          {tab === "projects"       && <ProjectsTab />}
-          {tab === "certifications" && <CertificationsTab />}
-          {tab === "social"         && <SocialLinksTab />}
+        {/* Version + logout */}
+        <div className="px-4 py-3 border-t border-[#1e1e1e] flex items-center justify-between flex-shrink-0">
+          <span className="text-[#333] text-[10px] font-mono">v2.4.1 · production</span>
+          <button onClick={logout} title="Sign out"
+            className="text-[#444] hover:text-red-400 transition-colors p-1">
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
         </div>
+      </aside>
+
+      {/* ── Main ──────────────────────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        {/* Top bar */}
+        <header className="h-13 flex items-center gap-3 px-5 border-b border-[#1e1e1e] bg-[#111111] flex-shrink-0" style={{ height: "52px" }}>
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#444]" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search content..."
+              className="w-full max-w-xs bg-[#1a1a1a] border border-[#252525] rounded-lg pl-8 pr-4 py-1.5 text-[#e0e0e0] text-[12px] font-mono placeholder-[#3a3a3a] focus:outline-none focus:border-[#00ff88]/30 transition-colors"
+            />
+          </div>
+
+          {/* Refresh */}
+          <button
+            onClick={() => setRefreshKey(k => k + 1)}
+            className="text-[#444] hover:text-[#888] transition-colors p-1.5 rounded-lg hover:bg-[#1a1a1a]"
+            title="Refresh"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0114.5-4.5M20 15a9 9 0 01-14.5 4.5" />
+            </svg>
+          </button>
+
+          {/* Bell */}
+          <button className="relative p-1.5 text-[#555] hover:text-[#e0e0e0] transition-colors rounded-lg hover:bg-[#1a1a1a]">
+            <Bell className="w-3.5 h-3.5" />
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-pulse" />
+          </button>
+
+          {/* Add */}
+          <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#00cc66] hover:bg-[#00ff88] text-black text-[12px] font-mono font-bold transition-colors">
+            <Plus className="w-3 h-3" /> Add <ChevronDown className="w-2.5 h-2.5" />
+          </button>
+
+          {/* Avatar */}
+          <div className="w-7 h-7 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center text-[#00ff88] text-[10px] font-mono font-bold flex-shrink-0">
+            MS
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="flex-1 overflow-y-auto p-6 bg-[#0d0d0d]">
+          {renderContent()}
+        </main>
       </div>
-    </main>
+    </div>
   );
 }

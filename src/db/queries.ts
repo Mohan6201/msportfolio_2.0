@@ -1,6 +1,7 @@
 import { eq, desc, sql } from "drizzle-orm";
 import { db } from "./client";
 import { contacts, blogComments, newsletter, ktDocuments } from "./schema/legacy";
+import { projects } from "./schema/profile";
 
 // ── Contacts ─────────────────────────────────────────────────────────────────
 
@@ -138,5 +139,28 @@ export async function getStats() {
     contacts: c[0],
     comments: cm[0],
     subscribers: n[0],
+  };
+}
+
+export async function getDashboardStats() {
+  const [projCount, ktCount, msgStats, recentProjects, recentKTDocs] = await Promise.all([
+    db.select({ count: sql<number>`count(*)` }).from(projects),
+    db.select({ count: sql<number>`count(*)` }).from(ktDocuments),
+    db.select({
+      total: sql<number>`count(*)`,
+      unread: sql<number>`sum(case when ${contacts.read}=0 then 1 else 0 end)`,
+    }).from(contacts),
+    db.select({ id: projects.id, name: projects.name, year: projects.year, sortOrder: projects.sortOrder })
+      .from(projects).orderBy(desc(projects.sortOrder)).limit(4),
+    db.select({ id: ktDocuments.id, title: ktDocuments.title, uploadedAt: ktDocuments.uploadedAt, category: ktDocuments.category })
+      .from(ktDocuments).orderBy(desc(ktDocuments.uploadedAt)).limit(4),
+  ]);
+  return {
+    projectCount: Number(projCount[0]?.count ?? 0),
+    ktDocCount: Number(ktCount[0]?.count ?? 0),
+    unreadMessages: Number(msgStats[0]?.unread ?? 0),
+    totalMessages: Number(msgStats[0]?.total ?? 0),
+    recentProjects,
+    recentKTDocs,
   };
 }

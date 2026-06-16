@@ -8,8 +8,11 @@ export async function POST(req: NextRequest) {
   if (error) return error;
 
   const prefs = await getPreferences(session!.user.id);
-  const targetRoles: string[] = prefs ? JSON.parse(prefs.targetRoles) : [];
-  const locations: string[] = prefs ? JSON.parse(prefs.preferredLocations) : [];
+  function safeArr(v: string | null | undefined): string[] {
+    try { return v ? JSON.parse(v) : []; } catch { return []; }
+  }
+  const targetRoles: string[] = prefs ? safeArr(prefs.targetRoles) : [];
+  const locations: string[] = prefs ? safeArr(prefs.preferredLocations) : [];
 
   const result = await ingestJobPostings(targetRoles, locations);
   return NextResponse.json(result);

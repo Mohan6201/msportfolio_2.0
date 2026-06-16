@@ -20,9 +20,13 @@ export async function GET(req: NextRequest) {
   let totalSkipped = 0;
   let totalErrors = 0;
 
+  function safeArr(v: string | null | undefined): string[] {
+    try { return v ? JSON.parse(v) : []; } catch { return []; }
+  }
+
   for (const prefs of allPrefs) {
-    const targetRoles: string[] = JSON.parse(prefs.targetRoles);
-    const locations: string[] = JSON.parse(prefs.preferredLocations);
+    const targetRoles: string[] = safeArr(prefs.targetRoles);
+    const locations: string[] = safeArr(prefs.preferredLocations);
     const result = await ingestJobPostings(targetRoles, locations);
     totalInserted += result.inserted;
     totalSkipped += result.skipped;

@@ -29,19 +29,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No resume version found." }, { status: 400 });
   }
 
-  const resumeData: ResumeData = JSON.parse(latestVersion.structuredData);
+  let resumeData: ResumeData;
+  try {
+    resumeData = JSON.parse(latestVersion.structuredData);
+  } catch {
+    return NextResponse.json({ error: "Resume data is not yet processed. Try re-uploading." }, { status: 400 });
+  }
+
+  function safeArr(v: string | null | undefined): string[] {
+    try { return v ? JSON.parse(v) : []; } catch { return []; }
+  }
 
   const preferences = {
-    targetRoles: prefs ? JSON.parse(prefs.targetRoles) : [],
+    targetRoles: prefs ? safeArr(prefs.targetRoles) : [],
     remotePreference: prefs?.remotePreference ?? "any",
     minSalary: prefs?.minSalary ?? null,
-    keywords: prefs ? JSON.parse(prefs.keywords) : [],
+    keywords: prefs ? safeArr(prefs.keywords) : [],
   };
 
   const recentMatches = matches.slice(0, 10).map((m) => ({
     jobTitle: m.job.title,
     matchScore: m.matchScore ?? 0,
-    skillGaps: JSON.parse(m.skillGaps),
+    skillGaps: safeArr(m.skillGaps),
     status: m.status,
   }));
 

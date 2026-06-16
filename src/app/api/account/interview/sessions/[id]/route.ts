@@ -42,7 +42,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       interview.category
     );
 
-    const transcript = JSON.parse(interview.transcript) as object[];
+    let transcript: object[];
+    try { transcript = interview.transcript ? JSON.parse(interview.transcript) : []; } catch { transcript = []; }
     transcript.push({
       question: body.question,
       userAnswer: body.userAnswer,
@@ -57,11 +58,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   if (body.action === "complete") {
-    const transcript = JSON.parse(interview.transcript) as {
-      question: string;
-      score: number;
-      feedback: string;
-    }[];
+    let transcript: { question: string; score: number; feedback: string }[];
+    try { transcript = interview.transcript ? JSON.parse(interview.transcript) : []; } catch { transcript = []; }
 
     if (transcript.length === 0) {
       return NextResponse.json({ error: "No answers to evaluate" }, { status: 400 });

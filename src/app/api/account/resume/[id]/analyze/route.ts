@@ -16,7 +16,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const version = await getLatestVersion(resume.id);
   if (!version) return NextResponse.json({ error: "No version found" }, { status: 404 });
 
-  const resumeData: ResumeData = JSON.parse(version.structuredData);
+  let resumeData: ResumeData;
+  try {
+    resumeData = JSON.parse(version.structuredData);
+  } catch {
+    return NextResponse.json({ error: "Resume not yet processed. Try re-uploading." }, { status: 400 });
+  }
   const { type, jdText } = await req.json();
 
   if (type === "ats") {

@@ -24,11 +24,18 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "No resume version found." }, { status: 400 });
   }
 
-  const resumeData: ResumeData = JSON.parse(latestVersion.structuredData);
+  let resumeData: ResumeData;
+  try {
+    resumeData = JSON.parse(latestVersion.structuredData);
+  } catch {
+    return NextResponse.json({ error: "Resume data is not yet processed. Try re-uploading." }, { status: 400 });
+  }
+  let requirements: string[];
+  try { requirements = job.requirements ? JSON.parse(job.requirements) : []; } catch { requirements = []; }
   const score = await scoreJobMatch(resumeData, {
     title: job.title,
     description: job.description,
-    requirements: JSON.parse(job.requirements),
+    requirements,
     location: job.location,
     remote: !!job.remote,
   });

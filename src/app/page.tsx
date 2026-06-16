@@ -16,6 +16,7 @@ import FooterMain from "@/domains/profile/components/footer/FooterMain";
 import AchievementsSection from "@/domains/profile/components/achievements/AchievementsSection";
 import ServicesSection from "@/domains/profile/components/services/ServicesSection";
 import PipelineStrip from "@/domains/profile/components/pipeline/PipelineStrip";
+import CareerCentreSection from "@/domains/profile/components/careerCentre/CareerCentreSection";
 
 export default async function Home() {
   const data = await getAllProfileData();
@@ -46,6 +47,7 @@ export default async function Home() {
       <AchievementsSection />
       <ResumeMain resumeUrl={profile.resumeUrl} />
       <ServicesSection />
+      <CareerCentreSection />
       <GitHubStats />
       <KnowledgeBase />
       <ContactMeMain profile={profile} socialLinks={socialLinks} />

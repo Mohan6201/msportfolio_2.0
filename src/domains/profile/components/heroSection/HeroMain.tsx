@@ -119,8 +119,8 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
       {/* Background image + ambient glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: "url('/images/profile/hero-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}
+          className="absolute inset-0 opacity-[0.07]"
+          style={{ backgroundImage: "url('/icons/icon-512.png')", backgroundSize: "320px", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
         />
         <div className="absolute -top-40 -right-60 w-[700px] h-[700px] rounded-full bg-cyan/5 blur-[140px]" />
         <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-orange/5 blur-[120px]" />

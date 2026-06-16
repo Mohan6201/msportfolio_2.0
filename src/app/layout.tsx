@@ -35,12 +35,9 @@ export const metadata: Metadata = {
   creator: "Mohana Srinivasan",
   icons: {
     icon: [
-      { url: "/icons/logo.svg",          type: "image/svg+xml" },
-      { url: "/icons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon.ico",             sizes: "any" },
+      { url: "/icons/Actual_Logo.ico",    type: "image/x-icon", sizes: "any" },
     ],
-    shortcut: "/favicon.ico",
+    shortcut: "/icons/Actual_Logo.ico",
     apple: [{ url: "/icons/apple-touch.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {

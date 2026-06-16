@@ -59,7 +59,7 @@ export default function AccountLoginPage() {
 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
-          <Image src="/icons/logo.svg" alt="MS Logo" width={44} height={44} className="rounded-xl" />
+          <Image src="/icons/Actual_Logo.ico" alt="MS Logo" width={44} height={44} className="rounded-xl" />
           <div>
             <p className="font-special font-bold text-white text-lg leading-none">Mohana Srinivasan</p>
             <p className="text-cyan text-xs font-mono mt-0.5">Career Centre</p>
@@ -107,7 +107,7 @@ export default function AccountLoginPage() {
         <div className="w-full max-w-[400px] relative z-10">
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <Image src="/icons/logo.svg" alt="MS Logo" width={38} height={38} className="rounded-xl" />
+            <Image src="/icons/Actual_Logo.ico" alt="MS Logo" width={38} height={38} className="rounded-xl" />
             <div>
               <p className="font-special font-bold text-white">Mohana Srinivasan</p>
               <p className="text-cyan text-xs font-mono">Career Centre</p>

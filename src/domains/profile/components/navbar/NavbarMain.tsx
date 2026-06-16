@@ -39,7 +39,7 @@ export default function NavbarMain() {
           {/* Logo */}
           <NextLink href="/" className="flex items-center gap-2.5 group">
             <img
-              src="/icons/logo.svg"
+              src="/icons/Actual_Logo.ico"
               alt="MS Logo"
               className="w-8 h-8 rounded-lg transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(0,212,255,0.6)]"
             />

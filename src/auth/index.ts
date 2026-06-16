@@ -47,7 +47,7 @@ export const auth = betterAuth({
         "Reset your MS Portfolio password",
         `
         <div style="font-family:monospace;background:#05080f;color:#e2eaf6;padding:32px;border-radius:12px;max-width:480px;">
-          <img src="${BASE_URL}/icons/logo.svg" width="48" height="48" style="margin-bottom:16px;" />
+          <img src="${BASE_URL}/icons/Actual_Logo.ico" width="48" height="48" style="margin-bottom:16px;" />
           <h2 style="color:#00d4ff;margin:0 0 8px;">Password Reset</h2>
           <p style="color:#7a8fa6;margin:0 0 24px;">Click the button below to reset your password. This link expires in 1 hour.</p>
           <a href="${url}" style="background:#00d4ff;color:#000;padding:12px 24px;border-radius:8px;font-weight:bold;text-decoration:none;display:inline-block;">

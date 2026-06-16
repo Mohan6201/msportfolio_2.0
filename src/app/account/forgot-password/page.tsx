@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-[400px]">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
-          <Image src="/icons/logo.svg" alt="MS Logo" width={40} height={40} className="rounded-xl" />
+          <Image src="/icons/Actual_Logo.ico" alt="MS Logo" width={40} height={40} className="rounded-xl" />
           <div>
             <p className="font-special font-bold text-white">Mohana Srinivasan</p>
             <p className="text-cyan text-xs font-mono">Career Centre</p>

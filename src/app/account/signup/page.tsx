@@ -65,7 +65,7 @@ export default function AccountSignupPage() {
       <div className="w-full max-w-[420px]">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
-          <Image src="/icons/logo.svg" alt="MS Logo" width={42} height={42} className="rounded-xl" />
+          <Image src="/icons/Actual_Logo.ico" alt="MS Logo" width={42} height={42} className="rounded-xl" />
           <div>
             <p className="font-special font-bold text-white">Mohana Srinivasan</p>
             <p className="text-cyan text-xs font-mono">Career Centre</p>

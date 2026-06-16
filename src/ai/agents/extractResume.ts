@@ -13,7 +13,7 @@ export async function extractResume(fileBytes: ArrayBuffer, mimeType: string): P
           {
             type: "file",
             data: new Uint8Array(fileBytes),
-            mimeType,
+            mediaType: mimeType,
           },
           {
             type: "text",

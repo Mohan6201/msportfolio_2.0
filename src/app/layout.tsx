@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
-import ChatWidget from "@/components/chat/ChatWidget";
+import ChatWidget from "@/domains/profile/components/chat/ChatWidget";
 import ScrollProgress from "@/components/ui/ScrollProgress";
 import BackToTop from "@/components/ui/BackToTop";
 import CursorGlow from "@/components/ui/CursorGlow";
 import CommandPalette from "@/components/ui/CommandPalette";
 import { PDFViewerProvider } from "@/components/ui/PDFViewer";
+import PageTracker from "@/components/ui/PageTracker";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PDFViewerProvider>
           <CursorGlow />
           <ScrollProgress />
+          <PageTracker />
           {children}
           <BackToTop />
           <ChatWidget />

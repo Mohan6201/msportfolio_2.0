@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAllPosts, getPost, compileMarkdown } from "@/lib/blog";
-import CommentSection from "@/components/blog/CommentSection";
+import { getAllPosts, getPost, compileMarkdown } from "@/domains/blog/lib/blog";
+import CommentSection from "@/domains/blog/components/blog/CommentSection";
 import { ArrowLeft, Clock, Calendar } from "lucide-react";
 
 interface Props {

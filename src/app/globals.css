@@ -194,6 +194,16 @@ body {
   animation: blink 1.1s step-end infinite;
 }
 
+.field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-lightGrey);
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .section-tag {
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -347,3 +357,9 @@ body {
 .blog-prose td { padding: 0.75rem 1rem; border: 1px solid rgba(255,255,255,0.05); color: rgba(226,234,246,0.8); }
 .blog-prose tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
 .blog-prose blockquote { border-left: 3px solid var(--color-cyan); padding-left: 1.25rem; margin: 1.75rem 0; color: rgba(226,234,246,0.65); font-style: italic; }
+
+
+/* DevOps Toolkit form inputs */
+.input-field { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius: 0.75rem; padding: 0.5rem 0.75rem; color: #fff; font-family: var(--font-mono); font-size: 0.75rem; outline: none; transition: border-color 0.2s; }
+.input-field:focus { border-color: rgba(0,212,255,0.4); }
+.input-field option { background: #090d1a; }

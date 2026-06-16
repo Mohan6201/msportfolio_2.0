@@ -1,4 +1,6 @@
+import { eq, desc, sql } from "drizzle-orm";
 import { db } from "./client";
+import { contacts, blogComments, newsletter, ktDocuments } from "./schema/legacy";
 
 // ── Contacts ─────────────────────────────────────────────────────────────────
 
@@ -8,21 +10,15 @@ export async function insertContact(
   message: string,
   ip?: string
 ) {
-  await db.execute({
-    sql: "INSERT INTO contacts (name, email, message, ip) VALUES (?, ?, ?, ?)",
-    args: [name, email, message, ip ?? null],
-  });
+  await db.insert(contacts).values({ name, email, message, ip });
 }
 
 export async function getAllContacts() {
-  const r = await db.execute(
-    "SELECT * FROM contacts ORDER BY created_at DESC"
-  );
-  return r.rows;
+  return db.select().from(contacts).orderBy(desc(contacts.createdAt));
 }
 
 export async function markContactRead(id: number) {
-  await db.execute({ sql: "UPDATE contacts SET read=1 WHERE id=?", args: [id] });
+  await db.update(contacts).set({ read: 1 }).where(eq(contacts.id, id));
 }
 
 // ── Blog comments ─────────────────────────────────────────────────────────────
@@ -34,95 +30,113 @@ export async function insertComment(
   body: string,
   ip?: string
 ) {
-  await db.execute({
-    sql: "INSERT INTO blog_comments (post_slug, author, email, body, ip) VALUES (?, ?, ?, ?, ?)",
-    args: [slug, author, email, body, ip ?? null],
-  });
+  await db.insert(blogComments).values({ postSlug: slug, author, email, body, ip });
 }
 
 export async function getApprovedComments(slug: string) {
-  const r = await db.execute({
-    sql: "SELECT id, author, body, created_at FROM blog_comments WHERE post_slug=? AND approved=1 ORDER BY created_at ASC",
-    args: [slug],
-  });
-  return r.rows;
+  return db
+    .select({
+      id: blogComments.id,
+      author: blogComments.author,
+      body: blogComments.body,
+      createdAt: blogComments.createdAt,
+    })
+    .from(blogComments)
+    .where(eq(blogComments.postSlug, slug))
+    .orderBy(blogComments.createdAt);
 }
 
 export async function getAllComments() {
-  const r = await db.execute(
-    "SELECT * FROM blog_comments ORDER BY created_at DESC"
-  );
-  return r.rows;
+  return db.select().from(blogComments).orderBy(desc(blogComments.createdAt));
 }
 
 export async function setCommentApproval(id: number, approved: 0 | 1) {
-  await db.execute({
-    sql: "UPDATE blog_comments SET approved=? WHERE id=?",
-    args: [approved, id],
-  });
+  await db.update(blogComments).set({ approved }).where(eq(blogComments.id, id));
 }
 
 export async function deleteComment(id: number) {
-  await db.execute({ sql: "DELETE FROM blog_comments WHERE id=?", args: [id] });
+  await db.delete(blogComments).where(eq(blogComments.id, id));
 }
 
 // ── Newsletter ─────────────────────────────────────────────────────────────────
 
 export async function insertSubscriber(email: string) {
-  await db.execute({
-    sql: "INSERT OR IGNORE INTO newsletter (email) VALUES (?)",
-    args: [email],
-  });
+  await db.insert(newsletter).values({ email }).onConflictDoNothing();
 }
 
 export async function getAllSubscribers() {
-  const r = await db.execute(
-    "SELECT id, email, created_at FROM newsletter ORDER BY created_at DESC"
-  );
-  return r.rows;
+  return db
+    .select({ id: newsletter.id, email: newsletter.email, createdAt: newsletter.createdAt })
+    .from(newsletter)
+    .orderBy(desc(newsletter.createdAt));
 }
 
 // ── KT Documents ──────────────────────────────────────────────────────────────
 
 export async function insertKTDocument(
-  title: string, filename: string, category: string, level: string, fileData: Buffer
+  title: string,
+  filename: string,
+  category: string,
+  level: string,
+  fileData: Buffer
 ) {
-  await db.execute({
-    sql: "INSERT OR REPLACE INTO kt_documents (title, filename, category, level, file_data, file_size) VALUES (?, ?, ?, ?, ?, ?)",
-    args: [title, filename, category, level, fileData, fileData.length],
-  });
+  await db
+    .insert(ktDocuments)
+    .values({ title, filename, category, level, fileData, fileSize: fileData.length })
+    .onConflictDoUpdate({
+      target: ktDocuments.filename,
+      set: { title, category, level, fileData, fileSize: fileData.length },
+    });
 }
 
 export async function getKTDocuments() {
-  const r = await db.execute(
-    "SELECT id, title, filename, category, level, file_size, uploaded_at FROM kt_documents ORDER BY uploaded_at DESC"
-  );
-  return r.rows;
+  return db
+    .select({
+      id: ktDocuments.id,
+      title: ktDocuments.title,
+      filename: ktDocuments.filename,
+      category: ktDocuments.category,
+      level: ktDocuments.level,
+      fileSize: ktDocuments.fileSize,
+      uploadedAt: ktDocuments.uploadedAt,
+    })
+    .from(ktDocuments)
+    .orderBy(desc(ktDocuments.uploadedAt));
 }
 
 export async function getKTDocumentFile(id: number) {
-  const r = await db.execute({
-    sql: "SELECT title, filename, file_data FROM kt_documents WHERE id=?",
-    args: [id],
-  });
-  return r.rows[0] ?? null;
+  const rows = await db
+    .select({ title: ktDocuments.title, filename: ktDocuments.filename, fileData: ktDocuments.fileData })
+    .from(ktDocuments)
+    .where(eq(ktDocuments.id, id));
+  return rows[0] ?? null;
 }
 
 export async function deleteKTDocument(id: number) {
-  await db.execute({ sql: "DELETE FROM kt_documents WHERE id=?", args: [id] });
+  await db.delete(ktDocuments).where(eq(ktDocuments.id, id));
 }
 
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
 export async function getStats() {
   const [c, cm, n] = await Promise.all([
-    db.execute("SELECT COUNT(*) as total, SUM(CASE WHEN read=0 THEN 1 ELSE 0 END) as unread FROM contacts"),
-    db.execute("SELECT COUNT(*) as total, SUM(CASE WHEN approved=0 THEN 1 ELSE 0 END) as pending FROM blog_comments"),
-    db.execute("SELECT COUNT(*) as total FROM newsletter"),
+    db
+      .select({
+        total: sql<number>`count(*)`,
+        unread: sql<number>`sum(case when ${contacts.read}=0 then 1 else 0 end)`,
+      })
+      .from(contacts),
+    db
+      .select({
+        total: sql<number>`count(*)`,
+        pending: sql<number>`sum(case when ${blogComments.approved}=0 then 1 else 0 end)`,
+      })
+      .from(blogComments),
+    db.select({ total: sql<number>`count(*)` }).from(newsletter),
   ]);
   return {
-    contacts: c.rows[0],
-    comments: cm.rows[0],
-    subscribers: n.rows[0],
+    contacts: c[0],
+    comments: cm[0],
+    subscribers: n[0],
   };
 }

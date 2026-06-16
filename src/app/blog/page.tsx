@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getAllPosts } from "@/lib/blog";
+import { getAllPosts } from "@/domains/blog/lib/blog";
 import { BookOpen, Clock, ArrowLeft, Terminal } from "lucide-react";
 
 export const metadata: Metadata = {

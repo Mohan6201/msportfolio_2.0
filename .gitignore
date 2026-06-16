@@ -38,3 +38,4 @@ out/
 portfolio.db
 portfolio.db-shm
 portfolio.db-wal
+.vercel

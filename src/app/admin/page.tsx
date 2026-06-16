@@ -1,16 +1,15 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/auth";
 import AdminDashboard from "./AdminDashboard";
 
-interface Props {
-  searchParams: Promise<{ secret?: string }>;
-}
+export default async function AdminPage() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const role = (session?.user as unknown as { role?: string })?.role;
 
-export default async function AdminPage({ searchParams }: Props) {
-  const { secret } = await searchParams;
-
-  if (!secret || secret !== process.env.ADMIN_SECRET) {
-    redirect("/");
+  if (!session || !["owner", "admin"].includes(role ?? "")) {
+    redirect("/admin/login");
   }
 
-  return <AdminDashboard secret={secret} />;
+  return <AdminDashboard />;
 }

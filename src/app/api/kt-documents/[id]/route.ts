@@ -1,13 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getKTDocumentFile } from "@/db/queries";
+import { eq } from "drizzle-orm";
+import { db } from "@/db/client";
+import { ktDocuments } from "@/db/schema/legacy";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const doc = await getKTDocumentFile(Number(id));
+    const rows = await db
+      .select({
+        filename: ktDocuments.filename,
+        fileData: ktDocuments.fileData,
+        storageUrl: ktDocuments.storageUrl,
+      })
+      .from(ktDocuments)
+      .where(eq(ktDocuments.id, Number(id)));
+
+    const doc = rows[0];
     if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    const raw = doc.file_data as unknown;
+    // If stored in Vercel Blob, redirect there
+    if (doc.storageUrl) {
+      return NextResponse.redirect(doc.storageUrl);
+    }
+
+    // Serve from legacy DB blob
+    const raw = doc.fileData as unknown;
+    if (!raw) return NextResponse.json({ error: "No file data" }, { status: 404 });
     const buffer = Buffer.isBuffer(raw)
       ? raw
       : raw instanceof Uint8Array

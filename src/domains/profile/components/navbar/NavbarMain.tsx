@@ -9,13 +9,12 @@ import CommandPalette from "@/components/ui/CommandPalette";
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 
 const NAV_LINKS = [
-  { label: "About",      to: "about",       type: "scroll" },
-  { label: "Skills",     to: "skills",      type: "scroll" },
-  { label: "Experience", to: "experience",  type: "scroll" },
-  { label: "Projects",   to: "projects",    type: "scroll" },
-  { label: "KT Centre",  to: "knowledge",   type: "scroll" },
-  { label: "Blog",       to: "/blog",       type: "link" },
-  { label: "Contact",    to: "contact",     type: "scroll" },
+  { label: "About",      to: "about",        type: "scroll" },
+  { label: "Experience", to: "experience",   type: "scroll" },
+  { label: "Skills",     to: "skills",       type: "scroll" },
+  { label: "Projects",   to: "projects",     type: "scroll" },
+  { label: "Blog",       to: "/blog",        type: "link" },
+  { label: "Contact",    to: "contact",      type: "scroll" },
 ];
 
 export default function NavbarMain() {
@@ -42,11 +41,10 @@ export default function NavbarMain() {
             <img
               src="/icons/logo.svg"
               alt="MS Logo"
-              className="w-9 h-9 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(0,212,255,0.6)]"
+              className="w-8 h-8 rounded-lg transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(0,212,255,0.6)]"
             />
-            <span className="font-mono font-semibold text-white text-sm hidden sm:block">
-              <span className="text-orange">M</span><span className="text-cyan">S</span>
-              <span className="text-lightGrey/50 ml-1">Portfolio</span>
+            <span className="font-mono font-semibold text-white text-sm hidden sm:block tracking-tight">
+              Mohana Srinivasan
             </span>
           </NextLink>
 

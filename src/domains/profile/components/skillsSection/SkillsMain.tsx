@@ -9,7 +9,7 @@ const CATS = [
   { id: "all",        label: "All Skills" },
   { id: "cloud",      label: "Cloud / AWS" },
   { id: "devops",     label: "DevOps & IaC" },
-  { id: "backend",    label: "Languages" },
+  { id: "backend",    label: "Languages & OS" },
   { id: "monitoring", label: "Monitoring" },
 ];
 

@@ -71,23 +71,25 @@ console.log("  ✔  Social links inserted");
 
 // ── 3. Skills ────────────────────────────────────────────────────────────────
 await db.insert(skills).values([
-  { profileId: profile.id, name: "AWS (EC2, ECS, S3, IAM, RDS)", category: "cloud",      level: 92, iconKey: "FaAws",               sortOrder: 0 },
-  { profileId: profile.id, name: "Docker & Containers",          category: "devops",     level: 88, iconKey: "FaDocker",             sortOrder: 1 },
-  { profileId: profile.id, name: "Kubernetes (EKS)",             category: "devops",     level: 80, iconKey: "SiKubernetes",         sortOrder: 2 },
-  { profileId: profile.id, name: "Terraform (IaC)",              category: "devops",     level: 83, iconKey: "SiTerraform",          sortOrder: 3 },
-  { profileId: profile.id, name: "GitHub Actions",               category: "devops",     level: 90, iconKey: "SiGithubactions",      sortOrder: 4 },
-  { profileId: profile.id, name: "Jenkins CI",                   category: "devops",     level: 78, iconKey: "FaJenkins",            sortOrder: 5 },
-  { profileId: profile.id, name: "Ansible",                      category: "devops",     level: 72, iconKey: "SiAnsible",            sortOrder: 6 },
-  { profileId: profile.id, name: "Helm Charts",                  category: "devops",     level: 70, iconKey: "SiHelm",               sortOrder: 7 },
-  { profileId: profile.id, name: "Vault (Secrets)",              category: "devops",     level: 65, iconKey: "SiVault",              sortOrder: 8 },
-  { profileId: profile.id, name: "Python & Shell",               category: "backend",    level: 82, iconKey: "FaPython",             sortOrder: 9 },
-  { profileId: profile.id, name: "Django Framework",             category: "backend",    level: 70, iconKey: "SiDjango",             sortOrder: 10 },
-  { profileId: profile.id, name: "ReactJS",                      category: "backend",    level: 68, iconKey: "FaReact",              sortOrder: 11 },
-  { profileId: profile.id, name: "Linux Administration",         category: "backend",    level: 88, iconKey: "SiLinux",              sortOrder: 12 },
-  { profileId: profile.id, name: "Firebase",                     category: "backend",    level: 65, iconKey: "FaFire",               sortOrder: 13 },
-  { profileId: profile.id, name: "AI/ML Deployments",           category: "backend",    level: 72, iconKey: "GiArtificialIntelligence", sortOrder: 14 },
-  { profileId: profile.id, name: "Grafana",                      category: "monitoring", level: 76, iconKey: "SiGrafana",            sortOrder: 15 },
-  { profileId: profile.id, name: "Prometheus",                   category: "monitoring", level: 74, iconKey: "SiPrometheus",         sortOrder: 16 },
+  // ── Cloud / AWS ────────────────────────────────────────────────────────────
+  { profileId: profile.id, name: "AWS EC2 · ECS · S3 · IAM · RDS", category: "cloud",      level: 92, iconKey: "FaAws",          sortOrder: 0 },
+  { profileId: profile.id, name: "Route 53 · VPC · CloudWatch",     category: "cloud",      level: 87, iconKey: "FaAws",          sortOrder: 1 },
+  { profileId: profile.id, name: "CodePipeline · ECR · ALB",        category: "cloud",      level: 83, iconKey: "FaAws",          sortOrder: 2 },
+  // ── DevOps & IaC ───────────────────────────────────────────────────────────
+  { profileId: profile.id, name: "Docker",                           category: "devops",     level: 90, iconKey: "FaDocker",       sortOrder: 3 },
+  { profileId: profile.id, name: "Terraform",                        category: "devops",     level: 85, iconKey: "SiTerraform",    sortOrder: 4 },
+  { profileId: profile.id, name: "Ansible",                          category: "devops",     level: 72, iconKey: "SiAnsible",      sortOrder: 5 },
+  { profileId: profile.id, name: "GitHub Actions",                   category: "devops",     level: 90, iconKey: "SiGithubactions",sortOrder: 6 },
+  { profileId: profile.id, name: "Jenkins CI",                       category: "devops",     level: 78, iconKey: "FaJenkins",      sortOrder: 7 },
+  // ── Languages & Backend ────────────────────────────────────────────────────
+  { profileId: profile.id, name: "Python",                           category: "backend",    level: 82, iconKey: "FaPython",       sortOrder: 8 },
+  { profileId: profile.id, name: "Bash Shell Scripting",             category: "backend",    level: 85, iconKey: "SiGnubash",      sortOrder: 9 },
+  { profileId: profile.id, name: "Django",                           category: "backend",    level: 70, iconKey: "SiDjango",       sortOrder: 10 },
+  { profileId: profile.id, name: "React / Next.js",                  category: "backend",    level: 68, iconKey: "FaReact",        sortOrder: 11 },
+  { profileId: profile.id, name: "Linux Administration",             category: "backend",    level: 88, iconKey: "SiLinux",        sortOrder: 12 },
+  // ── Monitoring ─────────────────────────────────────────────────────────────
+  { profileId: profile.id, name: "Grafana",                          category: "monitoring", level: 76, iconKey: "SiGrafana",      sortOrder: 13 },
+  { profileId: profile.id, name: "Prometheus",                       category: "monitoring", level: 74, iconKey: "SiPrometheus",   sortOrder: 14 },
 ]);
 console.log("  ✔  Skills inserted");
 

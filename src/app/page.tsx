@@ -12,7 +12,6 @@ import KnowledgeBase from "@/domains/knowledge/components/knowledge/KnowledgeBas
 import CertificateMain from "@/domains/profile/components/certificatesSection/CertificateMain";
 import ResumeMain from "@/domains/profile/components/resumeSection/ResumeMain";
 import ContactMeMain from "@/domains/profile/components/contactMeSection/ContactMeMain";
-import NewsletterSignup from "@/components/ui/NewsletterSignup";
 import FooterMain from "@/domains/profile/components/footer/FooterMain";
 import AchievementsSection from "@/domains/profile/components/achievements/AchievementsSection";
 import ServicesSection from "@/domains/profile/components/services/ServicesSection";
@@ -38,17 +37,16 @@ export default async function Home() {
       <NavbarMain />
       <HeroMain profile={profile} yearsOfExperience={data.yearsOfExperience} socialLinks={socialLinks} />
       <AboutMeMain profile={profile} yearsOfExperience={data.yearsOfExperience} socialLinks={socialLinks} />
-      <SkillsMain skills={skills} />
       <ExperienceMain experiences={experiences} />
-      <AchievementsSection />
+      <SkillsMain skills={skills} />
       <ProjectsMain projects={projects} githubUrl={profile.githubUrl} />
-      <GitHubStats />
-      <KnowledgeBase />
       <CertificateMain certifications={certifications} />
+      <AchievementsSection />
       <ResumeMain resumeUrl={profile.resumeUrl} />
       <ServicesSection />
+      <GitHubStats />
+      <KnowledgeBase />
       <ContactMeMain profile={profile} socialLinks={socialLinks} />
-      <NewsletterSignup />
       <FooterMain profile={profile} />
     </main>
   );

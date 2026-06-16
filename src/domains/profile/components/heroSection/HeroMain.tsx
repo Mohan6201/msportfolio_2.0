@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-scroll";
 import { FiArrowRight, FiDownload, FiGithub, FiLinkedin } from "react-icons/fi";
@@ -7,7 +7,14 @@ import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import Image from "next/image";
 import type { ProfileRow, SocialLinkRow } from "@/domains/profile/services/profile.service";
 
-const ORBIT_ITEMS = ["AWS", "K8s", "Docker", "Terraform", "Helm", "GitHub"];
+const TECH_BADGES = [
+  { label: "AWS",            cls: "text-orange  border-orange/25  bg-orange/5"  },
+  { label: "Docker",         cls: "text-cyan    border-cyan/25    bg-cyan/5"    },
+  { label: "Terraform",      cls: "text-green   border-green/25   bg-green/5"   },
+  { label: "GitHub Actions", cls: "text-white   border-white/15   bg-white/3"   },
+  { label: "Ansible",        cls: "text-orange  border-orange/20  bg-orange/5"  },
+  { label: "Jenkins",        cls: "text-cyan    border-cyan/20    bg-cyan/5"    },
+];
 
 interface HeroMainProps {
   profile: ProfileRow;
@@ -15,39 +22,10 @@ interface HeroMainProps {
   socialLinks: SocialLinkRow[];
 }
 
-function MatrixBg() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
-    resize();
-    window.addEventListener("resize", resize);
-    const cols = Math.floor(canvas.width / 18);
-    const drops: number[] = Array(cols).fill(1);
-    const chars = "01ABCDEF</>{}[]AWS#$";
-    const interval = setInterval(() => {
-      ctx.fillStyle = "rgba(5,8,15,0.07)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "rgba(0,212,255,0.15)";
-      ctx.font = "12px monospace";
-      drops.forEach((y, i) => {
-        ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * 18, y * 18);
-        if (y * 18 > canvas.height && Math.random() > 0.978) drops[i] = 0;
-        drops[i]++;
-      });
-    }, 90);
-    return () => { clearInterval(interval); window.removeEventListener("resize", resize); };
-  }, []);
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-35 pointer-events-none" />;
-}
-
 function TerminalBlock({ profile, yearsOfExperience }: { profile: ProfileRow; yearsOfExperience: string }) {
   const LINES = [
     { prompt: "$ whoami",           output: `${profile.fullName} — ${profile.title} @ ${profile.currentCompany}` },
-    { prompt: "$ cat stack.sh",     output: "AWS · Docker · K8s · Terraform · GitHub Actions · Helm" },
+    { prompt: "$ cat stack.sh",     output: "AWS · Docker · Terraform · GitHub Actions · Ansible · Jenkins" },
     { prompt: "$ uptime",           output: `${yearsOfExperience} in production  •  10+ shipped projects` },
     { prompt: "$ systemctl status", output: "● active (running)  —  Available for DevOps roles" },
   ];
@@ -93,7 +71,9 @@ function TerminalBlock({ profile, yearsOfExperience }: { profile: ProfileRow; ye
         <span className="w-3 h-3 rounded-full bg-red/70" />
         <span className="w-3 h-3 rounded-full bg-orange/70" />
         <span className="w-3 h-3 rounded-full bg-green/70" />
-        <span className="ml-2 font-mono text-xs text-lightGrey/50">bash — {profile.fullName.split(" ")[0].toLowerCase()}@{profile.currentCompany.toLowerCase()} ~ </span>
+        <span className="ml-2 font-mono text-xs text-lightGrey/50">
+          bash — {profile.fullName.split(" ")[0].toLowerCase()}@{profile.currentCompany.toLowerCase()} ~
+        </span>
       </div>
       <div className="terminal-body min-h-[230px]">
         {LINES.slice(0, line + 1).map((L, i) => (
@@ -128,10 +108,11 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden grid-bg">
+      {/* Ambient glow — no canvas, no matrix */}
       <div className="absolute inset-0 pointer-events-none">
-        <MatrixBg />
         <div className="absolute -top-40 -right-60 w-[700px] h-[700px] rounded-full bg-cyan/4 blur-[140px]" />
         <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-orange/4 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-cyan/2 blur-[180px]" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 pb-20">
@@ -152,8 +133,12 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
             <div>
               <p className="section-tag mb-4">{profile.title} • {profile.currentCompany}</p>
               <h1 className="font-special font-bold leading-[1.05]">
-                <span className="block text-4xl sm:text-5xl lg:text-[3.6rem] text-white mb-1">{profile.fullName.split(" ")[0]}</span>
-                <span className="block text-4xl sm:text-5xl lg:text-[3.6rem] gradient-text glitch">{profile.fullName.split(" ").slice(1).join(" ")}</span>
+                <span className="block text-4xl sm:text-5xl lg:text-[3.6rem] text-white mb-1">
+                  {profile.fullName.split(" ")[0]}
+                </span>
+                <span className="block text-4xl sm:text-5xl lg:text-[3.6rem] gradient-text glitch">
+                  {profile.fullName.split(" ").slice(1).join(" ")}
+                </span>
               </h1>
             </div>
 
@@ -161,13 +146,18 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
 
             <div className="flex flex-wrap gap-3 mt-1">
               <Link to="contact" smooth duration={600} offset={-80} className="cursor-pointer">
-                <motion.button whileTap={{ scale: 0.96 }}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan text-black font-mono font-bold text-sm hover:bg-lightCyan transition-colors shadow-cyanShadow">
+                <motion.button
+                  whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan text-black font-mono font-bold text-sm hover:bg-lightCyan transition-colors shadow-cyanShadow"
+                >
                   Hire Me <FiArrowRight className="w-4 h-4" />
                 </motion.button>
               </Link>
-              <a href={resumeUrl} download
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-orange/40 text-orange font-mono font-semibold text-sm hover:bg-orange/8 hover:border-orange/70 transition-all">
+              <a
+                href={resumeUrl}
+                download
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-orange/40 text-orange font-mono font-semibold text-sm hover:bg-orange/8 hover:border-orange/70 transition-all"
+              >
                 Resume <FiDownload className="w-4 h-4" />
               </a>
             </div>
@@ -196,27 +186,28 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
             transition={{ duration: 0.65, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="flex flex-col items-center gap-8"
           >
-            <div className="relative w-60 h-60 lg:w-72 lg:h-72">
-              <div className="absolute inset-0 rounded-full border border-cyan/12 animate-spin" style={{ animationDuration: "22s" }} />
-              <div className="absolute inset-5 rounded-full border border-orange/8 animate-spin" style={{ animationDuration: "16s", animationDirection: "reverse" }} />
-              {ORBIT_ITEMS.map((tech, i) => {
-                const delay = i * (22 / ORBIT_ITEMS.length);
-                return (
-                  <div key={tech} className="absolute inset-0 rounded-full pointer-events-none"
-                    style={{ animation: `orbit 22s linear infinite`, animationDelay: `-${delay}s` }}>
-                    <div className="absolute -top-3 left-1/2 px-2 py-0.5 rounded-full bg-darkBrown border border-cyan/25 text-[9px] font-mono text-cyan whitespace-nowrap"
-                      style={{ transform: "translateX(-50%)" }}>
-                      {tech}
-                    </div>
-                  </div>
-                );
-              })}
-              <div className="absolute inset-9 rounded-full overflow-hidden border-2 border-cyan/20 shadow-cyanGlow floating">
-                <Image src="/images/profile/avatar.png" alt={profile.fullName} fill className="object-cover object-top" priority />
+            {/* Profile photo — clean card frame, no orbit rings */}
+            <div className="relative">
+              <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-cyan/30 via-transparent to-orange/20" />
+              <div className="relative w-52 h-52 lg:w-64 lg:h-64 rounded-2xl overflow-hidden border border-white/5">
+                <Image
+                  src="/images/profile/avatar.png"
+                  alt={profile.fullName}
+                  fill
+                  className="object-cover object-top"
+                  priority
+                />
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-darkBrown/70 to-transparent" />
+              </div>
+              {/* Live badge */}
+              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-darkBrown border border-green/30 text-green text-[11px] font-mono whitespace-nowrap shadow-lg">
+                <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse inline-block" />
+                Open to Work
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
+            {/* Stat cards */}
+            <div className="grid grid-cols-3 gap-3 w-full max-w-[280px] mt-2">
               {[
                 { value: yrsNum, suffix: "+", label: "Years Exp.", cls: "border-cyan/15 text-cyan" },
                 { value: 10,     suffix: "+", label: "Projects",  cls: "border-green/15 text-green" },
@@ -230,11 +221,27 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
                 </div>
               ))}
             </div>
+
+            {/* Tech badges */}
+            <div className="flex flex-wrap justify-center gap-2 max-w-[300px]">
+              {TECH_BADGES.map(({ label, cls }) => (
+                <span
+                  key={label}
+                  className={`px-2.5 py-1 rounded-md border text-[11px] font-mono font-medium ${cls}`}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.5 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none"
+        >
           <span className="text-[10px] font-mono text-lightGrey/40 tracking-widest uppercase">scroll</span>
           <div className="w-px h-10 bg-gradient-to-b from-cyan/30 to-transparent" />
         </motion.div>

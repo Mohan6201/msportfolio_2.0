@@ -24,13 +24,13 @@ const SERVICES = [
   },
   {
     icon: Container,
-    title: "Containerisation & Kubernetes",
+    title: "Containerisation & ECS Deployment",
     description:
-      "Containerise your applications with Docker and orchestrate at scale with Kubernetes. Includes Helm charts, HPA, Ingress, cert-manager, and full observability setup.",
-    deliverables: ["Dockerfile + docker-compose", "Kubernetes manifests / Helm", "Ingress + SSL (cert-manager)", "Prometheus + Grafana"],
-    timeline: "2–5 weeks",
+      "Containerise your applications with Docker and deploy to production on AWS ECS. Includes multi-stage Dockerfiles, ECR image management, task definitions, auto-scaling, and full observability.",
+    deliverables: ["Multi-stage Dockerfile + Compose", "ECR image pipeline", "ECS task + service definitions", "Prometheus + Grafana"],
+    timeline: "2–4 weeks",
     color: "text-[#a78bfa] border-[#a78bfa]/30 bg-[#a78bfa]/5",
-    badge: "K8s",
+    badge: "Docker",
   },
   {
     icon: Terminal,

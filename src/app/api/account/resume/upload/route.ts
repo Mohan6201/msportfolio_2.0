@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
     const result = await resumeUploadFlow(session!.user.id, resume.id, bytes, file.type);
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "AI extraction failed";
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[resume/upload] AI extraction error:", err);
     return NextResponse.json({ error: `Resume parsing failed: ${message}` }, { status: 500 });
   }
 }

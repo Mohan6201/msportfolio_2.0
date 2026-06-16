@@ -9,8 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:seed": "tsx scripts/seed-profile.ts",
-    "db:seed-admin": "tsx scripts/seed-admin.ts",
-    "db:seed-interview": "tsx scripts/seed-interview-questions.ts"
+    "db:seed-interview": "tsx scripts/seed-interview-questions.ts",
+    "db:seed-admin": "tsx scripts/seed-admin-direct.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.82",

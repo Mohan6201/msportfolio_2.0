@@ -1,41 +1,49 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# =============================================================================
+# MS Portfolio 2.0 — .gitignore
+# =============================================================================
 
-node_modules
-dist
-dist-ssr
-*.local
+# ── Dependencies ─────────────────────────────────────────────────────────────
+node_modules/
 
-# Editor directories and files
+# ── Next.js build output ─────────────────────────────────────────────────────
+.next/
+out/
+
+# ── Environment variables (secrets) ──────────────────────────────────────────
+.env
+.env.local
+.env*.local
+
+# ── Local database (SQLite) ───────────────────────────────────────────────────
+portfolio.db
+portfolio.db-shm
+portfolio.db-wal
+
+# ── Vercel ────────────────────────────────────────────────────────────────────
+.vercel/
+
+# ── Claude Code local memory ──────────────────────────────────────────────────
+.claude/
+
+# ── OS / Editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Virtual Environments
-.venv
-.env
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Next.js
-.next/
-out/
-
-# Claude Code local memory
-.claude/
-
-# SQLite local database
-portfolio.db
-portfolio.db-shm
-portfolio.db-wal
-.vercel
+# ── TypeScript build info ─────────────────────────────────────────────────────
+tsconfig.tsbuildinfo

@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+*.log
+portfolio.db
+portfolio.db-shm
+portfolio.db-wal
+.env
+.venv

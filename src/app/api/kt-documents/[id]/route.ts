@@ -41,6 +41,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     });
   } catch (err) {
     console.error("KT doc fetch error:", err);
-    return NextResponse.json({ error: "Failed to fetch document" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch document" }, { status: 404 });
   }
 }

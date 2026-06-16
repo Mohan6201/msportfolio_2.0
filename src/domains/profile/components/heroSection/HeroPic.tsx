@@ -13,7 +13,7 @@ const HeroPic = () => {
       className="h-full flex items-center justify-center"
     >
       <img
-        src="/images/Actualbg.png"
+        src="/images/profile/hero-bg.png"
         alt="Mohana Srinivasan"
         className="max-h-[450px] w-auto"
       />

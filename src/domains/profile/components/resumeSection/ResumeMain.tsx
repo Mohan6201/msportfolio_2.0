@@ -7,7 +7,7 @@ interface ResumeMainProps {
 }
 
 export default function ResumeMain({ resumeUrl }: ResumeMainProps) {
-  const pdfUrl = resumeUrl ?? "/assets/Mohana Srinivasan (Resume).pdf";
+  const pdfUrl = resumeUrl ?? "/resume/Mohana_Srinivasan_Resume.pdf";
 
   return (
     <section id="resume" className="py-24 px-4">

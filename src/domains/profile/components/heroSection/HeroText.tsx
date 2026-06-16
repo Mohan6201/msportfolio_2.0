@@ -69,7 +69,7 @@ const HeroText = () => {
           Hire Me <FiArrowRight className="w-4 h-4" />
         </Link>
         <a
-          href="/assets/Mohana Srinivasan (Resume).pdf"
+          href="/resume/Mohana_Srinivasan_Resume.pdf"
           download
           className="flex items-center gap-2 px-6 py-3 rounded-full border border-orange text-orange font-semibold text-sm hover:bg-orange hover:text-black transition-colors duration-300"
         >

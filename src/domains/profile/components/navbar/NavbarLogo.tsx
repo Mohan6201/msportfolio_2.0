@@ -12,15 +12,26 @@ const NavbarLogo = () => {
           transition={{ duration: 1.8, repeat: Infinity, repeatType: "loop", ease: "easeOut" }}
           style={{ filter: "blur(30px)" }}
         />
-        <div className="absolute inset-0 z-0 pointer-events-none opacity-60">
+        {/* Cyan pulse ring */}
+        <motion.span
+          className="absolute inset-0 rounded-full bg-cyan z-0"
+          initial={{ opacity: 0.35, scale: 1 }}
+          animate={{ opacity: 0, scale: 2.2 }}
+          transition={{ duration: 2.4, repeat: Infinity, repeatType: "loop", ease: "easeOut" }}
+          style={{ filter: "blur(26px)" }}
+        />
+        {/* Glow underlay */}
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-55">
           <img
-            src="/icons/actual_icon.ico"
-            alt="Glow"
-            className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(0,255,255,0.6)]"
+            src="/icons/logo.svg"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(0,212,255,0.5)]"
           />
         </div>
+        {/* Main logo — spins 360° on hover */}
         <img
-          src="/icons/actual_icon.ico"
+          src="/icons/logo.svg"
           alt="MS Logo"
           className="w-full h-full object-contain transition-transform duration-700 ease-in-out group-hover:rotate-[360deg] relative z-10"
         />

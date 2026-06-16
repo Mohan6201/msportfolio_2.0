@@ -47,3 +47,5 @@ pnpm-debug.log*
 
 # ── TypeScript build info ─────────────────────────────────────────────────────
 tsconfig.tsbuildinfo
+
+.env*.local

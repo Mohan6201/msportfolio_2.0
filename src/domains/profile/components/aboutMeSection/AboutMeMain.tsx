@@ -114,7 +114,7 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
             <div className="relative w-64 h-72 lg:w-72 lg:h-80">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan/20 via-transparent to-orange/10 blur-xl" />
               <div className="relative rounded-2xl overflow-hidden border border-cyan/15 shadow-cyanGlow w-full h-full">
-                <Image src="/images/mebg.png" alt={profile.fullName} fill className="object-cover object-top" />
+                <Image src="/images/profile/avatar.png" alt={profile.fullName} fill className="object-cover object-top" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <p className="font-special font-bold text-white text-lg">{profile.fullName}</p>

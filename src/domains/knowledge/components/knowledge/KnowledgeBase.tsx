@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { usePDFViewer } from "@/components/ui/PDFViewer";
 
-const BASE = "/Resource Images/Documents";
+const BASE = "/resources/docs";
 const u = (f: string) => encodeURI(`${BASE}/${f}`);
 
 interface Doc {

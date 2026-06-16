@@ -35,11 +35,13 @@ export const metadata: Metadata = {
   creator: "Mohana Srinivasan",
   icons: {
     icon: [
-      { url: "/icons/ms-logo.svg", type: "image/svg+xml" },
-      { url: "/icons/actual_icon.ico", sizes: "any" },
+      { url: "/icons/logo.svg",          type: "image/svg+xml" },
+      { url: "/icons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico",             sizes: "any" },
     ],
-    shortcut: "/icons/ms-logo.svg",
-    apple: "/icons/actual_icon.ico",
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/icons/apple-touch.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
     title: "MS Portfolio | Mohana Srinivasan",
@@ -82,6 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <head>
+        <link rel="manifest" href="/site.webmanifest" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

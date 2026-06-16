@@ -123,7 +123,7 @@ function TerminalBlock({ profile, yearsOfExperience }: { profile: ProfileRow; ye
 export default function HeroMain({ profile, yearsOfExperience, socialLinks }: HeroMainProps) {
   const github = socialLinks.find((s) => s.platform === "github")?.url ?? profile.githubUrl ?? "#";
   const linkedin = socialLinks.find((s) => s.platform === "linkedin")?.url ?? profile.linkedinUrl ?? "#";
-  const resumeUrl = profile.resumeUrl ?? "/assets/Mohana Srinivasan (Resume).pdf";
+  const resumeUrl = profile.resumeUrl ?? "/resume/Mohana_Srinivasan_Resume.pdf";
   const yrsNum = Math.floor(parseFloat(yearsOfExperience));
 
   return (
@@ -212,7 +212,7 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
                 );
               })}
               <div className="absolute inset-9 rounded-full overflow-hidden border-2 border-cyan/20 shadow-cyanGlow floating">
-                <Image src="/images/mebg.png" alt={profile.fullName} fill className="object-cover object-top" priority />
+                <Image src="/images/profile/avatar.png" alt={profile.fullName} fill className="object-cover object-top" priority />
               </div>
             </div>
 

@@ -3,6 +3,8 @@ import { requireUser } from "@/lib/accountAuth";
 import { createResume } from "@/domains/resume/services/resume.service";
 import { resumeUploadFlow } from "@/ai/workflows/resumeUploadFlow";
 
+export const maxDuration = 60;
+
 const ALLOWED_TYPES = ["application/pdf", "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
 

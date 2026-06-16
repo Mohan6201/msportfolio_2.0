@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const maxDuration = 60;
 import { requireUser } from "@/lib/accountAuth";
 import { getJob, upsertJobMatch } from "@/domains/jobs/services/jobs.service";
 import { getLatestVersion } from "@/domains/resume/services/resume.service";

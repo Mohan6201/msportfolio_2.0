@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const maxDuration = 60;
 import { requireUser } from "@/lib/accountAuth";
 import { getPreferences } from "@/domains/accounts/services/accounts.service";
 import { ingestJobPostings } from "@/ai/workflows/ingestJobPostings";

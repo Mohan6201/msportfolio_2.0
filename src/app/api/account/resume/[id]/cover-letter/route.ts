@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const maxDuration = 60;
 import { requireUser } from "@/lib/accountAuth";
 import { getResume, getLatestVersion, saveCoverLetter, listCoverLetters } from "@/domains/resume/services/resume.service";
 import { generateCoverLetter } from "@/ai/agents/generateCoverLetter";

@@ -25,8 +25,11 @@ export async function POST(req: NextRequest) {
   const bytes = await file.arrayBuffer();
   const resume = await createResume(session!.user.id, resumeTitle);
 
-  const mimeType = file.type === "application/pdf" ? "application/pdf" : "application/pdf";
-  const result = await resumeUploadFlow(session!.user.id, resume.id, bytes, mimeType);
-
-  return NextResponse.json(result, { status: 201 });
+  try {
+    const result = await resumeUploadFlow(session!.user.id, resume.id, bytes, file.type);
+    return NextResponse.json(result, { status: 201 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "AI extraction failed";
+    return NextResponse.json({ error: `Resume parsing failed: ${message}` }, { status: 500 });
+  }
 }

@@ -30,7 +30,7 @@ export async function indexKnowledgeDocument(
       {
         role: "user",
         content: [
-          { type: "file", data: Buffer.from(fileBytes), mediaType: mimeType as "application/pdf" },
+          { type: "file", data: new Uint8Array(fileBytes), mimeType },
           { type: "text", text: "Extract all text content from this document. Output plain text only, preserving structure with newlines. No markdown formatting." },
         ],
       },

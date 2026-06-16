@@ -12,8 +12,8 @@ export async function extractResume(fileBytes: ArrayBuffer, mimeType: string): P
         content: [
           {
             type: "file",
-            data: Buffer.from(fileBytes),
-            mediaType: mimeType,
+            data: new Uint8Array(fileBytes),
+            mimeType,
           },
           {
             type: "text",

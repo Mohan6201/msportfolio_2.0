@@ -84,9 +84,13 @@ export default function ResumeStudio() {
   // Cover Letter
   const [jdExpanded,      setJdExpanded]      = useState(false);
   const [jdText,          setJdText]          = useState("");
+  const [coverJobTitle,   setCoverJobTitle]   = useState("");
+  const [coverCompany,    setCoverCompany]    = useState("");
   const [coverLetter,     setCoverLetter]     = useState("");
   const [generatingCover, setGeneratingCover] = useState(false);
+  const [coverError,      setCoverError]      = useState("");
   const [copiedCover,     setCopiedCover]     = useState(false);
+  const [atsError,        setAtsError]        = useState("");
 
   // Optimize
   const [optimizeItems, setOptimizeItems] = useState(
@@ -171,19 +175,26 @@ export default function ResumeStudio() {
   async function runAtsAnalysis() {
     if (!selected) return;
     setAnalyzing(true);
+    setAtsError("");
     try {
       const res = await fetch(`/api/account/resume/${selected.id}/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "ats" }),
       });
-      if (!res.ok) throw new Error("Analysis failed");
+      if (!res.ok) {
+        let msg = "Analysis failed";
+        try { const d = await res.json(); msg = d.error ?? msg; } catch {}
+        throw new Error(msg);
+      }
       const { result } = await res.json();
       setAtsResult(result);
       setLastAnalyzed(new Date());
       if (result.improvements?.length) {
         setSuggestions(result.improvements.map((text: string) => ({ text, checked: false })));
       }
+    } catch (err) {
+      setAtsError(err instanceof Error ? err.message : "Analysis failed. Please try again.");
     } finally {
       setAnalyzing(false);
     }
@@ -191,20 +202,29 @@ export default function ResumeStudio() {
 
   async function generateCoverLetter() {
     if (!selected) return;
+    if (!coverJobTitle.trim()) { setCoverError("Please enter the job title."); return; }
+    if (!coverCompany.trim())  { setCoverError("Please enter the company name."); return; }
     setGeneratingCover(true);
+    setCoverError("");
     try {
       const res = await fetch(`/api/account/resume/${selected.id}/cover-letter`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          jobTitle: "DevOps Engineer",
-          company: "Your Company",
-          jdText: jdText.trim() || undefined,
+          jobTitle: coverJobTitle.trim(),
+          company:  coverCompany.trim(),
+          jdText:   jdText.trim() || undefined,
         }),
       });
-      if (!res.ok) throw new Error("Generation failed");
+      if (!res.ok) {
+        let msg = "Generation failed";
+        try { const d = await res.json(); msg = d.error ?? msg; } catch {}
+        throw new Error(msg);
+      }
       const data = await res.json();
       setCoverLetter(data.content ?? "");
+    } catch (err) {
+      setCoverError(err instanceof Error ? err.message : "Failed to generate. Please try again.");
     } finally {
       setGeneratingCover(false);
     }
@@ -345,7 +365,7 @@ export default function ResumeStudio() {
                 {!uploading && (
                   <>
                     <p className="text-[11px] font-mono mt-0.5" style={{ color: "#6B7280" }}>or click to upload</p>
-                    <p className="text-[10px] font-mono mt-2"   style={{ color: "#374151" }}>PDF · DOCX · max 10MB</p>
+                    <p className="text-[10px] font-mono mt-2"   style={{ color: "#374151" }}>PDF · DOCX · max 5MB</p>
                   </>
                 )}
               </div>
@@ -505,21 +525,29 @@ export default function ResumeStudio() {
                 </>
               ) : !atsResult ? (
                 /* Run button state */
-                <div
-                  className="rounded-lg p-10 flex flex-col items-center justify-center text-center"
-                  style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
-                >
-                  <p className="text-white font-bold mb-2">Run ATS Analysis</p>
-                  <p className="text-[12px] font-mono mb-5 max-w-sm" style={{ color: "#6B7280" }}>
-                    Analyzes your resume against common ATS parsing rules and DevOps keywords
-                  </p>
-                  <button
-                    onClick={runAtsAnalysis}
-                    className="px-5 py-2.5 rounded-lg font-bold text-[13px] font-mono transition-opacity hover:opacity-90"
-                    style={{ backgroundColor: "#00D964", color: "#0A0A0B" }}
+                <div className="space-y-3">
+                  {atsError && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                      <XCircle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#EF4444" }} />
+                      <p className="text-[12px] font-mono" style={{ color: "#EF4444" }}>{atsError}</p>
+                    </div>
+                  )}
+                  <div
+                    className="rounded-lg p-10 flex flex-col items-center justify-center text-center"
+                    style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
                   >
-                    Run ATS Scan
-                  </button>
+                    <p className="text-white font-bold mb-2">Run ATS Analysis</p>
+                    <p className="text-[12px] font-mono mb-5 max-w-sm" style={{ color: "#6B7280" }}>
+                      Analyzes your resume against common ATS parsing rules and DevOps keywords
+                    </p>
+                    <button
+                      onClick={runAtsAnalysis}
+                      className="px-5 py-2.5 rounded-lg font-bold text-[13px] font-mono transition-opacity hover:opacity-90"
+                      style={{ backgroundColor: "#00D964", color: "#0A0A0B" }}
+                    >
+                      Run ATS Scan
+                    </button>
+                  </div>
                 </div>
               ) : (
                 /* Results */
@@ -648,6 +676,40 @@ export default function ResumeStudio() {
           ) : activeTab === "cover" ? (
             /* ── Cover Letter tab ──────────────────────────────────────── */
             <div className="space-y-4">
+              {/* Job details inputs */}
+              <div className="rounded-lg p-4 grid grid-cols-2 gap-3" style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}>
+                <div>
+                  <label className="block text-[10px] font-mono uppercase tracking-widest mb-1.5" style={{ color: "#6B7280" }}>
+                    Job Title <span style={{ color: "#EF4444" }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={coverJobTitle}
+                    onChange={e => setCoverJobTitle(e.target.value)}
+                    placeholder="e.g. Senior DevOps Engineer"
+                    className="w-full rounded-md px-3 py-2 text-[12px] font-mono focus:outline-none transition-colors"
+                    style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B", color: "#E0E0E0" }}
+                    onFocus={e => (e.target.style.borderColor = "#00D964")}
+                    onBlur={e  => (e.target.style.borderColor = "#26262B")}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-mono uppercase tracking-widest mb-1.5" style={{ color: "#6B7280" }}>
+                    Company <span style={{ color: "#EF4444" }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={coverCompany}
+                    onChange={e => setCoverCompany(e.target.value)}
+                    placeholder="e.g. Acme Corp"
+                    className="w-full rounded-md px-3 py-2 text-[12px] font-mono focus:outline-none transition-colors"
+                    style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B", color: "#E0E0E0" }}
+                    onFocus={e => (e.target.style.borderColor = "#00D964")}
+                    onBlur={e  => (e.target.style.borderColor = "#26262B")}
+                  />
+                </div>
+              </div>
+
               {/* Collapsible JD input */}
               <div className="rounded-lg overflow-hidden" style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}>
                 <button
@@ -659,7 +721,7 @@ export default function ResumeStudio() {
                     : <ChevronRight className="w-4 h-4" style={{ color: "#6B7280" }} />
                   }
                   <span className="text-[13px] font-mono" style={{ color: "#6B7280" }}>
-                    Paste job description (optional, improves tailoring)
+                    Paste job description (optional — improves tailoring)
                   </span>
                 </button>
                 {jdExpanded && (
@@ -675,6 +737,14 @@ export default function ResumeStudio() {
                   </div>
                 )}
               </div>
+
+              {/* Error */}
+              {coverError && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                  <XCircle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#EF4444" }} />
+                  <p className="text-[12px] font-mono" style={{ color: "#EF4444" }}>{coverError}</p>
+                </div>
+              )}
 
               {/* Toolbar */}
               <div

@@ -3,36 +3,41 @@ import { useCallback, useEffect, useState } from "react";
 import type { Question } from "@/domains/interview/services/interview.service";
 
 const CATEGORIES = ["AWS", "Docker", "Kubernetes", "Linux", "Terraform", "DevOps", "CI/CD", "Ansible"];
-const LEVEL_COLORS: Record<string, string> = {
-  Beginner: "text-green border-green/20 bg-green/5",
-  Intermediate: "text-cyan border-cyan/20 bg-cyan/5",
-  Advanced: "text-orange border-orange/20 bg-orange/5",
+
+const LEVEL_STYLES: Record<string, React.CSSProperties> = {
+  Beginner:     { color: "#00D964", border: "1px solid rgba(0,217,100,0.2)", backgroundColor: "rgba(0,217,100,0.06)" },
+  Intermediate: { color: "#60a5fa", border: "1px solid rgba(96,165,250,0.2)", backgroundColor: "rgba(96,165,250,0.06)" },
+  Advanced:     { color: "#f97316", border: "1px solid rgba(249,115,22,0.2)", backgroundColor: "rgba(249,115,22,0.06)" },
 };
 
 function QuestionCard({ q }: { q: Question }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="glass rounded-xl border border-white/10 p-4 hover:border-white/20 transition-colors">
+    <div
+      className="rounded-xl p-4 transition-colors"
+      style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
+    >
       <div className="flex items-start gap-3">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full border ${LEVEL_COLORS[q.level] ?? ""}`}>
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full" style={LEVEL_STYLES[q.level] ?? {}}>
               {q.level}
             </span>
-            <span className="text-[9px] font-mono text-lightGrey/40 uppercase tracking-wider">{q.category}</span>
+            <span className="text-[9px] font-mono uppercase tracking-wider" style={{ color: "#444" }}>{q.category}</span>
           </div>
           <p className="text-white text-sm font-mono leading-relaxed">{q.question}</p>
         </div>
         <button
           onClick={() => setOpen(!open)}
-          className="flex-shrink-0 text-[10px] font-mono text-cyan border border-cyan/30 rounded px-2 py-1 hover:bg-cyan/10 transition-colors"
+          className="flex-shrink-0 text-[10px] font-mono rounded px-2 py-1 transition-colors"
+          style={{ color: "#00D964", border: "1px solid rgba(0,217,100,0.3)" }}
         >
           {open ? "Hide" : "Answer"}
         </button>
       </div>
       {open && (
-        <div className="mt-3 pt-3 border-t border-white/10">
-          <p className="text-lightGrey text-xs font-mono leading-relaxed">{q.answer}</p>
+        <div className="mt-3 pt-3" style={{ borderTop: "1px solid #26262B" }}>
+          <p className="text-xs font-mono leading-relaxed" style={{ color: "#6B7280" }}>{q.answer}</p>
         </div>
       )}
     </div>
@@ -40,35 +45,34 @@ function QuestionCard({ q }: { q: Question }) {
 }
 
 export default function QuestionBank({ onStartPractice }: { onStartPractice: (category: string) => void }) {
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions]         = useState<Question[]>([]);
   const [activeCategory, setActiveCategory] = useState("AWS");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading]             = useState(false);
 
   const load = useCallback(async (cat: string) => {
     setLoading(true);
     try {
       const res = await fetch(`/api/account/interview/questions?category=${encodeURIComponent(cat)}`);
       setQuestions(await res.json());
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(activeCategory); }, [activeCategory, load]);
 
   return (
     <div>
-      {/* Category tabs */}
-      <div className="flex flex-wrap gap-1 mb-5">
+      {/* Category pills */}
+      <div className="flex flex-wrap gap-1.5 mb-5">
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono border transition-colors ${
+            className="px-3 py-1.5 rounded-lg text-xs font-mono transition-colors"
+            style={
               activeCategory === cat
-                ? "bg-cyan/15 border-cyan/40 text-cyan"
-                : "bg-white/5 border-white/10 text-lightGrey hover:border-cyan/20 hover:text-white"
-            }`}
+                ? { color: "#00D964", border: "1px solid rgba(0,217,100,0.4)", backgroundColor: "rgba(0,217,100,0.08)" }
+                : { color: "#6B7280", border: "1px solid #26262B", backgroundColor: "#16161A" }
+            }
           >
             {cat}
           </button>
@@ -77,23 +81,24 @@ export default function QuestionBank({ onStartPractice }: { onStartPractice: (ca
 
       {/* Practice CTA */}
       <div className="flex items-center justify-between mb-4">
-        <p className="text-lightGrey text-xs font-mono">{questions.length} questions in {activeCategory}</p>
+        <p className="text-xs font-mono" style={{ color: "#6B7280" }}>{questions.length} questions in {activeCategory}</p>
         <button
           onClick={() => onStartPractice(activeCategory)}
           disabled={questions.length === 0}
-          className="text-xs font-mono bg-cyan text-black font-bold px-4 py-1.5 rounded-lg hover:bg-lightCyan transition-colors disabled:opacity-40"
+          className="text-xs font-mono font-bold px-4 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+          style={{ backgroundColor: "#00D964", color: "#0a0a0b" }}
         >
           Practice {activeCategory} →
         </button>
       </div>
 
-      {loading && <p className="text-lightGrey text-xs font-mono">Loading…</p>}
+      {loading && <p className="text-xs font-mono" style={{ color: "#6B7280" }}>Loading…</p>}
 
       <div className="flex flex-col gap-3">
         {questions.map((q) => <QuestionCard key={q.id} q={q} />)}
         {!loading && questions.length === 0 && (
-          <p className="text-lightGrey/50 text-xs font-mono text-center py-8">
-            No questions for {activeCategory} yet. Run `npm run db:seed-interview` to seed the question bank.
+          <p className="text-xs font-mono text-center py-8" style={{ color: "#444" }}>
+            No questions for {activeCategory} yet. Run <code className="text-[11px]" style={{ color: "#6B7280" }}>npm run db:seed-interview</code> to seed the question bank.
           </p>
         )}
       </div>

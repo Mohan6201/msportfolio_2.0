@@ -4,26 +4,25 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createAuthClient } from "better-auth/react";
-import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowRight, ChevronRight } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import { FiGithub } from "react-icons/fi";
 
 const authClient = createAuthClient();
 
 const FEATURES = [
-  { icon: "📄", label: "Resume Studio",  desc: "7 professional templates + ATS scoring" },
-  { icon: "🎯", label: "Job Tracker",    desc: "JD matching, application pipeline" },
+  { icon: "📄", label: "Resume Studio",  desc: "7 pro templates + ATS scoring + AI cover letters" },
+  { icon: "🎯", label: "Job Tracker",    desc: "Live job listings matched to your resume" },
   { icon: "🤖", label: "Interview Lab",  desc: "AI mock interviews with instant feedback" },
-  { icon: "📈", label: "Career Advisor", desc: "Progression analysis + gap detection" },
+  { icon: "📈", label: "Career Advisor", desc: "Skill gap analysis + career roadmap" },
 ];
 
 export default function AccountLoginPage() {
   const router = useRouter();
-  const [email, setEmail]       = useState("");
+  const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
-  const [showPw, setShowPw]     = useState(false);
-  const [error, setError]       = useState("");
-  const [loading, setLoading]   = useState(false);
+  const [showPw,   setShowPw]   = useState(false);
+  const [error,    setError]    = useState("");
+  const [loading,  setLoading]  = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -49,107 +48,135 @@ export default function AccountLoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-darkBrown flex">
-      {/* ── Left panel (hidden on mobile) ── */}
-      <div className="hidden lg:flex flex-col justify-between w-[440px] flex-shrink-0 relative overflow-hidden px-12 py-12 border-r border-white/5">
-        {/* Background glow */}
-        <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-cyan/4 blur-[120px] pointer-events-none" />
-        <div className="absolute -bottom-32 -right-16 w-[400px] h-[400px] rounded-full bg-orange/4 blur-[100px] pointer-events-none" />
-        <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none" />
+    <main className="min-h-screen flex" style={{ backgroundColor: "#0A0A0B" }}>
+      {/* Dot grid overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "radial-gradient(circle, #1a1a1e 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+          opacity: 0.3,
+        }}
+      />
 
+      {/* ── Left panel ─────────────────────────────────────────────── */}
+      <div
+        className="hidden lg:flex flex-col justify-between w-[420px] flex-shrink-0 relative overflow-hidden px-10 py-10 z-10"
+        style={{ borderRight: "1px solid #26262B" }}
+      >
         {/* Logo */}
-        <div className="relative z-10 flex items-center gap-3">
-          <Image src="/icons/Actual_Logo.ico" alt="MS Logo" width={44} height={44} className="rounded-xl" />
-          <div>
-            <p className="font-special font-bold text-white text-lg leading-none">Mohana Srinivasan</p>
-            <p className="text-cyan text-xs font-mono mt-0.5">Career Centre</p>
+        <div className="flex items-center gap-3">
+          <div
+            className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: "#00D964" }}
+          >
+            <Image src="/icons/Actual_Logo.ico" alt="MS" width={22} height={22} className="rounded" />
           </div>
+          <span className="text-white font-bold text-[15px]">MS Portfolio</span>
+          <span
+            className="text-[11px] font-mono px-2 py-0.5 rounded-md"
+            style={{ backgroundColor: "#1e1e24", border: "1px solid #2e2e36", color: "#6B7280" }}
+          >
+            Career Centre
+          </span>
         </div>
 
         {/* Headline */}
-        <div className="relative z-10">
-          <h2 className="font-special text-3xl font-bold text-white leading-snug mb-4">
+        <div>
+          <h2 className="text-white text-3xl font-bold leading-snug mb-3">
             Your DevOps career,<br />
-            <span className="gradient-text">all in one place</span>
+            <span style={{ color: "#00D964" }}>all in one place.</span>
           </h2>
-          <p className="text-lightGrey text-sm font-mono leading-relaxed mb-8">
-            Resume builder, job tracker, AI mock interviews, and career analytics — built for DevOps engineers.
+          <p className="text-sm font-mono mb-8 leading-relaxed" style={{ color: "#6B7280" }}>
+            Resume builder, live job matching, AI mock interviews, and career analytics — built for DevOps engineers.
           </p>
 
           <div className="flex flex-col gap-3">
             {FEATURES.map((f) => (
-              <div key={f.label} className="flex items-start gap-3 glass rounded-xl p-3 border border-white/5">
+              <div
+                key={f.label}
+                className="flex items-start gap-3 rounded-xl p-3"
+                style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
+              >
                 <span className="text-xl leading-none mt-0.5">{f.icon}</span>
                 <div>
                   <p className="text-white text-sm font-semibold">{f.label}</p>
-                  <p className="text-lightGrey text-xs font-mono">{f.desc}</p>
+                  <p className="text-[12px] font-mono mt-0.5" style={{ color: "#6B7280" }}>{f.desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Footer quote */}
-        <div className="relative z-10">
-          <p className="text-lightGrey/40 text-xs font-mono italic">
-            &quot;Automate everything, monitor obsessively, keep the pager quiet.&quot;
-          </p>
-          <p className="text-lightGrey/30 text-xs font-mono mt-1">— Mohana Srinivasan</p>
-        </div>
+        {/* Footer */}
+        <p className="text-[11px] font-mono italic" style={{ color: "#2e2e36" }}>
+          &quot;Automate everything, monitor obsessively, keep the pager quiet.&quot;
+        </p>
       </div>
 
-      {/* ── Right panel (form) ── */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-12 relative">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 right-0 w-[300px] h-[300px] rounded-full bg-cyan/3 blur-[100px]" />
-        </div>
+      {/* ── Right panel (form) ─────────────────────────────────────── */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-12 relative z-10">
+        <div className="w-full max-w-[400px]">
 
-        <div className="w-full max-w-[400px] relative z-10">
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <Image src="/icons/Actual_Logo.ico" alt="MS Logo" width={38} height={38} className="rounded-xl" />
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: "#00D964" }}
+            >
+              <Image src="/icons/Actual_Logo.ico" alt="MS" width={22} height={22} className="rounded" />
+            </div>
             <div>
-              <p className="font-special font-bold text-white">Mohana Srinivasan</p>
-              <p className="text-cyan text-xs font-mono">Career Centre</p>
+              <p className="text-white font-bold text-[15px]">MS Portfolio</p>
+              <p className="text-[11px] font-mono" style={{ color: "#6B7280" }}>Career Centre</p>
             </div>
           </div>
 
-          <h1 className="font-special text-2xl font-bold text-white mb-1">Welcome back</h1>
-          <p className="text-lightGrey text-sm font-mono mb-8">Sign in to access your career tools</p>
+          <h1 className="text-white text-[26px] font-bold mb-1">Welcome back</h1>
+          <p className="text-sm font-mono mb-8" style={{ color: "#6B7280" }}>
+            Sign in to access your career tools
+          </p>
 
-          {/* Google button */}
+          {/* Google */}
           <button
             onClick={handleGoogle}
             disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-3 h-11 rounded-xl border border-white/15 bg-white/3 hover:bg-white/6 hover:border-white/25 transition-all duration-200 text-sm font-mono text-white disabled:opacity-50 mb-3"
+            className="w-full flex items-center justify-center gap-3 rounded-lg py-3 text-white text-[14px] font-mono transition-all disabled:opacity-50"
+            style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
           >
-            {googleLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FcGoogle className="w-5 h-5" />}
+            {googleLoading ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#00D964" }} /> : <FcGoogle className="w-5 h-5" />}
             Continue with Google
           </button>
 
+          {/* Divider */}
           <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-white/8" />
-            <span className="text-xs font-mono text-lightGrey/40">or sign in with email</span>
-            <div className="flex-1 h-px bg-white/8" />
+            <div className="flex-1 h-px" style={{ backgroundColor: "#26262B" }} />
+            <span className="text-[11px] font-mono" style={{ color: "#3a3a3a" }}>or sign in with email</span>
+            <div className="flex-1 h-px" style={{ backgroundColor: "#26262B" }} />
           </div>
 
-          {/* Email/password form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-mono text-lightGrey uppercase tracking-wider">Email</label>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <div>
+              <label className="block text-[12px] text-white font-medium mb-2">Email address</label>
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="h-11 rounded-xl bg-white/4 border border-white/10 px-4 text-white text-sm font-mono placeholder-lightGrey/30 focus:outline-none focus:border-cyan/50 focus:bg-white/6 transition-all"
+                className="w-full rounded-lg px-4 py-3 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                style={{ backgroundColor: "#0A0A0B", border: error ? "1.5px solid #EF4444" : "1px solid #26262B" }}
               />
+              {error && (
+                <p className="text-[12px] font-mono mt-1.5" style={{ color: "#EF4444" }}>{error}</p>
+              )}
             </div>
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-mono text-lightGrey uppercase tracking-wider">Password</label>
-                <Link href="/account/forgot-password" className="text-xs font-mono text-cyan hover:text-lightCyan transition-colors">
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-[12px] text-white font-medium">Password</label>
+                <Link href="/account/forgot-password" className="text-[12px] font-mono transition-colors" style={{ color: "#6B7280" }}>
                   Forgot password?
                 </Link>
               </div>
@@ -157,49 +184,61 @@ export default function AccountLoginPage() {
                 <input
                   type={showPw ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full h-11 rounded-xl bg-white/4 border border-white/10 px-4 pr-11 text-white text-sm font-mono placeholder-lightGrey/30 focus:outline-none focus:border-cyan/50 focus:bg-white/6 transition-all"
+                  className="w-full rounded-lg px-4 py-3 pr-12 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                  style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPw((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-lightGrey/50 hover:text-lightGrey transition-colors"
+                  onClick={() => setShowPw(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-[11px] font-mono"
+                  style={{ color: "#6B7280" }}
                 >
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            {error && (
-              <div className="text-red text-xs font-mono bg-red/8 border border-red/20 rounded-lg px-3 py-2">
-                {error}
-              </div>
-            )}
-
             <button
               type="submit"
-              disabled={loading}
-              className="h-11 rounded-xl bg-cyan text-black font-mono font-bold text-sm flex items-center justify-center gap-2 hover:bg-lightCyan transition-colors shadow-cyanShadow disabled:opacity-50 mt-1"
+              disabled={loading || googleLoading}
+              className="w-full flex items-center justify-center gap-2 rounded-lg py-3 font-bold text-[15px] transition-all disabled:cursor-not-allowed"
+              style={{ backgroundColor: "#00D964", color: "#0a0a0b", opacity: loading ? 0.85 : 1 }}
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Sign In <ArrowRight className="w-4 h-4" /></>}
+              {loading ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Signing in...</>
+              ) : (
+                <>Sign In <ArrowRight className="w-4 h-4" /></>
+              )}
             </button>
           </form>
 
-          <p className="text-center text-xs font-mono text-lightGrey mt-6">
+          <p className="text-center text-[13px] mt-6" style={{ color: "#6B7280" }}>
             No account?{" "}
-            <Link href="/account/signup" className="text-cyan hover:text-lightCyan transition-colors">
+            <Link href="/account/signup" className="font-semibold" style={{ color: "#00D964" }}>
               Create one free →
             </Link>
           </p>
 
-          <div className="mt-8 pt-6 border-t border-white/5 text-center">
-            <Link href="/" className="text-xs font-mono text-lightGrey/40 hover:text-lightGrey transition-colors flex items-center justify-center gap-1">
-              <FiGithub className="w-3 h-3" /> ← Back to portfolio
+          <div className="mt-6 pt-5 text-center" style={{ borderTop: "1px solid #26262B" }}>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-[11px] font-mono transition-colors"
+              style={{ color: "#333" }}
+            >
+              <ChevronRight className="w-3 h-3 rotate-180" /> Back to portfolio
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Bottom note */}
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center z-10">
+        <p className="text-[11px] font-mono" style={{ color: "#222" }}>
+          · Career Centre · personal tools · account required
+        </p>
       </div>
     </main>
   );

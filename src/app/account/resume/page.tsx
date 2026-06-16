@@ -12,11 +12,7 @@ export default async function ResumePage() {
 
   return (
     <AccountLayout userName={session.user.name}>
-      <div className="max-w-5xl">
-        <h1 className="font-special text-2xl font-bold text-white mb-1">Resume Studio</h1>
-        <p className="text-lightGrey text-sm font-mono mb-8">
-          Upload · AI-extract · choose template · export PDF
-        </p>
+      <div className="max-w-6xl">
         <ResumeStudio />
       </div>
     </AccountLayout>

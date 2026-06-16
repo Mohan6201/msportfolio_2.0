@@ -15,11 +15,18 @@ import { SkillsTab }          from "./tabs/SkillsTab";
 import { ExperienceTab }      from "./tabs/ExperienceTab";
 import { ProjectsTab }        from "./tabs/ProjectsTab";
 import { CertificationsTab }  from "./tabs/CertificationsTab";
+import { BlogTab }            from "./tabs/BlogTab";
 import { SocialLinksTab }     from "./tabs/SocialLinksTab";
 import { MessagesTab }        from "./tabs/MessagesTab";
 import { CommentsTab }        from "./tabs/CommentsTab";
 import { SubscribersTab }     from "./tabs/SubscribersTab";
 import { AnalyticsTab }       from "./tabs/AnalyticsTab";
+import { KTDocumentsTab }     from "./tabs/KTDocumentsTab";
+import { KTCategoriesTab }    from "./tabs/KTCategoriesTab";
+import { UsersTab }            from "./tabs/UsersTab";
+import { JobMatchesTab }       from "./tabs/JobMatchesTab";
+import { JobPreferencesTab }   from "./tabs/JobPreferencesTab";
+import { SiteSettingsTab }     from "./tabs/SiteSettingsTab";
 
 const authClient = createAuthClient();
 
@@ -116,11 +123,18 @@ export default function AdminDashboard() {
       case "skills":         return <SkillsTab key={key} />;
       case "projects":       return <ProjectsTab key={key} />;
       case "certifications": return <CertificationsTab key={key} />;
+      case "blog":           return <BlogTab key={key} />;
       case "social":         return <SocialLinksTab key={key} />;
       case "messages":       return <MessagesTab key={key} />;
       case "comments":       return <CommentsTab key={key} />;
       case "newsletter":     return <SubscribersTab key={key} />;
       case "analytics":      return <AnalyticsTab key={key} />;
+      case "kt-documents":   return <KTDocumentsTab key={key} />;
+      case "kt-categories":  return <KTCategoriesTab key={key} />;
+      case "users":          return <UsersTab key={key} />;
+      case "job-matches":    return <JobMatchesTab key={key} />;
+      case "job-preferences":return <JobPreferencesTab key={key} />;
+      case "site-settings":  return <SiteSettingsTab key={key} />;
       default:               return <ComingSoon label={active} />;
     }
   };

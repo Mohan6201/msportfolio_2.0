@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
-export const maxDuration = 60;
 import { requireUser } from "@/lib/accountAuth";
 import { getPreferences } from "@/domains/accounts/services/accounts.service";
 import { getUserMatches } from "@/domains/jobs/services/jobs.service";
@@ -8,6 +6,8 @@ import { listResumes, getLatestVersion } from "@/domains/resume/services/resume.
 import { runCareerAdvisor } from "@/ai/agents/careerAdvisor";
 import { saveCareerRoadmap } from "@/domains/career/services/career.service";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   const { session, error } = await requireUser(req);

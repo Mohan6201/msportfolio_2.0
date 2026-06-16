@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-
-export const maxDuration = 60;
 import { requireUser } from "@/lib/accountAuth";
 import { getInterview, updateInterview } from "@/domains/interview/services/interview.service";
 import { evaluateAnswer, generateSessionFeedback } from "@/ai/agents/runMockInterview";
+
+export const maxDuration = 60;
 
 type Params = { params: Promise<{ id: string }> };
 

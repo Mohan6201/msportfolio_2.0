@@ -14,11 +14,7 @@ const REMOTE_OPTIONS = ["any", "remote", "hybrid", "onsite"] as const;
 const EMP_OPTIONS = ["Full-time", "Part-time", "Contract", "Freelance", "Internship"];
 
 function parseArr(v: string | undefined): string[] {
-  try {
-    return v ? JSON.parse(v) : [];
-  } catch {
-    return [];
-  }
+  try { return v ? JSON.parse(v) : []; } catch { return []; }
 }
 
 export default function PreferencesForm() {
@@ -71,20 +67,14 @@ export default function PreferencesForm() {
       if (!r.ok) return;
       const data = await r.json();
       if (data.location) {
-        setForm((f) => ({
-          ...f,
-          preferredLocations: f.preferredLocations || data.location,
-        }));
+        setForm((f) => ({ ...f, preferredLocations: f.preferredLocations || data.location }));
       }
-    } finally {
-      setImporting(false);
-    }
+    } finally { setImporting(false); }
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    setSaved(false);
+    setSaving(true); setSaved(false);
     try {
       await fetch("/api/account/preferences", {
         method: "PATCH",
@@ -100,35 +90,52 @@ export default function PreferencesForm() {
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   }
+
+  const inputCls = "w-full rounded-lg px-3 py-2.5 text-sm font-mono text-white placeholder-[#333] focus:outline-none transition-colors";
+  const inputStyle = { backgroundColor: "#0A0A0B", border: "1px solid #26262B" };
 
   return (
     <div className="max-w-2xl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="font-special text-2xl font-bold text-white mb-1">Job Preferences</h1>
-          <p className="text-lightGrey text-sm font-mono">Used by the AI to surface relevant opportunities</p>
+      {/* Header */}
+      <div className="mb-7">
+        <nav className="flex items-center gap-1.5 text-[11px] font-mono mb-3" style={{ color: "#6B7280" }}>
+          <span>Career Centre</span>
+          <span className="opacity-40">/</span>
+          <span className="text-white">Preferences</span>
+        </nav>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-white text-[28px] font-bold mb-1">Job Preferences</h1>
+            <p className="text-sm font-mono" style={{ color: "#6B7280" }}>
+              Used by the AI to surface relevant opportunities
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={importFromProfile}
+            disabled={importing}
+            className="flex-shrink-0 text-xs font-mono rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
+            style={{ color: "#00D964", border: "1px solid rgba(0,217,100,0.3)" }}
+          >
+            {importing ? "Importing…" : "Import from Profile"}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={importFromProfile}
-          disabled={importing}
-          className="text-xs font-mono text-cyan border border-cyan/30 rounded-lg px-3 py-1.5 hover:bg-cyan/10 transition-colors disabled:opacity-50"
-        >
-          {importing ? "Importing…" : "Import from Profile"}
-        </button>
       </div>
 
-      <form onSubmit={handleSave} className="glass rounded-xl border border-white/10 p-6 flex flex-col gap-5">
+      <form
+        onSubmit={handleSave}
+        className="rounded-xl p-6 flex flex-col gap-5"
+        style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
+      >
         <Field label="Target Roles" hint="One per line">
           <textarea
             value={form.targetRoles}
             onChange={(e) => setForm((f) => ({ ...f, targetRoles: e.target.value }))}
             rows={4}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm font-mono focus:outline-none focus:border-cyan/50 resize-none"
+            className={`${inputCls} resize-none`}
+            style={inputStyle}
             placeholder={"DevOps Engineer\nSRE\nPlatform Engineer"}
           />
         </Field>
@@ -138,24 +145,26 @@ export default function PreferencesForm() {
             value={form.preferredLocations}
             onChange={(e) => setForm((f) => ({ ...f, preferredLocations: e.target.value }))}
             rows={3}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm font-mono focus:outline-none focus:border-cyan/50 resize-none"
+            className={`${inputCls} resize-none`}
+            style={inputStyle}
             placeholder={"Remote\nLondon, UK\nBengaluru, India"}
           />
         </Field>
 
         <div>
-          <label className="field-label">Remote Preference</label>
-          <div className="flex gap-2 flex-wrap mt-1">
+          <label className="block text-[12px] text-white font-medium mb-2">Remote Preference</label>
+          <div className="flex gap-2 flex-wrap">
             {REMOTE_OPTIONS.map((opt) => (
               <button
                 key={opt}
                 type="button"
                 onClick={() => setForm((f) => ({ ...f, remotePreference: opt }))}
-                className={`px-3 py-1 rounded-full text-xs font-mono border transition-colors ${
+                className="px-3 py-1 rounded-full text-xs font-mono transition-colors capitalize"
+                style={
                   form.remotePreference === opt
-                    ? "bg-cyan text-black border-cyan"
-                    : "border-white/20 text-lightGrey hover:border-white/40"
-                }`}
+                    ? { backgroundColor: "#00D964", color: "#0a0a0b", border: "1px solid #00D964" }
+                    : { backgroundColor: "transparent", color: "#6B7280", border: "1px solid #26262B" }
+                }
               >
                 {opt}
               </button>
@@ -164,18 +173,19 @@ export default function PreferencesForm() {
         </div>
 
         <div>
-          <label className="field-label">Employment Type</label>
-          <div className="flex gap-2 flex-wrap mt-1">
+          <label className="block text-[12px] text-white font-medium mb-2">Employment Type</label>
+          <div className="flex gap-2 flex-wrap">
             {EMP_OPTIONS.map((opt) => (
               <button
                 key={opt}
                 type="button"
                 onClick={() => toggleEmp(opt)}
-                className={`px-3 py-1 rounded-full text-xs font-mono border transition-colors ${
+                className="px-3 py-1 rounded-full text-xs font-mono transition-colors"
+                style={
                   form.employmentType.includes(opt)
-                    ? "bg-cyan text-black border-cyan"
-                    : "border-white/20 text-lightGrey hover:border-white/40"
-                }`}
+                    ? { backgroundColor: "#00D964", color: "#0a0a0b", border: "1px solid #00D964" }
+                    : { backgroundColor: "transparent", color: "#6B7280", border: "1px solid #26262B" }
+                }
               >
                 {opt}
               </button>
@@ -188,7 +198,8 @@ export default function PreferencesForm() {
             type="number"
             value={form.minSalary}
             onChange={(e) => setForm((f) => ({ ...f, minSalary: e.target.value }))}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm font-mono focus:outline-none focus:border-cyan/50"
+            className={inputCls}
+            style={inputStyle}
             placeholder="e.g. 90000"
           />
         </Field>
@@ -198,7 +209,8 @@ export default function PreferencesForm() {
             value={form.keywords}
             onChange={(e) => setForm((f) => ({ ...f, keywords: e.target.value }))}
             rows={4}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm font-mono focus:outline-none focus:border-cyan/50 resize-none"
+            className={`${inputCls} resize-none`}
+            style={inputStyle}
             placeholder={"Kubernetes\nTerraform\nAWS\nStartup"}
           />
         </Field>
@@ -207,31 +219,26 @@ export default function PreferencesForm() {
           <button
             type="submit"
             disabled={saving}
-            className="bg-cyan text-black font-mono font-bold text-sm px-6 py-2.5 rounded-lg hover:bg-lightCyan transition-colors disabled:opacity-50"
+            className="font-mono font-bold text-sm px-6 py-2.5 rounded-lg transition-all disabled:opacity-50"
+            style={{ backgroundColor: "#00D964", color: "#0a0a0b" }}
           >
             {saving ? "Saving…" : "Save Preferences"}
           </button>
-          {saved && <span className="text-green-400 text-xs font-mono">Saved!</span>}
+          {saved && (
+            <span className="text-xs font-mono" style={{ color: "#00D964" }}>Saved ✓</span>
+          )}
         </div>
       </form>
     </div>
   );
 }
 
-function Field({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="flex items-baseline gap-2 mb-1">
-        <label className="field-label">{label}</label>
-        {hint && <span className="text-xs font-mono text-lightGrey/60">{hint}</span>}
+      <div className="flex items-baseline gap-2 mb-1.5">
+        <label className="block text-[12px] text-white font-medium">{label}</label>
+        {hint && <span className="text-[10px] font-mono" style={{ color: "#444" }}>{hint}</span>}
       </div>
       {children}
     </div>

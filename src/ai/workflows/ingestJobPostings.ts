@@ -33,7 +33,7 @@ async function fetchAdzuna(role: string, location: string): Promise<AdzunaJob[]>
   const appKey = process.env.ADZUNA_API_KEY;
   if (!appId || !appKey) return [];
 
-  const country = "in"; // India — matches Mohan's primary market
+  const country = process.env.ADZUNA_COUNTRY ?? "in";
   const url = new URL(`https://api.adzuna.com/v1/api/jobs/${country}/search/1`);
   url.searchParams.set("app_id", appId);
   url.searchParams.set("app_key", appKey);
@@ -87,60 +87,46 @@ export async function ingestJobPostings(
   const roles = targetRoles.length > 0 ? targetRoles.slice(0, 3) : ["DevOps Engineer"];
   const locations = preferredLocations.length > 0 ? preferredLocations.slice(0, 2) : ["India"];
 
-  for (const role of roles) {
-    for (const location of locations) {
-      // Adzuna
-      const adzunaJobs = await fetchAdzuna(role, location);
+  const pairs = roles.flatMap(role => locations.map(loc => ({ role, loc })));
+
+  await Promise.all(
+    pairs.map(async ({ role, loc }) => {
+      const [adzunaJobs, jsearchJobs] = await Promise.all([
+        fetchAdzuna(role, loc),
+        fetchJSearch(role, loc),
+      ]);
+
       for (const j of adzunaJobs) {
         try {
           const companyId = await upsertCompany({ name: j.company.display_name });
           const wasNew = await upsertJob({
-            companyId,
-            source: "adzuna",
-            externalId: j.id,
-            title: j.title,
-            description: j.description ?? "",
-            requirements: [],
+            companyId, source: "adzuna", externalId: j.id, title: j.title,
+            description: j.description ?? "", requirements: [],
             location: j.location.display_name,
             remote: j.contract_type?.toLowerCase().includes("remote") ? 1 : 0,
-            salaryMin: j.salary_min ?? null,
-            salaryMax: j.salary_max ?? null,
-            url: j.redirect_url,
-            postedAt: j.created,
+            salaryMin: j.salary_min ?? null, salaryMax: j.salary_max ?? null,
+            url: j.redirect_url, postedAt: j.created,
           });
           wasNew ? inserted++ : skipped++;
-        } catch {
-          errors++;
-        }
+        } catch { errors++; }
       }
 
-      // JSearch
-      const jsearchJobs = await fetchJSearch(role, location);
       for (const j of jsearchJobs) {
         try {
           const companyId = await upsertCompany({ name: j.employer_name });
           const loc = [j.job_city, j.job_country].filter(Boolean).join(", ");
           const wasNew = await upsertJob({
-            companyId,
-            source: "jsearch",
-            externalId: j.job_id,
-            title: j.job_title,
-            description: j.job_description ?? "",
-            requirements: [],
-            location: loc,
-            remote: j.job_is_remote ? 1 : 0,
-            salaryMin: j.job_min_salary ?? null,
-            salaryMax: j.job_max_salary ?? null,
-            url: j.job_apply_link,
-            postedAt: j.job_posted_at_datetime_utc ?? null,
+            companyId, source: "jsearch", externalId: j.job_id, title: j.job_title,
+            description: j.job_description ?? "", requirements: [],
+            location: loc, remote: j.job_is_remote ? 1 : 0,
+            salaryMin: j.job_min_salary ?? null, salaryMax: j.job_max_salary ?? null,
+            url: j.job_apply_link, postedAt: j.job_posted_at_datetime_utc ?? null,
           });
           wasNew ? inserted++ : skipped++;
-        } catch {
-          errors++;
-        }
+        } catch { errors++; }
       }
-    }
-  }
+    })
+  );
 
   return { inserted, skipped, errors };
 }

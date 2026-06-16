@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-
-export const maxDuration = 60;
 import { requireUser } from "@/lib/accountAuth";
 import { getJob, upsertJobMatch } from "@/domains/jobs/services/jobs.service";
-import { getLatestVersion } from "@/domains/resume/services/resume.service";
-import { listResumes } from "@/domains/resume/services/resume.service";
+import { getLatestVersion, listResumes } from "@/domains/resume/services/resume.service";
 import { scoreJobMatch } from "@/ai/agents/scoreJobMatch";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { session, error } = await requireUser(req);

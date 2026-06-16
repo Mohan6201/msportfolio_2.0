@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logPageView } from "@/domains/analytics/services/analytics.service";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { createHash } from "crypto";
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
+  const rl = rateLimit(`pageview:${ip}`, 120, 60_000); // 120 pageviews/min per IP
+  if (!rl.allowed) return NextResponse.json({ ok: false });
+
   try {
     const { path } = await req.json() as { path: string };
     if (!path || typeof path !== "string") return NextResponse.json({ ok: false });

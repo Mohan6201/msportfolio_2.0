@@ -4,23 +4,23 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createAuthClient } from "better-auth/react";
-import { Eye, EyeOff, Loader2, ArrowRight, Check } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowRight, Check, ChevronRight } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 
 const authClient = createAuthClient();
 
 function PasswordStrength({ password }: { password: string }) {
   const checks = [
-    { label: "8+ characters",    ok: password.length >= 8 },
-    { label: "Uppercase letter", ok: /[A-Z]/.test(password) },
-    { label: "Number",           ok: /\d/.test(password) },
+    { label: "8+ chars",   ok: password.length >= 8 },
+    { label: "Uppercase",  ok: /[A-Z]/.test(password) },
+    { label: "Number",     ok: /\d/.test(password) },
   ];
   if (!password) return null;
   return (
-    <div className="flex gap-2 mt-1">
+    <div className="flex gap-3 mt-2">
       {checks.map(({ label, ok }) => (
-        <div key={label} className={`flex items-center gap-1 text-[10px] font-mono ${ok ? "text-green" : "text-lightGrey/40"}`}>
-          <Check className={`w-2.5 h-2.5 ${ok ? "opacity-100" : "opacity-30"}`} />
+        <div key={label} className="flex items-center gap-1 text-[10px] font-mono" style={{ color: ok ? "#00D964" : "#374151" }}>
+          <Check className="w-2.5 h-2.5" style={{ opacity: ok ? 1 : 0.3 }} />
           {label}
         </div>
       ))}
@@ -30,12 +30,12 @@ function PasswordStrength({ password }: { password: string }) {
 
 export default function AccountSignupPage() {
   const router = useRouter();
-  const [name, setName]         = useState("");
-  const [email, setEmail]       = useState("");
+  const [name,     setName]     = useState("");
+  const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
-  const [showPw, setShowPw]     = useState(false);
-  const [error, setError]       = useState("");
-  const [loading, setLoading]   = useState(false);
+  const [showPw,   setShowPw]   = useState(false);
+  const [error,    setError]    = useState("");
+  const [loading,  setLoading]  = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -61,107 +61,146 @@ export default function AccountSignupPage() {
   }
 
   return (
-    <main className="min-h-screen bg-darkBrown flex items-center justify-center px-4 sm:px-8 py-12">
-      <div className="w-full max-w-[420px]">
-        {/* Logo */}
-        <div className="flex items-center gap-3 mb-8">
-          <Image src="/icons/Actual_Logo.ico" alt="MS Logo" width={42} height={42} className="rounded-xl" />
-          <div>
-            <p className="font-special font-bold text-white">Mohana Srinivasan</p>
-            <p className="text-cyan text-xs font-mono">Career Centre</p>
-          </div>
-        </div>
+    <main
+      className="min-h-screen flex items-center justify-center px-4 py-12 relative"
+      style={{ backgroundColor: "#0A0A0B" }}
+    >
+      {/* Dot grid */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "radial-gradient(circle, #1a1a1e 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+          opacity: 0.3,
+        }}
+      />
 
-        <h1 className="font-special text-2xl font-bold text-white mb-1">Create your account</h1>
-        <p className="text-lightGrey text-sm font-mono mb-8">Free access to all career tools</p>
+      <div className="w-full max-w-[440px] relative z-10">
+        {/* Card */}
+        <div className="rounded-xl p-8 shadow-2xl" style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}>
 
-        {/* Google button */}
-        <button
-          onClick={handleGoogle}
-          disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-3 h-11 rounded-xl border border-white/15 bg-white/3 hover:bg-white/6 hover:border-white/25 transition-all duration-200 text-sm font-mono text-white disabled:opacity-50 mb-3"
-        >
-          {googleLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FcGoogle className="w-5 h-5" />}
-          Continue with Google
-        </button>
-
-        <div className="flex items-center gap-3 my-5">
-          <div className="flex-1 h-px bg-white/8" />
-          <span className="text-xs font-mono text-lightGrey/40">or sign up with email</span>
-          <div className="flex-1 h-px bg-white/8" />
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-mono text-lightGrey uppercase tracking-wider">Full Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="Mohana Srinivasan"
-              className="h-11 rounded-xl bg-white/4 border border-white/10 px-4 text-white text-sm font-mono placeholder-lightGrey/30 focus:outline-none focus:border-cyan/50 focus:bg-white/6 transition-all"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-mono text-lightGrey uppercase tracking-wider">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="you@example.com"
-              className="h-11 rounded-xl bg-white/4 border border-white/10 px-4 text-white text-sm font-mono placeholder-lightGrey/30 focus:outline-none focus:border-cyan/50 focus:bg-white/6 transition-all"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-mono text-lightGrey uppercase tracking-wider">Password</label>
-            <div className="relative">
-              <input
-                type={showPw ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-                placeholder="Min 8 characters"
-                className="w-full h-11 rounded-xl bg-white/4 border border-white/10 px-4 pr-11 text-white text-sm font-mono placeholder-lightGrey/30 focus:outline-none focus:border-cyan/50 focus:bg-white/6 transition-all"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPw((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-lightGrey/50 hover:text-lightGrey transition-colors"
-              >
-                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+          {/* Brand header */}
+          <div className="flex items-center gap-3 mb-7">
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: "#00D964" }}
+            >
+              <Image src="/icons/Actual_Logo.ico" alt="MS" width={22} height={22} className="rounded" />
             </div>
-            <PasswordStrength password={password} />
+            <span className="text-white font-bold text-[15px]">MS Portfolio</span>
+            <span
+              className="text-[11px] font-mono px-2 py-0.5 rounded-md"
+              style={{ backgroundColor: "#1e1e24", border: "1px solid #2e2e36", color: "#6B7280" }}
+            >
+              Career Centre
+            </span>
           </div>
 
-          {error && (
-            <div className="text-red text-xs font-mono bg-red/8 border border-red/20 rounded-lg px-3 py-2">
-              {error}
-            </div>
-          )}
+          <h1 className="text-white text-[26px] font-bold text-center mb-2">Create your account</h1>
+          <p className="text-center text-[13px] mb-7" style={{ color: "#6B7280" }}>
+            Free access to all career tools
+          </p>
 
+          {/* Google */}
           <button
-            type="submit"
-            disabled={loading}
-            className="h-11 rounded-xl bg-cyan text-black font-mono font-bold text-sm flex items-center justify-center gap-2 hover:bg-lightCyan transition-colors shadow-cyanShadow disabled:opacity-50 mt-1"
+            onClick={handleGoogle}
+            disabled={googleLoading}
+            className="w-full flex items-center justify-center gap-3 rounded-lg py-3 text-white text-[14px] font-mono transition-all disabled:opacity-50 mb-4"
+            style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Create Account <ArrowRight className="w-4 h-4" /></>}
+            {googleLoading ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#00D964" }} /> : <FcGoogle className="w-5 h-5" />}
+            Continue with Google
           </button>
-        </form>
 
-        <p className="text-center text-xs font-mono text-lightGrey mt-6">
-          Already have an account?{" "}
-          <Link href="/account/login" className="text-cyan hover:text-lightCyan transition-colors">
-            Sign in →
-          </Link>
-        </p>
+          {/* Divider */}
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex-1 h-px" style={{ backgroundColor: "#26262B" }} />
+            <span className="text-[11px] font-mono" style={{ color: "#3a3a3a" }}>or sign up with email</span>
+            <div className="flex-1 h-px" style={{ backgroundColor: "#26262B" }} />
+          </div>
 
-        <div className="mt-8 pt-6 border-t border-white/5 text-center">
-          <Link href="/" className="text-xs font-mono text-lightGrey/40 hover:text-lightGrey transition-colors">
-            ← Back to portfolio
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <div>
+              <label className="block text-[12px] text-white font-medium mb-2">Full Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                required
+                placeholder="Mohana Srinivasan"
+                className="w-full rounded-lg px-4 py-3 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
+              />
+            </div>
+
+            <div>
+              <label className="block text-[12px] text-white font-medium mb-2">Email address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                placeholder="you@example.com"
+                className="w-full rounded-lg px-4 py-3 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                style={{ backgroundColor: "#0A0A0B", border: error ? "1.5px solid #EF4444" : "1px solid #26262B" }}
+              />
+            </div>
+
+            <div>
+              <label className="block text-[12px] text-white font-medium mb-2">Password</label>
+              <div className="relative">
+                <input
+                  type={showPw ? "text" : "password"}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  placeholder="Min 8 characters"
+                  className="w-full rounded-lg px-4 py-3 pr-12 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                  style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                  style={{ color: "#6B7280" }}
+                >
+                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <PasswordStrength password={password} />
+            </div>
+
+            {error && (
+              <p className="text-[12px] font-mono" style={{ color: "#EF4444" }}>{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading || googleLoading}
+              className="w-full flex items-center justify-center gap-2 rounded-lg py-3 font-bold text-[15px] transition-all disabled:cursor-not-allowed"
+              style={{ backgroundColor: "#00D964", color: "#0a0a0b", opacity: loading ? 0.85 : 1 }}
+            >
+              {loading ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Creating account...</>
+              ) : (
+                <>Create Account <ArrowRight className="w-4 h-4" /></>
+              )}
+            </button>
+          </form>
+
+          <p className="text-center text-[13px] mt-6" style={{ color: "#6B7280" }}>
+            Already have an account?{" "}
+            <Link href="/account/login" className="font-semibold" style={{ color: "#00D964" }}>
+              Sign in →
+            </Link>
+          </p>
+        </div>
+
+        <div className="mt-4 text-center">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-[11px] font-mono transition-colors" style={{ color: "#333" }}>
+            <ChevronRight className="w-3 h-3 rotate-180" /> Back to portfolio
           </Link>
         </div>
       </div>

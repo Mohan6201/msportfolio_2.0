@@ -16,15 +16,31 @@ export default function InterviewLab() {
 
   return (
     <div>
+      {/* Page header */}
+      <div className="mb-7">
+        <nav className="flex items-center gap-1.5 text-[11px] font-mono mb-3" style={{ color: "#6B7280" }}>
+          <span>Career Centre</span>
+          <span className="opacity-40">/</span>
+          <span className="text-white">Interview Lab</span>
+        </nav>
+        <h1 className="text-white text-[28px] font-bold mb-1">Interview Lab</h1>
+        <p className="text-sm font-mono" style={{ color: "#6B7280" }}>
+          Browse questions · Practice with AI feedback · Track performance
+        </p>
+      </div>
+
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-white/10">
+      <div className="flex gap-1 mb-6" style={{ borderBottom: "1px solid #26262B" }}>
         {(["bank", "practice"] as View[]).map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`px-4 py-2 text-xs font-mono rounded-t-lg transition-colors border-b-2 ${
-              view === v ? "text-cyan border-cyan" : "text-lightGrey border-transparent hover:text-white"
-            }`}
+            className="px-4 py-2 text-xs font-mono rounded-t-lg transition-colors border-b-2"
+            style={
+              view === v
+                ? { color: "#00D964", borderColor: "#00D964" }
+                : { color: "#6B7280", borderColor: "transparent" }
+            }
           >
             {v === "bank" ? "Question Bank" : `Practice${view === "practice" ? ` · ${practiceCategory}` : ""}`}
           </button>
@@ -33,10 +49,7 @@ export default function InterviewLab() {
 
       {view === "bank" && <QuestionBank onStartPractice={startPractice} />}
       {view === "practice" && (
-        <MockInterview
-          category={practiceCategory}
-          onBack={() => setView("bank")}
-        />
+        <MockInterview category={practiceCategory} onBack={() => setView("bank")} />
       )}
     </div>
   );

@@ -13,10 +13,6 @@ export default async function InterviewPage() {
   return (
     <AccountLayout userName={session.user.name}>
       <div className="max-w-3xl">
-        <h1 className="font-special text-2xl font-bold text-white mb-1">Interview Lab</h1>
-        <p className="text-lightGrey text-sm font-mono mb-8">
-          Browse questions · Practice with AI feedback · Track performance
-        </p>
         <InterviewLab />
       </div>
     </AccountLayout>

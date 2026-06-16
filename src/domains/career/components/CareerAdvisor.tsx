@@ -2,161 +2,193 @@
 import { useState } from "react";
 import type { CareerRoadmap } from "@/ai/schemas/careerRoadmap";
 
-const PRIORITY_COLORS = {
-  critical: "text-red-400 border-red-400/30 bg-red-400/10",
-  high: "text-orange border-orange/30 bg-orange/10",
-  medium: "text-yellow-400 border-yellow-400/30 bg-yellow-400/10",
-  low: "text-lightGrey border-white/20 bg-white/5",
+type Priority = "critical" | "high" | "medium" | "low";
+const PRIORITY_STYLES: Record<Priority, React.CSSProperties> = {
+  critical: { color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)", backgroundColor: "rgba(239,68,68,0.08)" },
+  high:     { color: "#f97316", border: "1px solid rgba(249,115,22,0.3)", backgroundColor: "rgba(249,115,22,0.08)" },
+  medium:   { color: "#fbbf24", border: "1px solid rgba(251,191,36,0.3)", backgroundColor: "rgba(251,191,36,0.08)" },
+  low:      { color: "#6B7280", border: "1px solid #26262B",              backgroundColor: "#16161A" },
 };
 
-export default function CareerAdvisor() {
-  const [roadmap, setRoadmap] = useState<CareerRoadmap | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-xl p-4 ${className}`} style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}>
+      {children}
+    </div>
+  );
+}
 
-  async function loadRoadmap() {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/account/career");
-      if (res.ok) setRoadmap(await res.json());
-    } finally {
-      setLoading(false);
-    }
-  }
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="text-[10px] font-mono font-bold uppercase tracking-widest mb-3" style={{ color: "#6B7280" }}>
+      {children}
+    </h3>
+  );
+}
+
+export default function CareerAdvisor() {
+  const [roadmap, setRoadmap]   = useState<CareerRoadmap | null>(null);
+  const [loading, setLoading]   = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError]       = useState<string | null>(null);
 
   async function runAnalysis() {
-    setAnalyzing(true);
-    setError(null);
+    setAnalyzing(true); setError(null);
     try {
       const res = await fetch("/api/account/career/analyze", { method: "POST" });
-      if (!res.ok) {
-        const body = await res.json();
-        setError(body.error ?? "Analysis failed.");
-        return;
-      }
+      if (!res.ok) { const b = await res.json(); setError(b.error ?? "Analysis failed."); return; }
       const { roadmap: r } = await res.json();
       setRoadmap(r);
-    } finally {
-      setAnalyzing(false);
-    }
+    } finally { setAnalyzing(false); }
   }
 
   if (loading) {
-    return <p className="text-lightGrey text-xs font-mono">Loading…</p>;
+    return <p className="text-xs font-mono" style={{ color: "#6B7280" }}>Loading…</p>;
   }
 
   if (!roadmap) {
     return (
-      <div className="text-center py-14">
-        <div className="text-4xl mb-4">🗺️</div>
-        <h2 className="text-white font-mono font-bold text-base mb-2">Career Roadmap</h2>
-        <p className="text-lightGrey text-xs font-mono mb-6 max-w-sm mx-auto">
-          AI-powered roadmap tailored to your resume, preferences, and job match history.
-          Upload a resume and set preferences first.
-        </p>
-        {error && <p className="text-red-400 text-xs font-mono mb-4">{error}</p>}
-        <button
-          onClick={runAnalysis}
-          disabled={analyzing}
-          className="bg-cyan text-black font-mono font-bold text-xs px-6 py-2.5 rounded-lg hover:bg-lightCyan transition-colors disabled:opacity-50"
-        >
-          {analyzing ? "Analyzing…" : "Generate Roadmap"}
-        </button>
-      </div>
+      <>
+        {/* Page header */}
+        <div className="mb-7">
+          <nav className="flex items-center gap-1.5 text-[11px] font-mono mb-3" style={{ color: "#6B7280" }}>
+            <span>Career Centre</span>
+            <span className="opacity-40">/</span>
+            <span className="text-white">Career Advisor</span>
+          </nav>
+          <h1 className="text-white text-[28px] font-bold mb-1">Career Advisor</h1>
+          <p className="text-sm font-mono" style={{ color: "#6B7280" }}>
+            AI-generated roadmap based on your resume, preferences, and job matches
+          </p>
+        </div>
+        <div className="text-center py-14">
+          <div className="text-4xl mb-4">🗺️</div>
+          <h2 className="text-white font-mono font-bold text-base mb-2">Career Roadmap</h2>
+          <p className="text-xs font-mono mb-6 max-w-sm mx-auto" style={{ color: "#6B7280" }}>
+            AI-powered roadmap tailored to your resume, preferences, and job match history.
+            Upload a resume and set preferences first.
+          </p>
+          {error && <p className="text-xs font-mono mb-4" style={{ color: "#ef4444" }}>{error}</p>}
+          <button
+            onClick={runAnalysis}
+            disabled={analyzing}
+            className="font-mono font-bold text-xs px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50"
+            style={{ backgroundColor: "#00D964", color: "#0a0a0b" }}
+          >
+            {analyzing ? "Analyzing…" : "Generate Roadmap"}
+          </button>
+        </div>
+      </>
     );
   }
 
-  const salaryFmt = (n: number) =>
-    `${roadmap.salaryRange.currency} ${n.toLocaleString()}`;
+  const salaryFmt = (n: number) => `${roadmap.salaryRange.currency} ${n.toLocaleString()}`;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-white font-mono font-bold text-lg">{roadmap.targetRole}</h2>
-          <p className="text-lightGrey text-xs font-mono mt-1">{roadmap.currentLevel}</p>
-          <p className="text-cyan text-xs font-mono mt-1 italic">{roadmap.keyMessage}</p>
+      {/* Page header */}
+      <div>
+        <nav className="flex items-center gap-1.5 text-[11px] font-mono mb-3" style={{ color: "#6B7280" }}>
+          <span>Career Centre</span>
+          <span className="opacity-40">/</span>
+          <span className="text-white">Career Advisor</span>
+        </nav>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-white text-[28px] font-bold mb-1">{roadmap.targetRole}</h1>
+            <p className="text-xs font-mono mt-1" style={{ color: "#6B7280" }}>{roadmap.currentLevel}</p>
+            <p className="text-xs font-mono mt-1 italic" style={{ color: "#00D964" }}>{roadmap.keyMessage}</p>
+          </div>
+          <button
+            onClick={runAnalysis}
+            disabled={analyzing}
+            className="flex-shrink-0 text-xs font-mono rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
+            style={{ color: "#00D964", border: "1px solid rgba(0,217,100,0.3)" }}
+          >
+            {analyzing ? "Analyzing…" : "Refresh"}
+          </button>
         </div>
-        <button
-          onClick={runAnalysis}
-          disabled={analyzing}
-          className="flex-shrink-0 text-xs font-mono border border-cyan/30 text-cyan px-3 py-1.5 rounded-lg hover:bg-cyan/10 transition-colors disabled:opacity-50"
-        >
-          {analyzing ? "Analyzing…" : "Refresh"}
-        </button>
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="glass rounded-xl border border-white/10 p-3 text-center">
-          <p className="text-green font-mono font-bold text-sm">
+        <Card className="text-center">
+          <p className="font-mono font-bold text-sm" style={{ color: "#00D964" }}>
             {salaryFmt(roadmap.salaryRange.min)}–{salaryFmt(roadmap.salaryRange.max)}
           </p>
-          <p className="text-lightGrey text-[10px] font-mono mt-0.5">Salary Range</p>
-        </div>
-        <div className="glass rounded-xl border border-white/10 p-3 text-center">
-          <p className="text-cyan font-mono font-bold text-sm">{roadmap.strengths.length}</p>
-          <p className="text-lightGrey text-[10px] font-mono mt-0.5">Strengths</p>
-        </div>
-        <div className="glass rounded-xl border border-white/10 p-3 text-center">
-          <p className="text-orange font-mono font-bold text-sm">{roadmap.skillGaps.length}</p>
-          <p className="text-lightGrey text-[10px] font-mono mt-0.5">Skill Gaps</p>
-        </div>
-        <div className="glass rounded-xl border border-white/10 p-3 text-center">
+          <p className="text-[10px] font-mono mt-0.5" style={{ color: "#6B7280" }}>Salary Range</p>
+        </Card>
+        <Card className="text-center">
+          <p className="text-white font-mono font-bold text-sm">{roadmap.strengths.length}</p>
+          <p className="text-[10px] font-mono mt-0.5" style={{ color: "#6B7280" }}>Strengths</p>
+        </Card>
+        <Card className="text-center">
+          <p className="font-mono font-bold text-sm" style={{ color: "#f97316" }}>{roadmap.skillGaps.length}</p>
+          <p className="text-[10px] font-mono mt-0.5" style={{ color: "#6B7280" }}>Skill Gaps</p>
+        </Card>
+        <Card className="text-center">
           <p className="text-white font-mono font-bold text-sm">{roadmap.roadmap.length}</p>
-          <p className="text-lightGrey text-[10px] font-mono mt-0.5">Milestones</p>
-        </div>
+          <p className="text-[10px] font-mono mt-0.5" style={{ color: "#6B7280" }}>Milestones</p>
+        </Card>
       </div>
 
       {/* Strengths */}
-      <div className="glass rounded-xl border border-white/10 p-4">
-        <h3 className="text-xs font-mono font-bold text-lightGrey uppercase tracking-wider mb-3">Strengths</h3>
+      <Card>
+        <SectionLabel>Strengths</SectionLabel>
         <div className="flex flex-wrap gap-2">
           {roadmap.strengths.map((s, i) => (
-            <span key={i} className="text-xs font-mono bg-green/10 border border-green/20 text-green px-2.5 py-1 rounded-full">
+            <span
+              key={i}
+              className="text-xs font-mono px-2.5 py-1 rounded-full"
+              style={{ color: "#00D964", border: "1px solid rgba(0,217,100,0.2)", backgroundColor: "rgba(0,217,100,0.06)" }}
+            >
               {s}
             </span>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* Skill Gaps */}
-      <div className="glass rounded-xl border border-white/10 p-4">
-        <h3 className="text-xs font-mono font-bold text-lightGrey uppercase tracking-wider mb-3">Skill Gaps</h3>
+      <Card>
+        <SectionLabel>Skill Gaps</SectionLabel>
         <div className="space-y-2">
           {roadmap.skillGaps.map((gap, i) => (
             <div key={i} className="flex items-start gap-3">
-              <span className={`flex-shrink-0 text-[9px] font-mono px-1.5 py-0.5 rounded-full border mt-0.5 ${PRIORITY_COLORS[gap.priority] ?? PRIORITY_COLORS.low}`}>
+              <span
+                className="flex-shrink-0 text-[9px] font-mono px-1.5 py-0.5 rounded-full mt-0.5"
+                style={PRIORITY_STYLES[gap.priority as Priority] ?? PRIORITY_STYLES.low}
+              >
                 {gap.priority}
               </span>
               <div className="flex-1">
                 <p className="text-white text-xs font-mono font-bold">{gap.skill}</p>
                 {gap.resources.length > 0 && (
-                  <p className="text-lightGrey/60 text-[10px] font-mono mt-0.5">{gap.resources.join(" · ")}</p>
+                  <p className="text-[10px] font-mono mt-0.5" style={{ color: "#444" }}>{gap.resources.join(" · ")}</p>
                 )}
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* Roadmap timeline */}
-      <div className="glass rounded-xl border border-white/10 p-4">
-        <h3 className="text-xs font-mono font-bold text-lightGrey uppercase tracking-wider mb-4">Roadmap</h3>
+      <Card>
+        <SectionLabel>Roadmap</SectionLabel>
         <div className="relative pl-4">
-          <div className="absolute left-0 top-2 bottom-2 w-px bg-cyan/20" />
+          <div className="absolute left-0 top-2 bottom-2 w-px" style={{ backgroundColor: "rgba(0,217,100,0.2)" }} />
           <div className="space-y-5">
             {roadmap.roadmap.map((step, i) => (
               <div key={i} className="relative">
-                <div className="absolute -left-[17px] top-1 w-2 h-2 rounded-full bg-cyan border-2 border-darkBlue" />
-                <p className="text-cyan text-[10px] font-mono mb-1">{step.timeframe}</p>
+                <div
+                  className="absolute -left-[17px] top-1 w-2 h-2 rounded-full border-2"
+                  style={{ backgroundColor: "#00D964", borderColor: "#0A0A0B" }}
+                />
+                <p className="text-[10px] font-mono mb-1" style={{ color: "#00D964" }}>{step.timeframe}</p>
                 <p className="text-white text-xs font-mono font-bold mb-1">{step.milestone}</p>
                 <ul className="space-y-0.5">
                   {step.actions.map((a, j) => (
-                    <li key={j} className="text-lightGrey text-[10px] font-mono flex gap-2">
-                      <span className="text-cyan/40">▸</span>{a}
+                    <li key={j} className="text-[10px] font-mono flex gap-2" style={{ color: "#6B7280" }}>
+                      <span style={{ color: "rgba(0,217,100,0.4)" }}>▸</span>{a}
                     </li>
                   ))}
                 </ul>
@@ -164,30 +196,34 @@ export default function CareerAdvisor() {
             ))}
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Top Companies */}
       {roadmap.topCompanies.length > 0 && (
-        <div className="glass rounded-xl border border-white/10 p-4">
-          <h3 className="text-xs font-mono font-bold text-lightGrey uppercase tracking-wider mb-3">Target Companies</h3>
+        <Card>
+          <SectionLabel>Target Companies</SectionLabel>
           <div className="flex flex-wrap gap-2">
             {roadmap.topCompanies.map((c, i) => (
-              <span key={i} className="text-xs font-mono bg-white/5 border border-white/10 text-white px-2.5 py-1 rounded-full">{c}</span>
+              <span key={i} className="text-xs font-mono px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}>{c}</span>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
-      {/* Certification Recommendations */}
       {roadmap.certificationRecommendations.length > 0 && (
-        <div className="glass rounded-xl border border-white/10 p-4">
-          <h3 className="text-xs font-mono font-bold text-lightGrey uppercase tracking-wider mb-3">Recommended Certifications</h3>
+        <Card>
+          <SectionLabel>Recommended Certifications</SectionLabel>
           <div className="flex flex-wrap gap-2">
             {roadmap.certificationRecommendations.map((c, i) => (
-              <span key={i} className="text-xs font-mono bg-cyan/10 border border-cyan/20 text-cyan px-2.5 py-1 rounded-full">{c}</span>
+              <span
+                key={i}
+                className="text-xs font-mono px-2.5 py-1 rounded-full"
+                style={{ color: "#00D964", border: "1px solid rgba(0,217,100,0.2)", backgroundColor: "rgba(0,217,100,0.06)" }}
+              >
+                {c}
+              </span>
             ))}
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

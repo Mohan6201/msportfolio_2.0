@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-
-export const maxDuration = 60;
 import { requireUser } from "@/lib/accountAuth";
 import { getResume, getLatestVersion, saveAnalysis } from "@/domains/resume/services/resume.service";
 import { scoreATS } from "@/ai/agents/scoreATS";
 import { matchJD } from "@/ai/agents/matchJD";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { session, error } = await requireUser(req);

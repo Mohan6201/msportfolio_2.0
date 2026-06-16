@@ -31,18 +31,20 @@ export default function CertificateMain({ certifications }: { certifications: Ce
               className="glass glass-hover rounded-2xl p-5 border border-white/5 flex flex-col gap-4"
             >
               <div className="relative h-20 rounded-xl overflow-hidden bg-darkGrey/30 border border-white/5">
-                {cert.imageUrl !== "images/blank.png" ? (
-                  <Image
-                    src={`/${cert.imageUrl}`}
-                    alt={cert.title}
-                    fill
-                    className="object-contain p-3"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Award className="w-10 h-10 text-cyan/40" />
-                  </div>
-                )}
+                {(() => {
+                  const raw = cert.imageUrl ?? "";
+                  // Reject blank placeholders and protocol-relative URLs
+                  const src = raw.startsWith("//") || raw.includes("blank.png") || !raw
+                    ? null
+                    : raw.startsWith("http") ? raw : `/${raw.replace(/^\/+/, "")}`;
+                  return src ? (
+                    <Image src={src} alt={cert.title} fill className="object-contain p-3" />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Award className="w-10 h-10 text-cyan/40" />
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="flex flex-col gap-2 flex-1">

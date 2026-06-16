@@ -19,7 +19,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "MS Portfolio <noreply@m-s-r-portfolio.vercel.app>",
+      from: "MS Portfolio <onboarding@resend.dev>",
       to,
       subject,
       html,

@@ -1,8 +1,8 @@
 "use client";
 import { Link } from "react-scroll";
 import NextLink from "next/link";
+import Image from "next/image";
 import { FiGithub, FiLinkedin, FiMail, FiHeart } from "react-icons/fi";
-import { Terminal } from "lucide-react";
 import type { ProfileRow } from "@/domains/profile/services/profile.service";
 
 const NAV = [
@@ -37,13 +37,22 @@ export default function FooterMain({ profile }: FooterMainProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 mb-10 sm:mb-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-cyan/10 border border-cyan/20 flex items-center justify-center">
-                <Terminal className="w-4 h-4 text-cyan" />
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-white/5 ring-1 ring-white/10">
+                <Image
+                  src="/images/icons/badge-hex-bronze.png"
+                  alt="MS Portfolio"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <span className="font-mono font-semibold text-white">
-                <span className="text-cyan">~/</span>{firstName}
-              </span>
+              <div>
+                <span className="font-mono font-semibold text-white block">
+                  M.S – Portfolio
+                </span>
+                <span className="text-[10px] font-mono text-cyan/60">DevOps Engineer</span>
+              </div>
             </div>
             <p className="text-lightGrey text-sm leading-relaxed max-w-xs">
               {profile.title} building scalable cloud infrastructure and automated delivery pipelines.

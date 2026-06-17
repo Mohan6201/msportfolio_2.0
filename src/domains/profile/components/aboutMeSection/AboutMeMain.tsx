@@ -121,6 +121,16 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
                   <p className="text-cyan text-[11px] sm:text-xs font-mono break-words">{profile.title} @ {profile.currentCompany}</p>
                 </div>
               </div>
+              {/* Brand badge accent */}
+              <div className="absolute -top-4 -right-4 z-10 w-14 h-14 rounded-xl overflow-hidden bg-darkBrown ring-2 ring-orange/20 shadow-lg">
+                <Image
+                  src="/images/icons/badge-hex-bronze.png"
+                  alt="MS Badge"
+                  width={56}
+                  height={56}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
 
             {/* Info grid */}

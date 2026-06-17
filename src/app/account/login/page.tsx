@@ -66,11 +66,8 @@ export default function AccountLoginPage() {
       >
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: "#00D964" }}
-          >
-            <Image src="/icons/Actual_Logo.ico" alt="MS" width={22} height={22} className="rounded" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 ring-1 ring-white/10">
+            <Image src="/images/icons/badge-hex-bronze.png" alt="MS" width={40} height={40} className="w-full h-full object-cover" />
           </div>
           <span className="text-white font-bold text-[15px]">MS Portfolio</span>
           <span

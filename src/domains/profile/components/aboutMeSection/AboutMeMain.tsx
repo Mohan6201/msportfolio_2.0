@@ -20,9 +20,9 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
   const yrsNum = Math.floor(parseFloat(yearsOfExperience));
 
   return (
-    <section id="about" className="py-24 px-4">
+    <section id="about" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
           {/* Left: Text */}
           <motion.div
@@ -30,11 +30,11 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6 }}
-            className="flex flex-col gap-6"
+            className="flex flex-col gap-5 sm:gap-6 min-w-0 order-2 lg:order-1"
           >
             <div>
-              <p className="section-tag mb-4">About Me</p>
-              <h2 className="font-special text-3xl sm:text-4xl font-bold text-white mb-4">
+              <p className="section-tag mb-3 sm:mb-4">About Me</p>
+              <h2 className="font-special text-2xl sm:text-4xl font-bold text-white mb-4 leading-snug">
                 Building the infra that{" "}
                 <span className="gradient-text">keeps production running</span>
               </h2>
@@ -42,12 +42,12 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
 
             <div className="terminal w-full">
               <div className="terminal-bar gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-red/70" />
-                <span className="w-2.5 h-2.5 rounded-full bg-orange/70" />
-                <span className="w-2.5 h-2.5 rounded-full bg-green/70" />
+                <span className="w-2.5 h-2.5 rounded-full bg-red/70 flex-shrink-0" />
+                <span className="w-2.5 h-2.5 rounded-full bg-orange/70 flex-shrink-0" />
+                <span className="w-2.5 h-2.5 rounded-full bg-green/70 flex-shrink-0" />
                 <span className="font-mono text-xs text-lightGrey/50 ml-2">about.md</span>
               </div>
-              <div className="terminal-body text-sm leading-relaxed">
+              <div className="terminal-body !px-4 sm:!px-6 text-[0.8rem] sm:text-sm leading-relaxed break-words">
                 <p className="text-lightGrey mb-3">
                   I&apos;m a <span className="text-cyan font-semibold">{profile.title}</span> currently at{" "}
                   <span className="text-orange font-semibold">{profile.currentCompany}</span>,
@@ -82,21 +82,21 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
             </div>
 
             {/* Social links */}
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2.5 sm:gap-3">
               {profile.githubUrl && (
                 <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-lightBrown/40 text-lightGrey hover:text-white hover:border-white/20 transition-all text-sm font-mono">
+                  className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg border border-lightBrown/40 text-lightGrey hover:text-white hover:border-white/20 transition-all text-sm font-mono">
                   <FiGithub className="w-4 h-4" /> GitHub
                 </a>
               )}
               {profile.linkedinUrl && (
                 <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-lightBrown/40 text-lightGrey hover:text-cyan hover:border-cyan/30 transition-all text-sm font-mono">
+                  className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg border border-lightBrown/40 text-lightGrey hover:text-cyan hover:border-cyan/30 transition-all text-sm font-mono">
                   <FiLinkedin className="w-4 h-4" /> LinkedIn
                 </a>
               )}
               <a href={`mailto:${profile.email}`}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-lightBrown/40 text-lightGrey hover:text-orange hover:border-orange/30 transition-all text-sm font-mono">
+                className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg border border-lightBrown/40 text-lightGrey hover:text-orange hover:border-orange/30 transition-all text-sm font-mono">
                 <FiMail className="w-4 h-4" /> Email
               </a>
             </div>
@@ -108,17 +108,17 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="flex flex-col items-center gap-6"
+            className="flex flex-col items-center gap-6 w-full order-1 lg:order-2"
           >
             {/* Profile image */}
-            <div className="relative w-64 h-72 lg:w-72 lg:h-80">
+            <div className="relative w-56 h-64 sm:w-64 sm:h-72 lg:w-72 lg:h-80 max-w-full">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan/20 via-transparent to-orange/10 blur-xl" />
               <div className="relative rounded-2xl overflow-hidden border border-cyan/15 shadow-cyanGlow w-full h-full">
                 <Image src="/images/profile/avatar.png" alt={profile.fullName} fill className="object-cover object-top" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <p className="font-special font-bold text-white text-lg">{profile.fullName}</p>
-                  <p className="text-cyan text-xs font-mono">{profile.title} @ {profile.currentCompany}</p>
+                <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
+                  <p className="font-special font-bold text-white text-base sm:text-lg break-words">{profile.fullName}</p>
+                  <p className="text-cyan text-[11px] sm:text-xs font-mono break-words">{profile.title} @ {profile.currentCompany}</p>
                 </div>
               </div>
             </div>

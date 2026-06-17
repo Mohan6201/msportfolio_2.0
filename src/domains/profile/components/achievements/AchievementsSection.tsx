@@ -16,21 +16,21 @@ export default async function AchievementsSection() {
   const achievements = await getAchievements();
 
   return (
-    <section id="achievements" className="py-16 border-y border-white/5">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <section id="achievements" className="py-12 sm:py-16 border-y border-white/5">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
           {STATS.map(({ key, label, Icon, color, border, bg }) => {
             const value = achievements[key as StatKey];
             return (
               <div
                 key={key}
-                className={`glass rounded-xl border ${border} ${bg} p-4 text-center transition-all hover:scale-[1.02]`}
+                className={`glass rounded-xl border ${border} ${bg} p-3 sm:p-4 text-center transition-all hover:scale-[1.02]`}
               >
-                <div className={`flex justify-center mb-2`}>
+                <div className={`flex justify-center mb-1.5 sm:mb-2`}>
                   <Icon className={`w-4 h-4 ${color}`} />
                 </div>
-                <p className={`font-mono font-bold text-2xl ${color}`}>{value}</p>
-                <p className="text-lightGrey/50 text-[10px] font-mono uppercase tracking-wider mt-1 leading-tight">
+                <p className={`font-mono font-bold text-xl sm:text-2xl ${color}`}>{value}</p>
+                <p className="text-lightGrey/50 text-[9px] sm:text-[10px] font-mono uppercase tracking-wider mt-1 leading-tight break-words">
                   {label}
                 </p>
               </div>

@@ -78,7 +78,7 @@ const ContactForm = () => {
             name="from_name"
             placeholder="Your name"
             required
-            className="h-12 rounded-xl bg-darkBrown border border-lightBrown px-4 text-white placeholder-grey focus:border-cyan focus:outline-none transition-colors duration-200"
+            className="w-full h-12 rounded-xl bg-darkBrown border border-lightBrown px-4 text-white text-base placeholder-grey focus:border-cyan focus:outline-none transition-colors duration-200"
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={status === "loading"}
@@ -92,7 +92,7 @@ const ContactForm = () => {
             name="from_email"
             placeholder="your@email.com"
             required
-            className="h-12 rounded-xl bg-darkBrown border border-lightBrown px-4 text-white placeholder-grey focus:border-cyan focus:outline-none transition-colors duration-200"
+            className="w-full h-12 rounded-xl bg-darkBrown border border-lightBrown px-4 text-white text-base placeholder-grey focus:border-cyan focus:outline-none transition-colors duration-200"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={status === "loading"}
@@ -106,7 +106,7 @@ const ContactForm = () => {
             rows={6}
             placeholder="Tell me about your project or opportunity…"
             required
-            className="rounded-xl bg-darkBrown border border-lightBrown px-4 py-3 text-white placeholder-grey focus:border-cyan focus:outline-none transition-colors duration-200 resize-none"
+            className="w-full rounded-xl bg-darkBrown border border-lightBrown px-4 py-3 text-white text-base placeholder-grey focus:border-cyan focus:outline-none transition-colors duration-200 resize-none"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             disabled={status === "loading"}

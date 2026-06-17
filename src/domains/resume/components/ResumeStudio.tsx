@@ -263,14 +263,14 @@ export default function ResumeStudio() {
   return (
     <>
       {/* ── Page Header ─────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between mb-7">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-7">
         <div>
           <nav className="flex items-center gap-1.5 text-[11px] font-mono mb-3" style={{ color: "#6B7280" }}>
             <span>Career Centre</span>
             <ChevronRight className="w-3 h-3 opacity-40" />
             <span className="text-white">Resume Studio</span>
           </nav>
-          <h1 className="text-white text-[28px] font-bold mb-1">Resume Studio</h1>
+          <h1 className="text-white text-2xl sm:text-[28px] font-bold mb-1">Resume Studio</h1>
           <p className="text-sm font-mono" style={{ color: "#6B7280" }}>
             Upload, analyze, and tailor your resume for DevOps &amp; Cloud roles
           </p>
@@ -286,10 +286,10 @@ export default function ResumeStudio() {
       </div>
 
       {/* ── Two-Panel Layout ────────────────────────────────────────── */}
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-start">
 
         {/* ── LEFT PANEL ──────────────────────────────────────────────── */}
-        <div className="w-64 flex-shrink-0 flex flex-col gap-5">
+        <div className="w-full lg:w-64 flex-shrink-0 flex flex-col gap-5">
 
           {/* "Your Resume" section */}
           <div>
@@ -382,7 +382,7 @@ export default function ResumeStudio() {
             <p className="text-[10px] font-mono uppercase tracking-widest mb-2.5" style={{ color: "#6B7280" }}>
               Template
             </p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-2 gap-2">
               {TEMPLATE_DISPLAY.map(t => {
                 const isSel = selectedTemplate === t.key;
                 return (
@@ -441,7 +441,7 @@ export default function ResumeStudio() {
         <div className="flex-1 min-w-0">
 
           {/* Tab bar */}
-          <div className="flex items-end gap-6 border-b mb-6" style={{ borderColor: "#26262B" }}>
+          <div className="flex items-end gap-4 sm:gap-6 border-b mb-6 overflow-x-auto" style={{ borderColor: "#26262B" }}>
             {(["ats", "cover", "optimize"] as const).map(tab => {
               const labels = { ats: "ATS Score", cover: "Cover Letter", optimize: "Optimize" };
               const isActive = activeTab === tab;
@@ -449,7 +449,7 @@ export default function ResumeStudio() {
                 <button
                   key={tab}
                   onClick={() => { if (hasResume) setActiveTab(tab); }}
-                  className="pb-3 text-[13px] font-mono transition-colors"
+                  className="pb-3 text-[13px] font-mono transition-colors whitespace-nowrap flex-shrink-0"
                   style={{
                     color:        isActive ? "#FFFFFF" : "#6B7280",
                     cursor:       hasResume ? "pointer" : "not-allowed",
@@ -463,7 +463,7 @@ export default function ResumeStudio() {
             })}
             {!hasResume && (
               <div
-                className="ml-auto mb-2 px-2.5 py-1 rounded-full text-[10px] font-mono"
+                className="ml-auto mb-2 px-2.5 py-1 rounded-full text-[10px] font-mono whitespace-nowrap flex-shrink-0"
                 style={{ backgroundColor: "#16161A", border: "1px solid #26262B", color: "#6B7280" }}
               >
                 Upload a resume to unlock
@@ -589,8 +589,8 @@ export default function ResumeStudio() {
                         style={{ borderBottom: i < atsSections.length - 1 ? "1px solid #1e1e24" : "none" }}
                       >
                         <ScoreIcon pct={row.score} />
-                        <span className="text-[13px] font-mono flex-1 text-white">{row.label}</span>
-                        <div className="w-44 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#26262B" }}>
+                        <span className="text-[13px] font-mono flex-1 min-w-0 truncate text-white">{row.label}</span>
+                        <div className="w-20 sm:w-44 h-1.5 rounded-full overflow-hidden flex-shrink-0" style={{ backgroundColor: "#26262B" }}>
                           <div
                             className="h-full rounded-full transition-all duration-700"
                             style={{ width: `${row.score}%`, backgroundColor: scoreColor(row.score) }}
@@ -645,7 +645,7 @@ export default function ResumeStudio() {
                   )}
 
                   {/* Keywords */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="rounded-lg p-4" style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}>
                       <p className="text-[10px] font-mono uppercase tracking-widest mb-3" style={{ color: "#00D964" }}>Found Keywords</p>
                       <div className="flex flex-wrap gap-1.5">
@@ -677,7 +677,7 @@ export default function ResumeStudio() {
             /* ── Cover Letter tab ──────────────────────────────────────── */
             <div className="space-y-4">
               {/* Job details inputs */}
-              <div className="rounded-lg p-4 grid grid-cols-2 gap-3" style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}>
+              <div className="rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 gap-3" style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}>
                 <div>
                   <label className="block text-[10px] font-mono uppercase tracking-widest mb-1.5" style={{ color: "#6B7280" }}>
                     Job Title <span style={{ color: "#EF4444" }}>*</span>
@@ -687,7 +687,7 @@ export default function ResumeStudio() {
                     value={coverJobTitle}
                     onChange={e => setCoverJobTitle(e.target.value)}
                     placeholder="e.g. Senior DevOps Engineer"
-                    className="w-full rounded-md px-3 py-2 text-[12px] font-mono focus:outline-none transition-colors"
+                    className="w-full rounded-md px-3 py-2 text-base sm:text-[12px] font-mono focus:outline-none transition-colors"
                     style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B", color: "#E0E0E0" }}
                     onFocus={e => (e.target.style.borderColor = "#00D964")}
                     onBlur={e  => (e.target.style.borderColor = "#26262B")}
@@ -702,7 +702,7 @@ export default function ResumeStudio() {
                     value={coverCompany}
                     onChange={e => setCoverCompany(e.target.value)}
                     placeholder="e.g. Acme Corp"
-                    className="w-full rounded-md px-3 py-2 text-[12px] font-mono focus:outline-none transition-colors"
+                    className="w-full rounded-md px-3 py-2 text-base sm:text-[12px] font-mono focus:outline-none transition-colors"
                     style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B", color: "#E0E0E0" }}
                     onFocus={e => (e.target.style.borderColor = "#00D964")}
                     onBlur={e  => (e.target.style.borderColor = "#26262B")}
@@ -731,7 +731,7 @@ export default function ResumeStudio() {
                       onChange={e => setJdText(e.target.value)}
                       rows={5}
                       placeholder="Paste the full job description here..."
-                      className="w-full rounded-lg px-3 py-2 text-[12px] font-mono focus:outline-none resize-none"
+                      className="w-full rounded-lg px-3 py-2 text-base sm:text-[12px] font-mono focus:outline-none resize-none"
                       style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B", color: "#9CA3AF" }}
                     />
                   </div>
@@ -748,7 +748,7 @@ export default function ResumeStudio() {
 
               {/* Toolbar */}
               <div
-                className="flex items-center gap-3 px-4 py-2.5 rounded-lg"
+                className="flex flex-wrap items-center gap-2 sm:gap-3 px-4 py-2.5 rounded-lg"
                 style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
               >
                 <button
@@ -822,7 +822,7 @@ export default function ResumeStudio() {
               <div className="rounded-lg overflow-hidden" style={{ border: "1px solid #26262B" }}>
                 {/* Header */}
                 <div
-                  className="grid grid-cols-2 gap-4 px-5 py-3 border-b"
+                  className="hidden sm:grid grid-cols-2 gap-4 px-5 py-3 border-b"
                   style={{ backgroundColor: "#16161A", borderColor: "#26262B" }}
                 >
                   <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: "#6B7280" }}>Original</span>
@@ -833,7 +833,7 @@ export default function ResumeStudio() {
                 {optimizeItems.map((item, i) => (
                   <div
                     key={i}
-                    className="grid grid-cols-2 gap-4 px-5 py-4"
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 px-4 sm:px-5 py-4"
                     style={{
                       backgroundColor: i % 2 === 0 ? "#0d0d10" : "#16161A",
                       borderBottom: i < optimizeItems.length - 1 ? "1px solid #1e1e24" : "none",

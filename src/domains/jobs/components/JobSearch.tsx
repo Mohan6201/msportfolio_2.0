@@ -96,9 +96,9 @@ export default function JobSearch() {
           <span className="opacity-40">/</span>
           <span className="text-white">Jobs</span>
         </nav>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div>
-            <h1 className="text-white text-[28px] font-bold mb-1">Job Search</h1>
+            <h1 className="text-white text-2xl sm:text-[28px] font-bold mb-1">Job Search</h1>
             <p className="text-sm font-mono" style={{ color: "#6B7280" }}>
               {jobTotal > 0 ? `${jobTotal} jobs in catalog` : "Suggested matches · Search · Application tracker"}
             </p>
@@ -122,12 +122,12 @@ export default function JobSearch() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-5" style={{ borderBottom: "1px solid #26262B" }}>
+      <div className="flex gap-1 mb-5 overflow-x-auto" style={{ borderBottom: "1px solid #26262B" }}>
         {(["suggested", "search", "tracker"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className="px-4 py-2 text-xs font-mono rounded-t-lg transition-colors border-b-2"
+            className="px-4 py-2 text-xs font-mono rounded-t-lg transition-colors border-b-2 whitespace-nowrap flex-shrink-0"
             style={
               tab === t
                 ? { color: "#00D964", borderColor: "#00D964" }
@@ -176,7 +176,7 @@ export default function JobSearch() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && search()}
               placeholder="Search jobs by title…"
-              className="flex-1 rounded-lg px-3 py-2 text-white text-xs font-mono placeholder-[#333] focus:outline-none"
+              className="flex-1 min-w-0 rounded-lg px-3 py-2 text-white text-base sm:text-xs font-mono placeholder-[#333] focus:outline-none"
               style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
             />
             <button

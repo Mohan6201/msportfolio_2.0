@@ -56,33 +56,33 @@ const SERVICES = [
 
 export default function ServicesSection() {
   return (
-    <section id="services" className="py-24 bg-darkBrown">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="text-center mb-14">
+    <section id="services" className="py-16 sm:py-24 bg-darkBrown">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10 sm:mb-14">
           <p className="section-tag mb-3">Available for Hire</p>
-          <h2 className="font-special text-3xl sm:text-5xl font-bold text-white mb-4">
+          <h2 className="font-special text-2xl sm:text-5xl font-bold text-white mb-4">
             DevOps <span className="gradient-text">Services</span>
           </h2>
-          <p className="text-lightGrey font-mono text-sm max-w-xl mx-auto">
+          <p className="text-lightGrey font-mono text-xs sm:text-sm max-w-xl mx-auto">
             Freelance and contract DevOps / Cloud Engineering engagements.
             Fixed-scope, fast delivery, production-ready output.
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {SERVICES.map((service) => {
             const Icon = service.icon;
             return (
               <div
                 key={service.title}
-                className="glass rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all group flex flex-col"
+                className="glass rounded-2xl border border-white/10 p-5 sm:p-6 hover:border-white/20 transition-all group flex flex-col"
               >
                 {/* Header */}
                 <div className="flex items-start gap-3 mb-4">
                   <div className={`w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 ${service.color}`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full border ${service.color}`}>
                       {service.badge}
                     </span>
@@ -124,7 +124,7 @@ export default function ServicesSection() {
           })}
 
           {/* CTA card */}
-          <div className="glass rounded-2xl border border-cyan/20 p-6 flex flex-col items-center justify-center text-center gap-4 bg-cyan/3">
+          <div className="glass rounded-2xl border border-cyan/20 p-5 sm:p-6 flex flex-col items-center justify-center text-center gap-4 bg-cyan/3">
             <p className="text-white font-mono font-bold text-sm">Have a custom requirement?</p>
             <p className="text-lightGrey text-xs font-mono leading-relaxed">
               All engagements are tailored to your stack and team. Let&apos;s discuss scope and timeline.

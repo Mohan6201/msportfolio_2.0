@@ -400,6 +400,20 @@ body {
 .blog-prose tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
 .blog-prose blockquote { border-left: 3px solid var(--color-cyan); padding-left: 1.25rem; margin: 1.75rem 0; color: rgba(226,234,246,0.65); font-style: italic; }
 
+/* Blog prose — mobile tuning */
+@media (max-width: 640px) {
+  .blog-prose { line-height: 1.75; font-size: 0.95rem; }
+  .blog-prose h2 { font-size: 1.3rem; margin: 2rem 0 0.85rem; }
+  .blog-prose h3 { font-size: 1.08rem; margin: 1.6rem 0 0.6rem; }
+  .blog-prose p { margin: 1rem 0; }
+  .blog-prose ul, .blog-prose ol { padding-left: 1.25rem; }
+  .blog-prose pre { padding: 1rem; border-radius: 8px; margin: 1.25rem 0; }
+  .blog-prose pre code { font-size: 0.8rem; }
+  .blog-prose code:not(pre code) { word-break: break-word; }
+  /* allow wide tables to scroll instead of overflowing the viewport */
+  .blog-prose table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
 
 /* ── Pipeline utilities ── */
 .pipeline-connector {

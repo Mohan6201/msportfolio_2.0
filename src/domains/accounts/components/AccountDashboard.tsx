@@ -49,7 +49,7 @@ export default function AccountDashboard({ userName }: { userName: string }) {
           <span className="opacity-40">/</span>
           <span className="text-white">Dashboard</span>
         </nav>
-        <h1 className="text-white text-[28px] font-bold mb-1">
+        <h1 className="text-white text-2xl sm:text-[28px] font-bold mb-1 break-words">
           Welcome back, {firstName}
         </h1>
         <p className="text-sm font-mono" style={{ color: "#6B7280" }}>
@@ -58,7 +58,7 @@ export default function AccountDashboard({ userName }: { userName: string }) {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-4 mb-6">
         {[
           { label: "Target Roles", value: roles.length },
           { label: "Locations",    value: locations.length },
@@ -66,11 +66,11 @@ export default function AccountDashboard({ userName }: { userName: string }) {
         ].map(({ label, value }) => (
           <div
             key={label}
-            className="rounded-xl p-4"
+            className="rounded-xl p-3 sm:p-4"
             style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
           >
-            <p className="text-[11px] font-mono uppercase tracking-widest mb-2" style={{ color: "#6B7280" }}>{label}</p>
-            <p className="text-white text-4xl font-bold font-mono leading-none">
+            <p className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest mb-2" style={{ color: "#6B7280" }}>{label}</p>
+            <p className="text-white text-3xl sm:text-4xl font-bold font-mono leading-none">
               {prefs === null ? "—" : value}
             </p>
           </div>
@@ -89,7 +89,7 @@ export default function AccountDashboard({ userName }: { userName: string }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-4 px-5 py-3.5 group transition-colors"
+                className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 group transition-colors"
                 style={{
                   borderBottom: i < QUICK_LINKS.length - 1 ? "1px solid #1e1e24" : "none",
                 }}
@@ -132,7 +132,7 @@ export default function AccountDashboard({ userName }: { userName: string }) {
               </Link>
             </div>
           ) : (
-            <dl className="grid grid-cols-2 gap-x-8 gap-y-3">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
               {[
                 { label: "Remote",   value: prefs.remotePreference ?? "any" },
                 { label: "Salary",   value: prefs.minSalary ? `$${prefs.minSalary.toLocaleString()}+` : "—" },
@@ -141,7 +141,7 @@ export default function AccountDashboard({ userName }: { userName: string }) {
               ].map(({ label, value }) => (
                 <div key={label}>
                   <dt className="text-[10px] font-mono uppercase tracking-widest mb-0.5" style={{ color: "#6B7280" }}>{label}</dt>
-                  <dd className="text-white text-[13px] font-mono">{value}</dd>
+                  <dd className="text-white text-[13px] font-mono break-words">{value}</dd>
                 </div>
               ))}
             </dl>

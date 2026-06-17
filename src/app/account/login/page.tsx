@@ -115,7 +115,7 @@ export default function AccountLoginPage() {
       </div>
 
       {/* ── Right panel (form) ─────────────────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-12 relative z-10">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-12 pb-16 relative z-10">
         <div className="w-full max-w-[400px]">
 
           {/* Mobile logo */}
@@ -165,7 +165,7 @@ export default function AccountLoginPage() {
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full rounded-lg px-4 py-3 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                className="w-full rounded-lg px-4 py-3 text-base sm:text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
                 style={{ backgroundColor: "#0A0A0B", border: error ? "1.5px solid #EF4444" : "1px solid #26262B" }}
               />
               {error && (
@@ -187,7 +187,7 @@ export default function AccountLoginPage() {
                   onChange={e => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full rounded-lg px-4 py-3 pr-12 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                  className="w-full rounded-lg px-4 py-3 pr-12 text-base sm:text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
                   style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
                 />
                 <button

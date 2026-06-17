@@ -156,18 +156,18 @@ export default function GitHubStats() {
   const visibleRepos = showAll ? repos : repos.slice(0, 9);
 
   return (
-    <section id="github" className="py-24 px-4">
+    <section id="github" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          className="mb-14"
+          className="mb-10 sm:mb-14"
         >
           <p className="section-tag mb-4">Open Source</p>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <h2 className="font-special text-3xl sm:text-4xl font-bold text-white">
+            <h2 className="font-special text-2xl sm:text-4xl font-bold text-white">
               GitHub <span className="gradient-text">Repositories</span>
             </h2>
             <a
@@ -186,7 +186,7 @@ export default function GitHubStats() {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="glass rounded-2xl p-5 border border-white/5 mb-10 flex flex-col sm:flex-row items-center gap-6"
+          className="glass rounded-2xl p-4 sm:p-5 border border-white/5 mb-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-6"
         >
           {/* Avatar + profile link */}
           <a
@@ -215,7 +215,7 @@ export default function GitHubStats() {
           <div className="hidden sm:block w-px h-12 bg-white/5" />
 
           {/* Aggregate stats */}
-          <div className="flex flex-wrap gap-8 justify-center">
+          <div className="flex flex-wrap gap-6 sm:gap-8 justify-center">
             {[
               { icon: FiBook,  label: "Repositories", value: stats?.publicRepos },
               { icon: FiStar,  label: "Total Stars",   value: stats?.totalStars },
@@ -243,7 +243,7 @@ export default function GitHubStats() {
 
         {/* Repo grid */}
         {loading ? (
-          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {Array.from({ length: 9 }).map((_, i) => (
               <div key={i} className="glass rounded-xl p-5 border border-white/5 h-36 animate-pulse" />
             ))}
@@ -255,7 +255,7 @@ export default function GitHubStats() {
           </div>
         ) : (
           <>
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {visibleRepos.map((repo, i) => (
                 <RepoCard key={repo.id} repo={repo} index={i} />
               ))}

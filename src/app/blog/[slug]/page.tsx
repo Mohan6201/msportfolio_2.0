@@ -48,10 +48,10 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <main className="min-h-screen bg-darkBrown grid-bg">
       {/* Hero banner */}
-      <div className="relative pt-24 pb-12 px-4 border-b border-white/5">
+      <div className="relative pt-20 sm:pt-24 pb-10 sm:pb-12 px-4 sm:px-6 lg:px-8 border-b border-white/5">
         <div className="absolute -top-20 left-1/4 w-96 h-96 rounded-full bg-cyan/4 blur-[100px] pointer-events-none" />
         <div className="max-w-3xl mx-auto">
-          <Link href="/blog" className="inline-flex items-center gap-2 text-lightGrey hover:text-cyan transition-colors text-sm font-mono mb-8">
+          <Link href="/blog" className="inline-flex items-center gap-2 text-lightGrey hover:text-cyan transition-colors text-sm font-mono mb-6 sm:mb-8">
             <ArrowLeft className="w-4 h-4" /> All articles
           </Link>
 
@@ -59,11 +59,11 @@ export default async function BlogPostPage({ params }: Props) {
             {post.tags.map((tag) => <span key={tag} className="badge badge-cyan">{tag}</span>)}
           </div>
 
-          <h1 className="font-special text-3xl md:text-4xl font-bold text-white mb-5 leading-tight">
+          <h1 className="font-special text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-5 leading-tight break-words">
             {post.title}
           </h1>
 
-          <div className="flex items-center gap-5 text-xs font-mono text-lightGrey/60 pb-6 border-b border-white/5">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-mono text-lightGrey/60 pb-6 border-b border-white/5">
             <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" />
               {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
             </span>
@@ -73,8 +73,8 @@ export default async function BlogPostPage({ params }: Props) {
       </div>
 
       {/* Article */}
-      <div className="max-w-3xl mx-auto px-4 py-14">
-        <article className="blog-prose" dangerouslySetInnerHTML={{ __html: html }} />
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        <article className="blog-prose max-w-full overflow-x-hidden" dangerouslySetInnerHTML={{ __html: html }} />
         <CommentSection slug={slug} />
         <div className="mt-16 pt-8 border-t border-white/5">
           <Link href="/blog" className="inline-flex items-center gap-2 text-cyan hover:text-lightCyan transition-colors font-mono text-sm">

@@ -111,7 +111,7 @@ export default function PipelineStrip() {
   }, [inView]);
 
   return (
-    <section ref={ref} className="relative py-10 px-4 border-y border-white/5 overflow-hidden">
+    <section ref={ref} className="relative py-8 sm:py-10 px-4 sm:px-6 border-y border-white/5 overflow-hidden">
       {/* subtle background */}
       <div className="absolute inset-0 bg-gradient-to-r from-cyan/2 via-transparent to-orange/2 pointer-events-none" />
 
@@ -121,19 +121,19 @@ export default function PipelineStrip() {
           initial={{ opacity: 0, y: 8 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.4 }}
-          className="flex items-center justify-between mb-6 gap-4 flex-wrap"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-5 sm:mb-6 gap-3 sm:gap-4"
         >
-          <div className="flex items-center gap-3">
-            <div className="flex gap-1.5">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex gap-1.5 flex-shrink-0">
               <span className="w-2.5 h-2.5 rounded-full bg-red/70" />
               <span className="w-2.5 h-2.5 rounded-full bg-orange/70" />
               <span className="w-2.5 h-2.5 rounded-full bg-green/70" />
             </div>
-            <span className="font-mono text-xs text-lightGrey/60">
+            <span className="font-mono text-[11px] sm:text-xs text-lightGrey/60 truncate">
               <span className="text-green">$</span> ./pipeline.sh --env production --branch main
             </span>
           </div>
-          <div className="flex items-center gap-4 text-[10px] font-mono">
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 sm:gap-4 text-[10px] font-mono">
             <span className="flex items-center gap-1.5 text-green">
               <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse inline-block" />
               Pipeline Active
@@ -145,10 +145,10 @@ export default function PipelineStrip() {
           </div>
         </motion.div>
 
-        {/* Pipeline stages — horizontal on md+, vertical scroll on mobile */}
-        <div className="flex items-center gap-0 overflow-x-auto pb-2 md:overflow-visible md:pb-0 scrollbar-hide">
+        {/* Pipeline stages — horizontal scroll on mobile, full row on md+ */}
+        <div className="flex items-stretch gap-2 md:gap-0 overflow-x-auto pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:overflow-visible md:pb-0 scrollbar-hide snap-x snap-mandatory md:snap-none">
           {STAGES.map((stage, i) => (
-            <div key={stage.id} className="flex items-center flex-shrink-0 md:flex-shrink md:flex-1">
+            <div key={stage.id} className="flex items-center flex-shrink-0 snap-start md:flex-shrink md:flex-1">
               <StageCard stage={stage} index={i} active={inView} />
               {i < STAGES.length - 1 && (
                 <FlowingConnector
@@ -165,10 +165,10 @@ export default function PipelineStrip() {
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: 0.8 }}
-          className="mt-5 px-3 py-2 rounded-lg bg-black/40 border border-white/5 font-mono text-[10px] text-lightGrey/50 flex items-center gap-2 overflow-hidden"
+          className="mt-5 px-3 py-2 rounded-lg bg-black/40 border border-white/5 font-mono text-[10px] text-lightGrey/50 flex items-start sm:items-center gap-2 overflow-hidden"
         >
-          <span className="text-green flex-shrink-0">●</span>
-          <span className="truncate neon-flicker">
+          <span className="text-green flex-shrink-0 mt-0.5 sm:mt-0">●</span>
+          <span className="neon-flicker break-words sm:truncate">
             [INFO] ECS task revision 47 → healthy · ALB target group 200 OK · Prometheus scrape interval 15s · Zero incidents today
           </span>
         </motion.div>

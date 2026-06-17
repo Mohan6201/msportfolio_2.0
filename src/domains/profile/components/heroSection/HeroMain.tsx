@@ -74,26 +74,26 @@ function TerminalBlock({ profile, yearsOfExperience }: { profile: ProfileRow; ye
   }, [phase, promptLen, outputLen, line]);
 
   return (
-    <div className="terminal w-full max-w-xl">
+    <div className="terminal w-full max-w-full sm:max-w-xl">
       <div className="terminal-bar gap-2">
-        <span className="w-3 h-3 rounded-full bg-red/70" />
-        <span className="w-3 h-3 rounded-full bg-orange/70" />
-        <span className="w-3 h-3 rounded-full bg-green/70" />
-        <span className="ml-2 font-mono text-xs text-lightGrey/50">
+        <span className="w-3 h-3 rounded-full bg-red/70 flex-shrink-0" />
+        <span className="w-3 h-3 rounded-full bg-orange/70 flex-shrink-0" />
+        <span className="w-3 h-3 rounded-full bg-green/70 flex-shrink-0" />
+        <span className="ml-2 font-mono text-[10px] sm:text-xs text-lightGrey/50 truncate">
           bash — {profile.fullName.split(" ")[0].toLowerCase()}@{profile.currentCompany.toLowerCase()} ~
         </span>
       </div>
-      <div className="terminal-body min-h-[230px]">
+      <div className="terminal-body min-h-[260px] sm:min-h-[230px] !px-4 sm:!px-6 !text-[0.72rem] sm:!text-[0.84rem] break-words">
         {LINES.slice(0, line + 1).map((L, i) => (
           <div key={i} className="mb-1.5">
-            <div>
-              <span className="terminal-prompt">
+            <div className="break-words">
+              <span className="terminal-prompt break-all">
                 {i < line ? L.prompt : L.prompt.slice(0, promptLen)}
               </span>
               {i === line && phase === "prompt" && <span className="terminal-cursor" />}
             </div>
             {(i < line || (i === line && (phase === "output" || doneLines > line))) && (
-              <div className="terminal-output pl-2">
+              <div className="terminal-output pl-2 break-words">
                 {i < line ? L.output : L.output.slice(0, outputLen)}
                 {i === line && phase === "output" && <span className="terminal-cursor" />}
               </div>
@@ -129,7 +129,7 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
         <div className="absolute inset-0 bg-gradient-to-br from-cyan/3 via-transparent to-orange/2" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-20 sm:pt-24 pb-16 sm:pb-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 sm:pt-24 pb-16 sm:pb-20">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
           {/* ── Left ── */}
@@ -137,20 +137,20 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
             initial={{ opacity: 0, x: -28 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="flex flex-col gap-6"
+            className="flex flex-col gap-5 sm:gap-6 min-w-0"
           >
-            <div className="flex items-center gap-2 w-fit px-3 py-1.5 rounded-full bg-green/8 border border-green/20">
-              <div className="status-dot" />
-              <span className="text-xs font-mono text-green">Available for DevOps opportunities</span>
+            <div className="flex items-center gap-2 w-fit max-w-full px-3 py-1.5 rounded-full bg-green/8 border border-green/20">
+              <div className="status-dot flex-shrink-0" />
+              <span className="text-[11px] sm:text-xs font-mono text-green truncate">Available for DevOps opportunities</span>
             </div>
 
             <div>
-              <p className="section-tag mb-4">{profile.title} • {profile.currentCompany}</p>
-              <h1 className="font-special font-bold leading-[1.05]">
-                <span className="block text-4xl sm:text-5xl lg:text-[3.6rem] text-white mb-1">
+              <p className="section-tag mb-3 sm:mb-4 text-xs sm:text-sm">{profile.title} • {profile.currentCompany}</p>
+              <h1 className="font-special font-bold leading-[1.08]">
+                <span className="block text-3xl sm:text-5xl lg:text-[3.6rem] text-white mb-1 break-words">
                   {profile.fullName.split(" ")[0]}
                 </span>
-                <span className="block text-4xl sm:text-5xl lg:text-[3.6rem] gradient-text glitch">
+                <span className="block text-3xl sm:text-5xl lg:text-[3.6rem] gradient-text glitch break-words">
                   {profile.fullName.split(" ").slice(1).join(" ")}
                 </span>
               </h1>
@@ -158,11 +158,11 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
 
             <TerminalBlock profile={profile} yearsOfExperience={yearsOfExperience} />
 
-            <div className="flex flex-wrap gap-3 mt-1">
-              <Link to="contact" smooth duration={600} offset={-80} className="cursor-pointer">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mt-1">
+              <Link to="contact" smooth duration={600} offset={-80} className="cursor-pointer w-full sm:w-auto">
                 <motion.button
                   whileTap={{ scale: 0.96 }}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan text-black font-mono font-bold text-sm hover:bg-lightCyan transition-colors shadow-cyanShadow"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 rounded-xl bg-cyan text-black font-mono font-bold text-sm hover:bg-lightCyan transition-colors shadow-cyanShadow"
                 >
                   Hire Me <FiArrowRight className="w-4 h-4" />
                 </motion.button>
@@ -170,7 +170,7 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
               <a
                 href={resumeUrl}
                 download
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-orange/40 text-orange font-mono font-semibold text-sm hover:bg-orange/8 hover:border-orange/70 transition-all"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 rounded-xl border border-orange/40 text-orange font-mono font-semibold text-sm hover:bg-orange/8 hover:border-orange/70 transition-all"
               >
                 Resume <FiDownload className="w-4 h-4" />
               </a>
@@ -198,7 +198,7 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
             initial={{ opacity: 0, x: 28 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.65, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="flex flex-col items-center gap-8"
+            className="flex flex-col items-center gap-7 sm:gap-8 w-full min-w-0"
           >
             {/* Profile photo — clean card frame, no orbit rings */}
             <div className="relative">
@@ -221,23 +221,23 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
             </div>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-3 gap-3 w-full max-w-[280px] mt-2">
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 w-full max-w-[320px] sm:max-w-[280px] mt-2">
               {[
                 { value: yrsNum, suffix: "+", label: "Years Exp.", cls: "border-cyan/15 text-cyan" },
                 { value: 10,     suffix: "+", label: "Projects",  cls: "border-green/15 text-green" },
                 { value: 3,      suffix: "",  label: "Certs",     cls: "border-orange/15 text-orange" },
               ].map(({ value, suffix, label, cls }) => (
-                <div key={label} className={`glass rounded-xl p-3 text-center border ${cls.split(" ")[0]}`}>
-                  <p className={`text-xl font-bold font-mono ${cls.split(" ")[1]}`}>
+                <div key={label} className={`glass rounded-xl p-2.5 sm:p-3 text-center border ${cls.split(" ")[0]}`}>
+                  <p className={`text-lg sm:text-xl font-bold font-mono ${cls.split(" ")[1]}`}>
                     <AnimatedCounter target={value} suffix={suffix} />
                   </p>
-                  <p className="text-[10px] text-lightGrey mt-0.5 font-mono">{label}</p>
+                  <p className="text-[9px] sm:text-[10px] text-lightGrey mt-0.5 font-mono">{label}</p>
                 </div>
               ))}
             </div>
 
             {/* Mini pipeline stages */}
-            <div className="w-full max-w-[300px]">
+            <div className="w-full max-w-[320px] sm:max-w-[300px]">
               <p className="text-[9px] font-mono text-lightGrey/40 uppercase tracking-widest mb-2 text-center">CI/CD Pipeline</p>
               <div className="flex items-center justify-between gap-0">
                 {PIPELINE_STAGES.map((s, i) => (
@@ -248,7 +248,7 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
                         s.status === "active" ? "bg-orange shadow-[0_0_6px_rgba(255,107,53,0.8)] animate-pulse" :
                         "bg-darkGrey border border-white/10"
                       }`} />
-                      <span className={`text-[8px] font-mono ${
+                      <span className={`text-[9px] sm:text-[10px] font-mono ${
                         s.status === "done"   ? "text-green/80" :
                         s.status === "active" ? "text-orange/80" :
                         "text-lightGrey/30"
@@ -271,11 +271,11 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
             </div>
 
             {/* Tech badges */}
-            <div className="flex flex-wrap justify-center gap-2 max-w-[300px]">
+            <div className="flex flex-wrap justify-center gap-2 max-w-[320px] sm:max-w-[300px] px-2">
               {TECH_BADGES.map(({ label, cls }) => (
                 <span
                   key={label}
-                  className={`px-2.5 py-1 rounded-md border text-[11px] font-mono font-medium ${cls}`}
+                  className={`px-2.5 py-1 rounded-md border text-[10px] sm:text-[11px] font-mono font-medium whitespace-nowrap ${cls}`}
                 >
                   {label}
                 </span>

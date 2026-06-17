@@ -29,12 +29,12 @@ export default function FooterMain({ profile }: FooterMainProps) {
   const firstName = profile.fullName.split(" ")[0].toLowerCase();
 
   return (
-    <footer className="relative pt-16 pb-8 px-4 border-t border-white/5 overflow-hidden">
+    <footer className="relative pt-12 sm:pt-16 pb-8 px-4 sm:px-6 lg:px-8 border-t border-white/5 overflow-hidden">
       {/* Glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px] bg-gradient-to-r from-transparent via-cyan/30 to-transparent" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[1px] bg-gradient-to-r from-transparent via-cyan/30 to-transparent" />
 
       <div className="max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-3 gap-10 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 mb-10 sm:mb-12">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -98,11 +98,11 @@ export default function FooterMain({ profile }: FooterMainProps) {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs font-mono text-lightGrey/40">
+        <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <p className="text-[11px] sm:text-xs font-mono text-lightGrey/40">
             © {new Date().getFullYear()} {profile.fullName} · Built with Next.js + Tailwind v4
           </p>
-          <p className="flex items-center gap-1 text-xs font-mono text-lightGrey/40">
+          <p className="flex items-center gap-1 text-[11px] sm:text-xs font-mono text-lightGrey/40">
             Made with <FiHeart className="w-3 h-3 text-orange/60" /> Deployed on Vercel
           </p>
         </div>

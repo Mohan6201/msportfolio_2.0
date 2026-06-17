@@ -6,21 +6,21 @@ import type { CertificationRow } from "@/domains/profile/services/profile.servic
 
 export default function CertificateMain({ certifications }: { certifications: CertificationRow[] }) {
   return (
-    <section id="certificates" className="py-24 px-4">
+    <section id="certificates" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
-          className="mb-14"
+          className="mb-10 sm:mb-14"
         >
           <p className="section-tag mb-4">Credentials</p>
-          <h2 className="font-special text-3xl sm:text-4xl font-bold text-white">
+          <h2 className="font-special text-2xl sm:text-4xl font-bold text-white">
             Certifications &amp; <span className="gradient-text">Achievements</span>
           </h2>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {certifications.map((cert, i) => (
             <motion.div
               key={cert.id}
@@ -47,10 +47,10 @@ export default function CertificateMain({ certifications }: { certifications: Ce
                 })()}
               </div>
 
-              <div className="flex flex-col gap-2 flex-1">
-                <p className="text-white text-sm font-semibold leading-snug">{cert.title}</p>
-                <p className="text-cyan text-xs font-mono">{cert.issuer}</p>
-                <p className="text-lightGrey text-xs leading-relaxed flex-1">{cert.description}</p>
+              <div className="flex flex-col gap-2 flex-1 min-w-0">
+                <p className="text-white text-sm font-semibold leading-snug break-words">{cert.title}</p>
+                <p className="text-cyan text-xs font-mono break-words">{cert.issuer}</p>
+                <p className="text-lightGrey text-xs leading-relaxed flex-1 break-words">{cert.description}</p>
                 <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
                   <span className="text-[10px] font-mono text-lightGrey/60">
                     {new Date(cert.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}

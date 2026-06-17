@@ -75,7 +75,7 @@ export default function SkillsMain({ skills }: { skills: SkillRow[] }) {
   );
 
   return (
-    <section id="skills" className="py-24 px-4">
+    <section id="skills" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -85,7 +85,7 @@ export default function SkillsMain({ skills }: { skills: SkillRow[] }) {
         >
           <p className="section-tag mb-4">Technical Skills</p>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="font-special text-3xl sm:text-4xl font-bold text-white">
+            <h2 className="font-special text-2xl sm:text-3xl md:text-4xl font-bold text-white">
               Tools I <span className="gradient-text">ship with</span>
             </h2>
 
@@ -114,7 +114,7 @@ export default function SkillsMain({ skills }: { skills: SkillRow[] }) {
         <AnimatePresence mode="popLayout">
           <motion.div
             key={active}
-            className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
           >
             {filtered.map((s, i) => (
               <SkillCard
@@ -137,8 +137,8 @@ export default function SkillsMain({ skills }: { skills: SkillRow[] }) {
           className="mt-10 flex items-center gap-3"
         >
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan/20 to-transparent" />
-          <span className="text-[10px] font-mono text-lightGrey/30 whitespace-nowrap">
-            {skills.length} skills · {Math.round(skills.reduce((a, s) => a + s.level, 0) / skills.length)}% avg proficiency
+          <span className="text-[10px] font-mono text-lightGrey/30 whitespace-nowrap text-center">
+            {skills.length} skills · {Math.round(skills.reduce((a, s) => a + s.level, 0) / skills.length)}% avg
           </span>
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan/20 to-transparent" />
         </motion.div>

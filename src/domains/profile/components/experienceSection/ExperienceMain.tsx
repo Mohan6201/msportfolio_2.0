@@ -10,7 +10,7 @@ function TimelineNode({ isCurrent, index, inView }: { isCurrent: boolean; index:
       initial={{ scale: 0, opacity: 0 }}
       animate={inView ? { scale: 1, opacity: 1 } : {}}
       transition={{ delay: index * 0.12 + 0.1, type: "spring", stiffness: 260, damping: 20 }}
-      className={`absolute left-0 md:left-2 top-6 z-10 w-8 h-8 rounded-full border-2 flex items-center justify-center
+      className={`absolute left-0 md:left-2 top-6 z-10 w-7 h-7 md:w-8 md:h-8 rounded-full border-2 flex items-center justify-center
         ${isCurrent
           ? "border-cyan bg-cyan/15 shadow-[0_0_16px_rgba(0,212,255,0.5)]"
           : "border-green/50 bg-green/8"
@@ -32,7 +32,7 @@ export default function ExperienceMain({ experiences }: { experiences: ParsedExp
   const inView = useInView(sectionRef, { once: true, amount: 0.1 });
 
   return (
-    <section id="experience" className="py-24 px-4" ref={sectionRef}>
+    <section id="experience" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-x-hidden" ref={sectionRef}>
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -42,7 +42,7 @@ export default function ExperienceMain({ experiences }: { experiences: ParsedExp
         >
           <p className="section-tag mb-4">Work History</p>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-            <h2 className="font-special text-3xl sm:text-4xl font-bold text-white">
+            <h2 className="font-special text-2xl sm:text-3xl md:text-4xl font-bold text-white">
               Experience <span className="gradient-text">timeline</span>
             </h2>
             <div className="flex items-center gap-2 text-[10px] font-mono text-lightGrey/50">
@@ -54,7 +54,7 @@ export default function ExperienceMain({ experiences }: { experiences: ParsedExp
           </div>
         </motion.div>
 
-        <div className="relative pl-10 md:pl-12">
+        <div className="relative pl-9 sm:pl-10 md:pl-12">
           {/* Animated timeline pipe */}
           <div className="absolute left-3 md:left-5 top-0 bottom-0 w-[2px] overflow-hidden">
             {/* Static base */}
@@ -91,7 +91,7 @@ export default function ExperienceMain({ experiences }: { experiences: ParsedExp
                   viewport={{ once: true, amount: 0.15 }}
                   transition={{ duration: 0.5, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
                 >
-                  <div className={`glass rounded-2xl p-5 sm:p-6 border transition-all duration-300 hover:border-cyan/20 group
+                  <div className={`glass rounded-2xl p-4 sm:p-6 border transition-all duration-300 hover:border-cyan/20 group
                     ${exp.isCurrent ? "border-cyan/15 shadow-[0_0_32px_rgba(0,212,255,0.05)]" : "border-white/5"}`}
                   >
                     {/* Pipeline stage label */}

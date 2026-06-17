@@ -25,24 +25,24 @@ export default function ContactMeMain({ profile, socialLinks }: ContactMeMainPro
   ];
 
   return (
-    <section id="contact" className="py-24 px-4">
+    <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
-          className="mb-14"
+          className="mb-10 sm:mb-14"
         >
           <p className="section-tag mb-4">Get In Touch</p>
-          <h2 className="font-special text-3xl sm:text-4xl font-bold text-white">
+          <h2 className="font-special text-2xl sm:text-4xl font-bold text-white">
             Let&apos;s <span className="gradient-text">connect</span>
           </h2>
-          <p className="text-lightGrey mt-3 max-w-xl">
+          <p className="text-lightGrey text-sm sm:text-base mt-3 max-w-xl">
             Open to DevOps opportunities, consulting, or just a good conversation about cloud architecture.
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-[1fr_1.6fr] gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-6 lg:gap-10">
           {/* Left: Info */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -76,12 +76,12 @@ export default function ContactMeMain({ profile, socialLinks }: ContactMeMainPro
 
             <div className="glass rounded-2xl p-5 border border-white/5">
               <p className="text-xs font-mono text-lightGrey/50 uppercase tracking-widest mb-4">Find me on</p>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 {SOCIALS.filter((s) => s.href !== "#").map(({ Icon, href, label, color }) => (
                   <a key={label} href={href} target="_blank" rel="noopener noreferrer"
                     aria-label={label}
-                    className={`w-10 h-10 rounded-xl glass border border-white/8 flex items-center justify-center transition-all duration-200 hover:border-cyan/30 hover:-translate-y-1 ${color}`}>
-                    <Icon className="w-4.5 h-4.5" />
+                    className={`w-11 h-11 rounded-xl glass border border-white/8 flex items-center justify-center transition-all duration-200 hover:border-cyan/30 hover:-translate-y-1 ${color}`}>
+                    <Icon className="w-5 h-5" />
                   </a>
                 ))}
               </div>
@@ -102,7 +102,7 @@ export default function ContactMeMain({ profile, socialLinks }: ContactMeMainPro
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="glass rounded-2xl p-6 border border-white/5"
+            className="glass rounded-2xl p-5 sm:p-6 border border-white/5"
           >
             <h3 className="text-white font-special font-semibold text-lg mb-6">Send a Message</h3>
             <ContactForm />

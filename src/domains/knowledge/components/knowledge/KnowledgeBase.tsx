@@ -146,7 +146,7 @@ function DocCard({ doc, index }: { doc: Doc; index: number }) {
         </div>
       </div>
 
-      <p className="text-sm font-mono font-medium text-white/90 leading-snug group-hover:text-cyan transition-colors duration-200 flex-1">
+      <p className="text-sm font-mono font-medium text-white/90 leading-snug group-hover:text-cyan transition-colors duration-200 flex-1 break-words">
         {doc.title}
       </p>
 
@@ -430,26 +430,26 @@ export default function KnowledgeBase() {
   }, {});
 
   return (
-    <section id="knowledge" className="py-24 px-4">
+    <section id="knowledge" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          className="mb-14"
+          className="mb-10 sm:mb-14"
         >
           <p className="section-tag mb-4">Knowledge Transfer</p>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <h2 className="font-special text-3xl sm:text-4xl font-bold text-white">
+              <h2 className="font-special text-2xl sm:text-4xl font-bold text-white">
                 KT <span className="gradient-text">Centre</span>
               </h2>
-              <p className="text-lightGrey text-sm font-mono mt-2 max-w-lg">
+              <p className="text-lightGrey text-xs sm:text-sm font-mono mt-2 max-w-lg">
                 {allDocs.length} DevOps resources — interview prep, deep dives, cheat sheets. Free to view and download.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between sm:justify-end gap-3 flex-wrap">
               <div className="text-xs font-mono text-lightGrey/50 flex items-center gap-2">
                 <BookOpen className="w-3.5 h-3.5" />
                 {allDocs.length} PDFs · {CATEGORIES.length - 1} categories
@@ -495,7 +495,7 @@ export default function KnowledgeBase() {
         </motion.div>
 
         {/* Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           <AnimatePresence mode="popLayout">
             {filtered.map((doc, i) => (
               <DocCard key={`${doc.source}-${doc.file}`} doc={doc} index={i} />

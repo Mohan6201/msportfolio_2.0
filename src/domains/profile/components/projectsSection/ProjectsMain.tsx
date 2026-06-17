@@ -84,7 +84,7 @@ export default function ProjectsMain({ projects, githubUrl }: {
   githubUrl?: string | null;
 }) {
   return (
-    <section id="projects" className="py-24 px-4">
+    <section id="projects" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -94,7 +94,7 @@ export default function ProjectsMain({ projects, githubUrl }: {
         >
           <p className="section-tag mb-4">Portfolio</p>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <h2 className="font-special text-3xl sm:text-4xl font-bold text-white">
+            <h2 className="font-special text-2xl sm:text-3xl md:text-4xl font-bold text-white">
               Projects I&apos;ve <span className="gradient-text">shipped</span>
             </h2>
             {githubUrl && (
@@ -106,7 +106,7 @@ export default function ProjectsMain({ projects, githubUrl }: {
           </div>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
           {projects.map((project, i) => (
             <ProjectCard key={project.id} project={project} index={i} />
           ))}

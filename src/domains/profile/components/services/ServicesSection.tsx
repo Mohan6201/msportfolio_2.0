@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Cloud, GitBranch, Container, Terminal, Network, ArrowRight } from "lucide-react";
 
 const SERVICES = [
@@ -60,17 +59,6 @@ export default function ServicesSection() {
     <section id="services" className="py-16 sm:py-24 bg-darkBrown">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 sm:mb-14">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/5 ring-1 ring-orange/20 shadow-lg">
-              <Image
-                src="/images/icons/badge-hex-bronze.png"
-                alt="MS Portfolio"
-                width={64}
-                height={64}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
           <p className="section-tag mb-3">Available for Hire</p>
           <h2 className="font-special text-2xl sm:text-5xl font-bold text-white mb-4">
             DevOps <span className="gradient-text">Services</span>
@@ -137,9 +125,6 @@ export default function ServicesSection() {
 
           {/* CTA card */}
           <div className="glass rounded-2xl border border-cyan/20 p-5 sm:p-6 flex flex-col items-center justify-center text-center gap-4 bg-cyan/3">
-            <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/5 ring-1 ring-cyan/20">
-              <Image src="/images/icons/badge-hex-silver.png" alt="" width={48} height={48} className="w-full h-full object-cover" />
-            </div>
             <p className="text-white font-mono font-bold text-sm">Have a custom requirement?</p>
             <p className="text-lightGrey text-xs font-mono leading-relaxed">
               All engagements are tailored to your stack and team. Let&apos;s discuss scope and timeline.

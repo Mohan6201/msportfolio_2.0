@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { getAchievements } from "@/domains/analytics/services/achievements.service";
 import { Zap, Rocket, Award, BookOpen, MessageSquare, PenLine } from "lucide-react";
 
@@ -19,19 +18,6 @@ export default async function AchievementsSection() {
   return (
     <section id="achievements" className="py-12 sm:py-16 border-y border-white/5">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section seal */}
-        <div className="flex flex-col items-center gap-2 mb-8">
-          <div className="w-14 h-14 rounded-2xl overflow-hidden bg-white/5 ring-1 ring-white/10">
-            <Image
-              src="/images/icons/badge-hex-silver.png"
-              alt="MS Portfolio seal"
-              width={56}
-              height={56}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <p className="text-[10px] font-mono text-lightGrey/40 uppercase tracking-[0.25em]">Achievements & Stats</p>
-        </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
           {STATS.map(({ key, label, Icon, color, border, bg }) => {
             const value = achievements[key as StatKey];

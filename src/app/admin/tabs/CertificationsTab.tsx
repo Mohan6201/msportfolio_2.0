@@ -254,8 +254,35 @@ function CertForm({ form, onChange, onSave, onCancel, saving }: {
           <input className={inp} type="number" value={form.sortOrder} onChange={e => onChange({ ...form, sortOrder: Number(e.target.value) })} />
         </div>
         <div>
-          <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-1.5">Credential Link</label>
-          <input className={inp} value={form.link ?? ""} onChange={f("link")} placeholder="https://..." />
+          <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-2">Credential Status</label>
+          {/* In Progress toggle */}
+          <label className="flex items-center gap-3 cursor-pointer mb-3">
+            <div
+              onClick={() => onChange({ ...form, link: form.link === null ? "" : null })}
+              className="relative w-10 h-5 rounded-full transition-colors flex-shrink-0 cursor-pointer"
+              style={{ backgroundColor: form.link === null ? "#00D964" : "#26262B" }}
+            >
+              <div
+                className="absolute top-0.5 w-4 h-4 rounded-full transition-transform"
+                style={{
+                  backgroundColor: form.link === null ? "#0A0A0B" : "#6B7280",
+                  transform: form.link === null ? "translateX(22px)" : "translateX(2px)",
+                }}
+              />
+            </div>
+            <span className="text-xs font-mono" style={{ color: form.link === null ? "#00D964" : "#6B7280" }}>
+              {form.link === null ? "In Progress" : "Completed"}
+            </span>
+          </label>
+          {/* Credential link — only shown when NOT in progress */}
+          {form.link !== null && (
+            <input
+              className={inp}
+              value={form.link ?? ""}
+              onChange={f("link")}
+              placeholder="https://credential-verify-url..."
+            />
+          )}
         </div>
         <div className="sm:col-span-2">
           <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-1.5">Description</label>

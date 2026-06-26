@@ -1,3 +1,7 @@
+// src/app/api/account/jobs/ingest/route.ts
+// FIX 2b: Pass userId to ingestJobPostings so auto-scoring works
+// REPLACE entire file
+
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/accountAuth";
 import { getPreferences } from "@/domains/accounts/services/accounts.service";
@@ -16,6 +20,7 @@ export async function POST(req: NextRequest) {
   const targetRoles: string[] = prefs ? safeArr(prefs.targetRoles) : [];
   const locations: string[] = prefs ? safeArr(prefs.preferredLocations) : [];
 
-  const result = await ingestJobPostings(targetRoles, locations);
+  // Pass userId so ingest auto-scores new jobs against the user's resume
+  const result = await ingestJobPostings(targetRoles, locations, session!.user.id);
   return NextResponse.json(result);
 }

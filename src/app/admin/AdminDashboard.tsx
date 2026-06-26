@@ -6,7 +6,7 @@ import Image from "next/image";
 import {
   LayoutDashboard, User, Briefcase, Zap, FolderOpen, Award, FileText,
   BookOpen, Tag, Users, Target, Shuffle, Mail, MessageSquare, Bell,
-  Settings, ShieldCheck, LogOut, Search, Plus, ChevronDown,
+  Settings, ShieldCheck, LogOut, Search, Plus, ChevronDown, Images,
 } from "lucide-react";
 
 import { DashboardHome }      from "./tabs/DashboardHome";
@@ -27,6 +27,8 @@ import { UsersTab }            from "./tabs/UsersTab";
 import { JobMatchesTab }       from "./tabs/JobMatchesTab";
 import { JobPreferencesTab }   from "./tabs/JobPreferencesTab";
 import { SiteSettingsTab }     from "./tabs/SiteSettingsTab";
+import { AnalyticsTab as AnalyticsTabNew } from "./tabs/AnalyticsTab";
+import { MediaLibraryTab }    from "./tabs/MediaLibraryTab";
 
 const authClient = createAuthClient();
 
@@ -36,7 +38,7 @@ type Section =
   | "kt-documents" | "kt-categories"
   | "users" | "job-preferences" | "job-matches"
   | "messages" | "comments" | "newsletter"
-  | "analytics" | "site-settings" | "admin-account";
+  | "analytics" | "site-settings" | "admin-account" | "media-library";
 
 interface NavItem { id: Section; label: string; icon: React.ElementType }
 interface NavGroup { label: string; items: NavItem[] }
@@ -83,7 +85,8 @@ const NAV: NavGroup[] = [
   {
     label: "SETTINGS",
     items: [
-      { id: "analytics",    label: "Analytics",    icon: LayoutDashboard },
+      { id: "analytics",     label: "Analytics",    icon: LayoutDashboard },
+      { id: "media-library", label: "Media Library", icon: Images },
       { id: "social",       label: "Social Links",  icon: Shuffle },
       { id: "site-settings", label: "Site Settings", icon: Settings },
       { id: "admin-account", label: "Admin Account", icon: ShieldCheck },
@@ -134,7 +137,8 @@ export default function AdminDashboard() {
       case "users":          return <UsersTab key={key} />;
       case "job-matches":    return <JobMatchesTab key={key} />;
       case "job-preferences":return <JobPreferencesTab key={key} />;
-      case "site-settings":  return <SiteSettingsTab key={key} />;
+      case "site-settings":  return <SiteSettingsTab key={key} />
+      case "media-library":  return <MediaLibraryTab key={key} />
       default:               return <ComingSoon label={active} />;
     }
   };

@@ -140,7 +140,7 @@ export default function ResumeStudio() {
       const res = await fetch("/api/account/resume/upload", { method: "POST", body: formData });
       if (!res.ok) {
         let msg = "Upload failed";
-        try { const d = await res.json(); msg = d.error ?? msg; } catch {}
+        try { const d = await res.json(); msg = d.error ?? msg; } catch { /* ignore */ }
         throw new Error(msg);
       }
       let result: { structuredData: typeof resumeData; resumeId: number; versionId: number };
@@ -184,7 +184,7 @@ export default function ResumeStudio() {
       });
       if (!res.ok) {
         let msg = "Analysis failed";
-        try { const d = await res.json(); msg = d.error ?? msg; } catch {}
+        try { const d = await res.json(); msg = d.error ?? msg; } catch { /* ignore */ }
         throw new Error(msg);
       }
       const { result } = await res.json();
@@ -218,7 +218,7 @@ export default function ResumeStudio() {
       });
       if (!res.ok) {
         let msg = "Generation failed";
-        try { const d = await res.json(); msg = d.error ?? msg; } catch {}
+        try { const d = await res.json(); msg = d.error ?? msg; } catch { /* ignore */ }
         throw new Error(msg);
       }
       const data = await res.json();

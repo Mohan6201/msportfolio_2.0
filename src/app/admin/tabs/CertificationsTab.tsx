@@ -1,9 +1,7 @@
 // src/app/admin/tabs/CertificationsTab.tsx
-// FULL REPLACEMENT — redesigned with ImageUploader, preview cards, consistent design system
-
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { Plus, Pencil, Trash2, Check, X, Loader2, ExternalLink, Award } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Plus, Pencil, Trash2, Check, X, Loader2, ExternalLink, Award, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 
 type Cert = {
@@ -11,123 +9,223 @@ type Cert = {
   description: string; imageUrl: string; link: string | null; sortOrder: number;
 };
 type CertDraft = Omit<Cert, "id">;
+type MonthYear = { year: number; month: number };
 
 const BLANK: CertDraft = { title: "", issuer: "", date: "", description: "", imageUrl: "", link: "", sortOrder: 0 };
+const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTHS_FULL  = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 const inp = "w-full bg-[#0A0A0B] border border-[#26262B] rounded-lg px-3 py-2 text-white text-xs font-mono focus:outline-none focus:border-[#00D964] transition-colors placeholder-[#374151]";
 const ta  = `${inp} resize-y min-h-[72px]`;
 
-// ─── Date helpers ────────────────────────────────────────────────────────────
-// Stored format: "May 2025 – Present"  |  "May 2025 – Dec 2026"  |  "May 2025"
-// Input[type=month] format: "YYYY-MM"
+function fmtDisplay(my: MonthYear): string { return `${MONTHS_SHORT[my.month]} ${my.year}`; }
+function fmtStored(my: MonthYear): string  { return `${MONTHS_FULL[my.month]} ${my.year}`; }
 
-function toMonthInput(part: string): string {
-  // part = "May 2025" → "2025-05"
-  if (!part || part === "Present") return "";
-  const d = new Date(`${part} 1`);
-  if (isNaN(d.getTime())) return "";
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  return `${y}-${m}`;
+function parseStored(str: string): MonthYear | null {
+  if (!str || str === "Present") return null;
+  const d = new Date(`${str} 1`);
+  if (isNaN(d.getTime())) return null;
+  return { year: d.getFullYear(), month: d.getMonth() };
 }
 
-function fromMonthInput(val: string): string {
-  // val = "2025-05" → "May 2025"
-  if (!val) return "";
-  const [y, m] = val.split("-");
-  const d = new Date(Number(y), Number(m) - 1, 1);
-  return d.toLocaleString("default", { month: "long", year: "numeric" });
+function buildStoredDate(from: MonthYear | null, to: MonthYear | null, present: boolean): string {
+  if (!from) return "";
+  const start = fmtStored(from);
+  if (present) return `${start} – Present`;
+  if (to) return `${start} – ${fmtStored(to)}`;
+  return start;
 }
 
-function parseDateField(date: string): { start: string; end: string; present: boolean } {
-  if (!date) return { start: "", end: "", present: true };
-  const parts = date.split(" – ");
-  const start = parts[0]?.trim() ?? "";
-  const endRaw = parts[1]?.trim() ?? "Present";
-  const present = endRaw === "Present";
-  return { start, end: present ? "" : endRaw, present };
+function isInRange(my: MonthYear, from: MonthYear | null, to: MonthYear | null): boolean {
+  if (!from || !to) return false;
+  const v = my.year * 12 + my.month;
+  const f = from.year * 12 + from.month;
+  const t = to.year * 12 + to.month;
+  return v > f && v < t;
 }
 
-function buildDateField(start: string, end: string, present: boolean): string {
-  if (!start) return "";
-  return present ? `${start} – Present` : end ? `${start} – ${end}` : start;
-}
+// ─── MonthYearPicker popup ────────────────────────────────────────────────────
+function MonthYearPicker({
+  which, value, otherValue, present, onSelect, onClear,
+}: {
+  which: "from" | "to";
+  value: MonthYear | null;
+  otherValue: MonthYear | null;
+  present: boolean;
+  onSelect: (my: MonthYear) => void;
+  onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [viewYear, setViewYear] = useState(value?.year ?? new Date().getFullYear());
+  const ref = useRef<HTMLDivElement>(null);
 
-// ─── Date Range Picker ───────────────────────────────────────────────────────
-function DateRangePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const { start, end, present } = parseDateField(value);
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    if (open) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
 
-  const handleStart = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newStart = fromMonthInput(e.target.value);
-    onChange(buildDateField(newStart, end, present));
-  };
+  useEffect(() => { if (value) setViewYear(value.year); }, [value]);
 
-  const handleEnd = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newEnd = fromMonthInput(e.target.value);
-    onChange(buildDateField(start, newEnd, false));
-  };
+  const isDisabled = which === "to" && present;
 
-  const handlePresent = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(buildDateField(start, end, e.target.checked));
-  };
+  const fromMy = which === "to"   ? otherValue : value;
+  const toMy   = which === "from" ? otherValue : value;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div ref={ref} className="relative flex-1 min-w-[140px]">
+      <button
+        type="button"
+        onClick={() => { if (!isDisabled) setOpen(o => !o); }}
+        disabled={isDisabled}
+        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border text-xs font-mono transition-colors focus:outline-none"
+        style={{
+          backgroundColor: "#0A0A0B",
+          borderColor: open ? "#00D964" : "#26262B",
+          color: isDisabled ? "#374151" : value ? "#fff" : "#6B7280",
+          cursor: isDisabled ? "not-allowed" : "pointer",
+          opacity: isDisabled ? 0.4 : 1,
+        }}
+      >
+        <span>{isDisabled ? "Present" : value ? fmtDisplay(value) : "Select month"}</span>
+        <Calendar className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#6B7280" }} />
+      </button>
+
+      {open && (
+        <div
+          className="absolute z-50 top-full mt-1.5 left-0 rounded-xl overflow-hidden"
+          style={{
+            width: "240px",
+            backgroundColor: "#16161A",
+            border: "1px solid #2a2a30",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+          }}
+        >
+          {/* Year navigation */}
+          <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid #26262B" }}>
+            <button
+              type="button"
+              onClick={() => setViewYear(y => y - 1)}
+              className="p-1 rounded-lg transition-colors hover:bg-[#26262B]"
+              style={{ color: "#6B7280" }}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-white text-sm font-bold font-mono">{viewYear}</span>
+            <button
+              type="button"
+              onClick={() => setViewYear(y => y + 1)}
+              className="p-1 rounded-lg transition-colors hover:bg-[#26262B]"
+              style={{ color: "#6B7280" }}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Month grid */}
+          <div className="grid grid-cols-3 gap-1 p-3">
+            {MONTHS_SHORT.map((m, i) => {
+              const thisMy: MonthYear = { year: viewYear, month: i };
+              const isSelected = value?.year === viewYear && value?.month === i;
+              const inRange = isInRange(thisMy, fromMy, toMy);
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => { onSelect({ year: viewYear, month: i }); setTimeout(() => setOpen(false), 180); }}
+                  className="py-2 rounded-lg text-[11px] font-mono transition-all"
+                  style={{
+                    backgroundColor: isSelected ? "#00D964" : inRange ? "rgba(0,217,100,0.12)" : "transparent",
+                    color: isSelected ? "#0A0A0B" : inRange ? "#00D964" : "#9CA3AF",
+                    fontWeight: isSelected ? 700 : 400,
+                  }}
+                  onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#26262B"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = isSelected ? "#00D964" : inRange ? "rgba(0,217,100,0.12)" : "transparent"; }}
+                >
+                  {m}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Footer */}
+          <div className="flex gap-2 px-3 pb-3">
+            <button
+              type="button"
+              onClick={() => { onClear(); setOpen(false); }}
+              className="flex-1 py-1.5 rounded-lg text-[11px] font-mono transition-colors hover:border-[#374151]"
+              style={{ border: "1px solid #26262B", color: "#6B7280", backgroundColor: "transparent" }}
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="flex-1 py-1.5 rounded-lg text-[11px] font-mono font-bold"
+              style={{ backgroundColor: "#00D964", color: "#0A0A0B", border: "none" }}
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── DateRangePicker ──────────────────────────────────────────────────────────
+function DateRangePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const parts   = value.split(" – ");
+  const from    = parseStored(parts[0]?.trim() ?? "");
+  const toRaw   = parts[1]?.trim() ?? "";
+  const present = toRaw === "Present";
+  const to      = present ? null : parseStored(toRaw);
+
+  return (
+    <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 flex-wrap">
-        {/* Start date */}
         <div className="flex flex-col gap-1 flex-1 min-w-[140px]">
           <label className="text-[10px] text-[#6B7280] font-mono uppercase tracking-widest">From</label>
-          <input
-            type="month"
-            value={toMonthInput(start)}
-            onChange={handleStart}
-            className={inp}
-            style={{ colorScheme: "dark" }}
+          <MonthYearPicker
+            which="from" value={from} otherValue={to} present={false}
+            onSelect={my => onChange(buildStoredDate(my, to, present))}
+            onClear={() => onChange(buildStoredDate(null, to, present))}
           />
         </div>
-
-        <span className="text-[#374151] font-mono text-xs mt-4">→</span>
-
-        {/* End date */}
+        <span className="text-[#374151] font-mono text-sm" style={{ marginTop: "18px" }}>→</span>
         <div className="flex flex-col gap-1 flex-1 min-w-[140px]">
           <label className="text-[10px] text-[#6B7280] font-mono uppercase tracking-widest">To</label>
-          <input
-            type="month"
-            value={present ? "" : toMonthInput(end)}
-            onChange={handleEnd}
-            disabled={present}
-            className={inp}
-            style={{
-              colorScheme: "dark",
-              opacity: present ? 0.4 : 1,
-              cursor: present ? "not-allowed" : "auto",
-            }}
+          <MonthYearPicker
+            which="to" value={to} otherValue={from} present={present}
+            onSelect={my => onChange(buildStoredDate(from, my, false))}
+            onClear={() => onChange(buildStoredDate(from, null, false))}
           />
         </div>
       </div>
 
-      {/* Present checkbox */}
       <label className="flex items-center gap-2 cursor-pointer w-fit">
         <input
           type="checkbox"
           checked={present}
-          onChange={handlePresent}
-          className="w-3.5 h-3.5 rounded accent-[#00D964]"
+          onChange={e => onChange(buildStoredDate(from, to, e.target.checked))}
+          className="w-3.5 h-3.5 rounded"
+          style={{ accentColor: "#00D964" }}
         />
         <span className="text-xs font-mono text-[#6B7280]">Currently active / Present</span>
       </label>
 
-      {/* Preview of stored value */}
       {value && (
-        <p className="text-[10px] font-mono text-[#374151]">
-          Stored as: <span className="text-[#6B7280]">{value}</span>
+        <p className="text-[10px] font-mono" style={{ color: "#374151" }}>
+          Stored as: <span style={{ color: "#6B7280" }}>{value}</span>
         </p>
       )}
     </div>
   );
 }
 
-// ─── Cert Form ───────────────────────────────────────────────────────────────
+// ─── CertForm ─────────────────────────────────────────────────────────────────
 function CertForm({ form, onChange, onSave, onCancel, saving }: {
   form: CertDraft; onChange: (f: CertDraft) => void;
   onSave: () => void; onCancel: () => void; saving: boolean;
@@ -147,16 +245,10 @@ function CertForm({ form, onChange, onSave, onCancel, saving }: {
           <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-1.5">Issuer *</label>
           <input className={inp} value={form.issuer} onChange={f("issuer")} placeholder="e.g. Amazon Web Services" />
         </div>
-
-        {/* ── Date Range Picker replaces plain text input ── */}
         <div className="sm:col-span-2">
           <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-1.5">Issue Date / Date Range</label>
-          <DateRangePicker
-            value={form.date}
-            onChange={date => onChange({ ...form, date })}
-          />
+          <DateRangePicker value={form.date} onChange={date => onChange({ ...form, date })} />
         </div>
-
         <div>
           <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-1.5">Sort Order</label>
           <input className={inp} type="number" value={form.sortOrder} onChange={e => onChange({ ...form, sortOrder: Number(e.target.value) })} />
@@ -200,7 +292,7 @@ function CertForm({ form, onChange, onSave, onCancel, saving }: {
   );
 }
 
-// ─── Main Tab ────────────────────────────────────────────────────────────────
+// ─── Main Tab ─────────────────────────────────────────────────────────────────
 export function CertificationsTab() {
   const [items, setItems]           = useState<Cert[]>([]);
   const [loading, setLoading]       = useState(true);
@@ -267,7 +359,6 @@ export function CertificationsTab() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(0,217,100,0.1)" }}>
@@ -289,10 +380,8 @@ export function CertificationsTab() {
         )}
       </div>
 
-      {/* Add form */}
       {adding && <CertForm form={form} onChange={setForm} onSave={save} onCancel={cancel} saving={saving} />}
 
-      {/* Empty state */}
       {items.length === 0 && !adding && (
         <div className="flex flex-col items-center justify-center py-16 rounded-xl" style={{ backgroundColor: "#16161A", border: "1px dashed #26262B" }}>
           <Award className="w-8 h-8 text-[#374151] mb-3" />
@@ -301,7 +390,6 @@ export function CertificationsTab() {
         </div>
       )}
 
-      {/* Certification cards */}
       <div className="grid sm:grid-cols-2 gap-3">
         {items.map(c =>
           editingId === c.id ? (
@@ -312,55 +400,29 @@ export function CertificationsTab() {
             <div
               key={c.id}
               className="rounded-xl p-4 flex items-start gap-3 transition-opacity"
-              style={{
-                backgroundColor: "#16161A",
-                border: "1px solid #26262B",
-                opacity: deletingId === c.id ? 0.5 : 1,
-              }}
+              style={{ backgroundColor: "#16161A", border: "1px solid #26262B", opacity: deletingId === c.id ? 0.5 : 1 }}
             >
-              {/* Image / badge */}
               <div className="w-12 h-12 rounded-lg border border-[#26262B] flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ backgroundColor: "#0A0A0B" }}>
-                {c.imageUrl ? (
-                  <img src={c.imageUrl} alt={c.title} className="w-full h-full object-cover" />
-                ) : (
-                  <Award className="w-5 h-5 text-[#374151]" />
-                )}
+                {c.imageUrl ? <img src={c.imageUrl} alt={c.title} className="w-full h-full object-cover" /> : <Award className="w-5 h-5 text-[#374151]" />}
               </div>
-
-              {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-white text-sm font-bold font-mono truncate">{c.title}</p>
                   {c.link && (
-                    <a href={c.link} target="_blank" rel="noopener noreferrer"
-                      className="text-[#6B7280] hover:text-[#00D964] transition-colors flex-shrink-0">
+                    <a href={c.link} target="_blank" rel="noopener noreferrer" className="text-[#6B7280] hover:text-[#00D964] transition-colors flex-shrink-0">
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   )}
                 </div>
                 <p className="text-[#00D964] text-xs font-mono mt-0.5">{c.issuer}</p>
                 <p className="text-[#6B7280] text-[11px] font-mono mt-0.5">{c.date}</p>
-                {c.description && (
-                  <p className="text-[#6B7280] text-[11px] font-mono mt-1.5 leading-relaxed line-clamp-2">{c.description}</p>
-                )}
+                {c.description && <p className="text-[#6B7280] text-[11px] font-mono mt-1.5 leading-relaxed line-clamp-2">{c.description}</p>}
               </div>
-
-              {/* Actions */}
               <div className="flex flex-col gap-1 flex-shrink-0">
-                <button
-                  onClick={() => startEdit(c)}
-                  className="p-1.5 rounded-lg border transition-colors"
-                  style={{ borderColor: "#26262B", color: "#6B7280" }}
-                  title="Edit"
-                >
+                <button onClick={() => startEdit(c)} className="p-1.5 rounded-lg border transition-colors" style={{ borderColor: "#26262B", color: "#6B7280" }} title="Edit">
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
-                <button
-                  onClick={() => remove(c.id)}
-                  disabled={deletingId === c.id}
-                  className="p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
-                  title="Delete"
-                >
+                <button onClick={() => remove(c.id)} disabled={deletingId === c.id} className="p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50" title="Delete">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>

@@ -1,7 +1,11 @@
+// src/domains/accounts/components/AccountDashboard.tsx
+// FIX 3: Live stats — resume count, job matches, applications
+// REPLACE entire file
+
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FileText, Briefcase, TrendingUp, MessageSquare, Settings, ArrowRight } from "lucide-react";
+import { FileText, Briefcase, TrendingUp, MessageSquare, Settings, ArrowRight, Loader2 } from "lucide-react";
 
 type Prefs = {
   targetRoles?: string;
@@ -12,33 +16,64 @@ type Prefs = {
   keywords?: string;
 };
 
+type Stats = {
+  resumeCount: number;
+  jobMatchCount: number;
+  appliedCount: number;
+  jobCatalogTotal: number;
+};
+
 function parseArr(v: string | undefined): string[] {
   try { return v ? JSON.parse(v) : []; } catch { return []; }
 }
 
 const QUICK_LINKS = [
-  { label: "Resume Studio",  href: "/account/resume",    icon: FileText,     desc: "Upload or update your resume" },
-  { label: "Job Search",     href: "/account/jobs",      icon: Briefcase,    desc: "Browse AI-matched job listings" },
-  { label: "Career Advisor", href: "/account/career",    icon: TrendingUp,   desc: "Generate your career roadmap" },
+  { label: "Resume Studio",  href: "/account/resume",    icon: FileText,      desc: "Upload or update your resume" },
+  { label: "Job Search",     href: "/account/jobs",      icon: Briefcase,     desc: "Browse AI-matched job listings" },
+  { label: "Career Advisor", href: "/account/career",    icon: TrendingUp,    desc: "Generate your career roadmap" },
   { label: "Interview Lab",  href: "/account/interview", icon: MessageSquare, desc: "Practice with AI feedback" },
-  { label: "Preferences",   href: "/account/settings",  icon: Settings,     desc: "Set target roles and locations" },
+  { label: "Preferences",   href: "/account/settings",  icon: Settings,      desc: "Set target roles and locations" },
 ];
 
 export default function AccountDashboard({ userName }: { userName: string }) {
   const [prefs, setPrefs] = useState<Prefs | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
+    // Fetch preferences
     fetch("/api/account/preferences")
       .then(r => r.json())
       .then(setPrefs)
       .catch(() => setPrefs({}));
+
+    // Fetch live stats in parallel
+    Promise.all([
+      fetch("/api/account/resume").then(r => r.json()).catch(() => []),
+      fetch("/api/account/jobs?view=suggested").then(r => r.json()).catch(() => []),
+      fetch("/api/account/jobs?view=catalog").then(r => r.json()).catch(() => ({ total: 0 })),
+    ]).then(([resumes, matches, catalog]) => {
+      const matchArr = Array.isArray(matches) ? matches : [];
+      setStats({
+        resumeCount: Array.isArray(resumes) ? resumes.length : 0,
+        jobMatchCount: matchArr.length,
+        appliedCount: matchArr.filter((m: { status: string }) =>
+          ["applied", "interviewing", "offer"].includes(m.status)
+        ).length,
+        jobCatalogTotal: catalog?.total ?? 0,
+      });
+    });
   }, []);
 
   const roles     = parseArr(prefs?.targetRoles);
   const locations = parseArr(prefs?.preferredLocations);
-  const keywords  = parseArr(prefs?.keywords);
-
   const firstName = userName.split(" ")[0];
+
+  const statCards = [
+    { label: "Resumes",       value: stats?.resumeCount     ?? null },
+    { label: "Job Matches",   value: stats?.jobMatchCount   ?? null },
+    { label: "Applications",  value: stats?.appliedCount    ?? null },
+    { label: "Jobs in Catalog", value: stats?.jobCatalogTotal ?? null },
+  ];
 
   return (
     <div className="max-w-3xl">
@@ -57,22 +92,20 @@ export default function AccountDashboard({ userName }: { userName: string }) {
         </p>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-2.5 sm:gap-4 mb-6">
-        {[
-          { label: "Target Roles", value: roles.length },
-          { label: "Locations",    value: locations.length },
-          { label: "Keywords",     value: keywords.length },
-        ].map(({ label, value }) => (
+      {/* Live stat cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 mb-6">
+        {statCards.map(({ label, value }) => (
           <div
             key={label}
             className="rounded-xl p-3 sm:p-4"
             style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
           >
             <p className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest mb-2" style={{ color: "#6B7280" }}>{label}</p>
-            <p className="text-white text-3xl sm:text-4xl font-bold font-mono leading-none">
-              {prefs === null ? "—" : value}
-            </p>
+            {value === null ? (
+              <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#374151" }} />
+            ) : (
+              <p className="text-white text-3xl sm:text-4xl font-bold font-mono leading-none">{value}</p>
+            )}
           </div>
         ))}
       </div>
@@ -90,9 +123,7 @@ export default function AccountDashboard({ userName }: { userName: string }) {
                 key={item.href}
                 href={item.href}
                 className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 group transition-colors"
-                style={{
-                  borderBottom: i < QUICK_LINKS.length - 1 ? "1px solid #1e1e24" : "none",
-                }}
+                style={{ borderBottom: i < QUICK_LINKS.length - 1 ? "1px solid #1e1e24" : "none" }}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors group-hover:bg-[#00D964]/15"
@@ -134,9 +165,9 @@ export default function AccountDashboard({ userName }: { userName: string }) {
           ) : (
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
               {[
-                { label: "Remote",   value: prefs.remotePreference ?? "any" },
-                { label: "Salary",   value: prefs.minSalary ? `$${prefs.minSalary.toLocaleString()}+` : "—" },
-                { label: "Roles",    value: roles.join(", ") || "—" },
+                { label: "Remote",    value: prefs.remotePreference ?? "any" },
+                { label: "Salary",    value: prefs.minSalary ? `$${prefs.minSalary.toLocaleString()}+` : "—" },
+                { label: "Roles",     value: roles.join(", ") || "—" },
                 { label: "Locations", value: locations.join(", ") || "—" },
               ].map(({ label, value }) => (
                 <div key={label}>

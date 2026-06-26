@@ -30,7 +30,7 @@ jobs:
       - name: Run TypeScript type check
         run: npx tsc --noEmit
 
-  # ─── Job 2: Lint via Next.js built-in ─────────────────────────────
+  # ─── Job 2: ESLint v9 flat config ─────────────────────────────────
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -47,7 +47,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Next.js lint
-        run: npx next lint
+      - name: Run ESLint
+        run: npm run lint
         env:
           NEXT_TELEMETRY_DISABLED: '1'

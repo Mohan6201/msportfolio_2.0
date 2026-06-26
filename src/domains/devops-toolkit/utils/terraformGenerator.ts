@@ -406,7 +406,7 @@ resource "aws_autoscaling_group" "app" {
 
   launch_template {
     id      = aws_launch_template.app.id
-    version = "\$Latest"
+   version = "$Latest"
   }
 
   target_group_arns = [aws_lb_target_group.app.arn]

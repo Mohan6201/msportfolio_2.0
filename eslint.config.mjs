@@ -1,68 +1,60 @@
 import js from '@eslint/js';
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
-/** @type {import('eslint').Linter.Config[]} */
 const config = [
-  // ─── Ignore patterns ──────────────────────────────────────────────
   {
     ignores: [
       '.next/**',
       'node_modules/**',
       'dist/**',
       'out/**',
-      '*.config.js',
-      '*.config.mjs',
-      '*.config.ts',
+      'next.config.*',
+      'postcss.config.*',
+      'tailwind.config.*',
       'scripts/**',
     ],
   },
 
-  // ─── Base JS rules ────────────────────────────────────────────────
   js.configs.recommended,
 
-  // ─── React + Hooks ────────────────────────────────────────────────
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    files: ['**/*.{ts,tsx}'],
     plugins: {
+      '@typescript-eslint': tsPlugin,
       react: reactPlugin,
       'react-hooks': reactHooksPlugin,
     },
     languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: { jsx: true },
+      },
       globals: {
         ...globals.browser,
         ...globals.node,
         ...globals.es2021,
       },
-      parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
     },
     settings: {
-      react: {
-        version: 'detect',
-      },
+      react: { version: 'detect' },
     },
     rules: {
-      // React
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      'no-undef': 'off',
+      'no-console': 'warn',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       'react/display-name': 'warn',
       'react/no-unescaped-entities': 'off',
-
-      // React Hooks
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
-
-      // General
-      'no-unused-vars': 'warn',
-      'no-console': 'warn',
-      'no-undef': 'off',
     },
   },
 ];

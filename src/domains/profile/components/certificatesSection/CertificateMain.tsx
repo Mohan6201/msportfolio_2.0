@@ -38,10 +38,10 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
         transition={{ duration: 0.45, delay: index * 0.08 }}
         className="glass glass-hover rounded-2xl p-5 border border-white/5 flex flex-col gap-4"
       >
-        {/* Badge image — object-cover fills container, no padding */}
-        <div className="relative h-20 rounded-xl overflow-hidden bg-darkGrey/30 border border-white/5">
+        {/* Badge image */}
+        <div className="relative h-24 rounded-xl overflow-hidden border border-white/5" style={{ backgroundColor: "#0d0d14" }}>
           {src ? (
-            <Image src={src} alt={cert.title} fill className="object-cover" />
+            <Image src={src} alt={cert.title} fill className="object-contain p-2" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <Award className="w-10 h-10 text-cyan/40" />
@@ -117,9 +117,9 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
                 </button>
               </div>
 
-              {/* Lightbox uses object-contain so full certificate document is visible */}
-              <div className="relative w-full bg-white/5" style={{ aspectRatio: "4/3" }}>
-                <Image src={src!} alt={cert.title} fill className="object-contain p-6" />
+              {/* Certificate image — tall enough to read content */}
+              <div className="relative w-full bg-white/5" style={{ minHeight: "520px" }}>
+                <Image src={src!} alt={cert.title} fill className="object-contain" />
               </div>
 
               <div className="flex items-center justify-between px-5 py-4 border-t border-white/10">

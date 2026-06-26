@@ -9,14 +9,16 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
   const [expanded, setExpanded] = useState(false);
 
   const raw = cert.imageUrl ?? "";
-  const src = raw.startsWith("//") || raw.includes("blank.png") || !raw
-    ? null
-    : raw.startsWith("http") ? raw : `/${raw.replace(/^\/+/, "")}`;
+  const src =
+    raw.startsWith("//") || raw.includes("blank.png") || !raw
+      ? null
+      : raw.startsWith("http")
+      ? raw
+      : `/${raw.replace(/^\/+/, "")}`;
 
   return (
     <>
       <motion.div
-        key={cert.id}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
@@ -40,12 +42,14 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
           <p className="text-lightGrey text-xs leading-relaxed flex-1 break-words">{cert.description}</p>
 
           <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
-            <span className="text-[10px] font-mono text-lightGrey/60">
-              {cert.date}
-            </span>
+            <span className="text-[10px] font-mono text-lightGrey/60">{cert.date}</span>
             {cert.link ? (
-              <a href={cert.link} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1 text-cyan text-[10px] font-mono hover:text-lightCyan transition-colors">
+              <a
+                href={cert.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-cyan text-[10px] font-mono hover:text-lightCyan transition-colors"
+              >
                 Verify <ExternalLink className="w-2.5 h-2.5" />
               </a>
             ) : (
@@ -53,7 +57,7 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
             )}
           </div>
 
-          {/* View Certificate button */}
+          {/* View Certificate button — only when image exists */}
           {src && (
             <button
               onClick={() => setExpanded(true)}
@@ -65,7 +69,7 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
         </div>
       </motion.div>
 
-      {/* Expanded modal */}
+      {/* Expanded lightbox modal */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -73,22 +77,26 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: "rgba(0,0,0,0.85)", backdropFilter: "blur(6px)" }}
             onClick={() => setExpanded(false)}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.85, y: 20 }}
+              initial={{ opacity: 0, scale: 0.88, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.85, y: 20 }}
+              exit={{ opacity: 0, scale: 0.88, y: 24 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="relative max-w-2xl w-full rounded-2xl overflow-hidden border border-white/10 bg-[#0d0d10]"
+              className="relative max-w-2xl w-full rounded-2xl overflow-hidden border border-white/10"
+              style={{ backgroundColor: "#0d0d10" }}
               onClick={e => e.stopPropagation()}
             >
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
                 <div>
                   <p className="text-white font-semibold text-sm">{cert.title}</p>
-                  <p className="text-cyan text-[11px] font-mono mt-0.5">{cert.issuer} · {cert.date}</p>
+                  <p className="text-cyan text-[11px] font-mono mt-0.5">
+                    {cert.issuer} · {cert.date}
+                  </p>
                 </div>
                 <button
                   onClick={() => setExpanded(false)}
@@ -98,13 +106,13 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
                 </button>
               </div>
 
-              {/* Certificate image */}
-              <div className="relative w-full" style={{ aspectRatio: "4/3" }}>
+              {/* Certificate image — large */}
+              <div className="relative w-full bg-white/5" style={{ aspectRatio: "4/3" }}>
                 <Image
                   src={src!}
                   alt={cert.title}
                   fill
-                  className="object-contain p-6"
+                  className="object-contain p-8"
                 />
               </div>
 
@@ -126,7 +134,7 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
                   onClick={() => setExpanded(false)}
                   className="text-[11px] font-mono text-lightGrey/40 hover:text-white transition-colors"
                 >
-                  Close
+                  Close esc
                 </button>
               </div>
             </motion.div>
@@ -137,7 +145,11 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
   );
 }
 
-export default function CertificateMain({ certifications }: { certifications: CertificationRow[] }) {
+export default function CertificateMain({
+  certifications,
+}: {
+  certifications: CertificationRow[];
+}) {
   return (
     <section id="certificates" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">

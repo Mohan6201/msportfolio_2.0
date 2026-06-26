@@ -69,7 +69,7 @@ function ServiceRow({ name, set }: { name: string; set: boolean }) {
 }
 
 export function SiteSettingsTab() {
-  const [data, setData]       = useState<Settings | null>(null);
+  const [data, setData]       = useState<SiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

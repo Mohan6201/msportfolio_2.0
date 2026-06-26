@@ -1,7 +1,5 @@
 // src/app/api/admin/seed-kt/route.ts
-// ONE-TIME USE: Seeds all static KT documents into the database
-// Call once from browser: POST https://m-s-r-portfolio.vercel.app/api/admin/seed-kt
-// Admin auth required. Safe to call multiple times (uses onConflictDoUpdate).
+// FIXED: pass empty Buffer instead of undefined for fileData
 
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/adminAuth";
@@ -57,6 +55,9 @@ const STATIC_DOCS = [
   { title: "Microservices Architecture",        file: "Microservices.pdf",                               category: "Networking", level: "Advanced" },
 ] as const;
 
+const EMPTY_BUFFER = Buffer.alloc(0);
+const BASE_URL = "https://m-s-r-portfolio.vercel.app";
+
 export async function POST(req: NextRequest) {
   const { error } = await requireAdmin(req);
   if (error) return error;
@@ -65,11 +66,8 @@ export async function POST(req: NextRequest) {
   let skipped = 0;
   const errors: string[] = [];
 
-  const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://m-s-r-portfolio.vercel.app";
-
   for (const doc of STATIC_DOCS) {
     try {
-      // storageUrl points to the static file already in /public/resources/docs/
       const storageUrl = `${BASE_URL}/resources/docs/${encodeURIComponent(doc.file)}`;
 
       await db
@@ -79,9 +77,9 @@ export async function POST(req: NextRequest) {
           filename: doc.file,
           category: doc.category,
           level: doc.level,
-          fileSize: 0,          // unknown without fetching — set to 0
+          fileData: EMPTY_BUFFER,  // ← empty buffer, not null/undefined
+          fileSize: 0,
           storageUrl,
-          fileData: undefined,
         })
         .onConflictDoUpdate({
           target: ktDocuments.filename,

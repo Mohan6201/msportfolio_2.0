@@ -1,6 +1,10 @@
+// src/app/page.tsx
+// UPDATED — reads section visibility from DB settings
+// Sections hidden in admin Site Settings will not render
+
 export const dynamic = "force-dynamic";
 
-import { getAllProfileData } from "@/domains/profile/services/profile.service";
+import { getAllProfileData, getSetting } from "@/domains/profile/services/profile.service";
 import NavbarMain from "@/domains/profile/components/navbar/NavbarMain";
 import HeroMain from "@/domains/profile/components/heroSection/HeroMain";
 import AboutMeMain from "@/domains/profile/components/aboutMeSection/AboutMeMain";
@@ -18,10 +22,25 @@ import ServicesSection from "@/domains/profile/components/services/ServicesSecti
 import PipelineStrip from "@/domains/profile/components/pipeline/PipelineStrip";
 import CareerCentreSection from "@/domains/profile/components/careerCentre/CareerCentreSection";
 
-export default async function Home() {
-  const data = await getAllProfileData();
+const DEFAULTS: Record<string, boolean> = {
+  about: true, experience: true, skills: true, projects: true,
+  certifications: true, achievements: true, resume: true, services: true,
+  careerCentre: true, githubStats: true, ktCentre: true, blog: true, contact: true,
+};
 
-  // Fallback: if DB is empty (before seed), page still renders with empty sections
+async function getVisibility(): Promise<Record<string, boolean>> {
+  try {
+    const raw = await getSetting("section_visibility");
+    if (!raw) return DEFAULTS;
+    return { ...DEFAULTS, ...JSON.parse(raw) };
+  } catch {
+    return DEFAULTS;
+  }
+}
+
+export default async function Home() {
+  const [data, vis] = await Promise.all([getAllProfileData(), getVisibility()]);
+
   if (!data) {
     return (
       <main className="bg-darkBrown min-h-screen flex items-center justify-center">
@@ -33,24 +52,25 @@ export default async function Home() {
   }
 
   const { profile, skills, experiences, certifications, projects, socialLinks } = data;
+  const show = (key: string) => vis[key] !== false;
 
   return (
     <main className="bg-darkBrown">
       <NavbarMain />
       <HeroMain profile={profile} yearsOfExperience={data.yearsOfExperience} socialLinks={socialLinks} />
       <PipelineStrip />
-      <AboutMeMain profile={profile} yearsOfExperience={data.yearsOfExperience} socialLinks={socialLinks} />
-      <ExperienceMain experiences={experiences} />
-      <SkillsMain skills={skills} />
-      <ProjectsMain projects={projects} githubUrl={profile.githubUrl} />
-      <CertificateMain certifications={certifications} />
-      <AchievementsSection />
-      <ResumeMain resumeUrl={profile.resumeUrl} />
-      <ServicesSection />
-      <CareerCentreSection />
-      <GitHubStats />
-      <KnowledgeBase />
-      <ContactMeMain profile={profile} socialLinks={socialLinks} />
+      {show("about")          && <AboutMeMain profile={profile} yearsOfExperience={data.yearsOfExperience} socialLinks={socialLinks} />}
+      {show("experience")     && <ExperienceMain experiences={experiences} />}
+      {show("skills")         && <SkillsMain skills={skills} />}
+      {show("projects")       && <ProjectsMain projects={projects} githubUrl={profile.githubUrl} />}
+      {show("certifications") && <CertificateMain certifications={certifications} />}
+      {show("achievements")   && <AchievementsSection />}
+      {show("resume")         && <ResumeMain resumeUrl={profile.resumeUrl} />}
+      {show("services")       && <ServicesSection />}
+      {show("careerCentre")   && <CareerCentreSection />}
+      {show("githubStats")    && <GitHubStats />}
+      {show("ktCentre")       && <KnowledgeBase />}
+      {show("contact")        && <ContactMeMain profile={profile} socialLinks={socialLinks} />}
       <FooterMain profile={profile} />
     </main>
   );

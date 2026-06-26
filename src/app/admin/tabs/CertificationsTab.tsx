@@ -37,8 +37,8 @@ function CertForm({ form, onChange, onSave, onCancel, saving }: {
           <input className={inp} value={form.issuer} onChange={f("issuer")} placeholder="e.g. Amazon Web Services" />
         </div>
         <div>
-          <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-1.5">Date</label>
-          <input className={inp} type="date" value={form.date} onChange={f("date")} />
+          <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-1.5">Issue Date / Date Range</label>
+          <input className={inp} type="text" value={form.date} onChange={f("date")} placeholder="e.g. May 2025 – Present" />
         </div>
         <div>
           <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-1.5">Sort Order</label>

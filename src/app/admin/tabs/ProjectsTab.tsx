@@ -3,7 +3,7 @@
 
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Pencil, Trash2, Check, X, Loader2, ExternalLink, Github, FolderOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, X, Loader2, ExternalLink, GitFork, FolderOpen } from "lucide-react";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 
 type Project = {
@@ -236,7 +236,7 @@ export function ProjectsTab() {
                   )}
                   {p.githubUrl && (
                     <a href={p.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] font-mono text-[#6B7280] hover:text-white transition-colors">
-                      <Github className="w-3 h-3" /> GitHub
+                      <GitFork className="w-3 h-3" /> GitHub
                     </a>
                   )}
                 </div>

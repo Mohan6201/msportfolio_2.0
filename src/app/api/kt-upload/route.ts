@@ -1,12 +1,21 @@
+// src/app/api/kt-upload/route.ts
+// SECURITY FIX: added requireAdmin auth — only admins can upload KT documents
+// Everything else identical
+
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/client";
 import { ktDocuments } from "@/db/schema/legacy";
 import { indexKnowledgeDocument } from "@/ai/workflows/indexKnowledgeDocument";
+import { requireAdmin } from "@/lib/adminAuth";
 
 const CATEGORIES = ["AWS", "Docker", "Kubernetes", "Linux", "Terraform", "DevOps", "CI/CD", "Ansible", "Networking", "Azure", "Systems", "Cloud"];
 const LEVELS = ["Beginner", "Intermediate", "Advanced", "Reference"];
 
 export async function POST(req: NextRequest) {
+  // 🔒 Admin-only — prevents arbitrary users from uploading PDFs
+  const { error } = await requireAdmin(req);
+  if (error) return error;
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
@@ -23,7 +32,6 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     let storageUrl: string | null = null;
 
-    // Try Vercel Blob first; fall back to DB blob
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       const { put } = await import("@vercel/blob");
       const blob = await put(`kt-documents/${file.name}`, Buffer.from(arrayBuffer), {
@@ -33,7 +41,6 @@ export async function POST(req: NextRequest) {
       storageUrl = blob.url;
     }
 
-    // Insert or update metadata
     const rows = await db
       .insert(ktDocuments)
       .values({
@@ -60,7 +67,6 @@ export async function POST(req: NextRequest) {
 
     const docId = rows[0]?.id;
 
-    // Index asynchronously (don't block the upload response)
     if (docId && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       indexKnowledgeDocument(docId, arrayBuffer, "application/pdf").catch((e) =>
         console.error("KT index error:", e)

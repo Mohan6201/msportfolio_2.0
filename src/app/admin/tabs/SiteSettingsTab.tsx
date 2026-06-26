@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Server, ToggleRight, ToggleLeft, Plug, Lock, CheckCircle2, MinusCircle } from "lucide-react";
 
-type Settings = {
+type SiteSettings = {
   environment: {
     nodeEnv: string;
     nodeVersion: string;

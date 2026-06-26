@@ -5,25 +5,14 @@ import Image from "next/image";
 import { ExternalLink, Award, X, ZoomIn } from "lucide-react";
 import type { CertificationRow } from "@/domains/profile/services/profile.service";
 
-// ─── Date formatter ───────────────────────────────────────────────────────────
-// Handles all stored formats:
-//   "May 2025 – Present"       → "May 2025 – Present"    (already clean, pass through)
-//   "May 2025 – October 2025"  → "May 2025 – Oct 2025"   (shorten end month)
-//   "2025-04-21"               → "April 2025"            (old ISO format)
-//   "2023-09-09"               → "September 2023"
 function formatCertDate(raw: string): string {
   if (!raw) return "";
-
-  // Already contains a month name — clean pass-through (just normalise spacing)
   if (/[A-Za-z]/.test(raw)) return raw.trim();
-
-  // ISO format YYYY-MM-DD or YYYY-MM
   const isoMatch = raw.match(/^(\d{4})-(\d{2})/);
   if (isoMatch) {
     const d = new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, 1);
     return d.toLocaleString("default", { month: "long", year: "numeric" });
   }
-
   return raw;
 }
 
@@ -49,10 +38,10 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
         transition={{ duration: 0.45, delay: index * 0.08 }}
         className="glass glass-hover rounded-2xl p-5 border border-white/5 flex flex-col gap-4"
       >
-        {/* Badge image */}
+        {/* Badge image — object-cover fills container, no padding */}
         <div className="relative h-20 rounded-xl overflow-hidden bg-darkGrey/30 border border-white/5">
           {src ? (
-            <Image src={src} alt={cert.title} fill className="object-contain p-3" />
+            <Image src={src} alt={cert.title} fill className="object-cover" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <Award className="w-10 h-10 text-cyan/40" />
@@ -92,7 +81,7 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
         </div>
       </motion.div>
 
-      {/* Lightbox */}
+      {/* Lightbox — object-contain with padding so full cert is readable */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -128,8 +117,9 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
                 </button>
               </div>
 
+              {/* Lightbox uses object-contain so full certificate document is visible */}
               <div className="relative w-full bg-white/5" style={{ aspectRatio: "4/3" }}>
-                <Image src={src!} alt={cert.title} fill className="object-contain p-8" />
+                <Image src={src!} alt={cert.title} fill className="object-contain p-6" />
               </div>
 
               <div className="flex items-center justify-between px-5 py-4 border-t border-white/10">

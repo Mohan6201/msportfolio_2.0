@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Loader2, Settings, Server, ToggleRight, ToggleLeft, Plug, Lock, CheckCircle2, MinusCircle } from "lucide-react";
+import { Loader2, Server, ToggleRight, ToggleLeft, Plug, Lock, CheckCircle2, MinusCircle } from "lucide-react";
 
 type Settings = {
   environment: {

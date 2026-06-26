@@ -63,6 +63,8 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^4.3.0",
     "tsx": "^4.22.4",
+    "@typescript-eslint/eslint-plugin": "^8.62.0",
+    "@typescript-eslint/parser": "^8.62.0",
     "typescript": "^5.8.3"
   }
 }

@@ -28,7 +28,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export default function CareerAdvisor() {
   const [roadmap, setRoadmap]   = useState<CareerRoadmap | null>(null);
-  const [loading, setLoading]   = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError]       = useState<string | null>(null);
 
@@ -42,9 +41,6 @@ export default function CareerAdvisor() {
     } finally { setAnalyzing(false); }
   }
 
-  if (loading) {
-    return <p className="text-xs font-mono" style={{ color: "#6B7280" }}>Loading…</p>;
-  }
 
   if (!roadmap) {
     return (

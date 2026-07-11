@@ -20,8 +20,8 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
   const yrsNum = Math.floor(parseFloat(yearsOfExperience));
 
   return (
-    <section id="about" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto">
+    <section id="about" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 2xl:px-16 overflow-x-hidden">
+      <div className="max-w-screen-2xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
           {/* Left: Text */}
@@ -114,7 +114,13 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
             <div className="relative w-56 h-64 sm:w-64 sm:h-72 lg:w-72 lg:h-80 max-w-full">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan/20 via-transparent to-orange/10 blur-xl" />
               <div className="relative rounded-2xl overflow-hidden border border-cyan/15 shadow-cyanGlow w-full h-full">
-                <Image src="/images/profile/avatar.png" alt={profile.fullName} fill className="object-cover object-top" />
+                <Image
+                  src="/images/profile/avatar.png"
+                  alt={profile.fullName}
+                  fill
+                  sizes="(min-width: 1024px) 288px, (min-width: 640px) 256px, 224px"
+                  className="object-cover object-top"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
                   <p className="font-special font-bold text-white text-base sm:text-lg break-words">{profile.fullName}</p>

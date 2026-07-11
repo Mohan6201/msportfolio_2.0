@@ -34,7 +34,7 @@ export default function NavbarMain() {
         ? "bg-black/88 backdrop-blur-xl border-b border-white/5 shadow-lg shadow-black/40"
         : "bg-transparent"
     )}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 2xl:px-16">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <NextLink href="/" className="flex items-center gap-2.5 group">
@@ -96,6 +96,9 @@ export default function NavbarMain() {
 
           {/* Mobile toggle */}
           <button onClick={() => setMenuOpen((v) => !v)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
             className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-lightBrown/40 text-lightGrey hover:text-white hover:border-cyan/30 transition-all">
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -106,6 +109,7 @@ export default function NavbarMain() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
+            id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}

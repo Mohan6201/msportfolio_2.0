@@ -1,13 +1,13 @@
 # MS Portfolio 2.0 — Full Audit Report
 
-**Status:** All 7 phases investigated (read-only). **Phase 5 (Security) and Phase 2 (Data Accuracy) are now fixed and verified**; Phases 1, 3, 4, 6 are still proposed work awaiting your go-ahead.
+**Status:** All 7 phases investigated (read-only). **Phases 5 (Security), 2 (Data Accuracy), and 1 (Responsive & Layout) are now fixed and verified**; Phases 3, 4, 6 are still proposed work awaiting your go-ahead.
 
 ## Executive Summary
 
 - **56 findings** across 7 phases: 1 Critical (live exploit — **fixed**), 2 High/Critical-adjacent, ~20 High, ~25 Medium, ~10 Low.
 - **Security (Phase 5): all 9 actionable findings fixed and verified live** — the critical role-escalation exploit is closed, plus an IDOR, a cron-auth bypass, an unscoped interview update, five missing rate limits, an SVG-upload XSS risk, and stale docs. See §6.
 - **Data accuracy (Phase 2): fixed and verified live** — title/bio/skills/certifications/experience reconciled against the resume, hardcoded Hero stats (10+ Projects, 3 Certs, fixed 6-item tech badge list) now derive from real DB counts, one dead component deleted, a missing project (CareerOS) added. Two items deliberately left unresolved pending your input: the Körber cert date (DB 2023 vs resume 2025) and the Swirepay start month (DB Sep vs resume Nov). **Production Turso has not been touched** — only local `portfolio.db`; a ready-to-run migration script is provided for production. See §2.
-- **Root cause of the layout complaints is identified and narrow:** a `--breakpoint-sm: 350px` override breaking the mobile-first cascade, three different container widths used across sections, and zero `2xl:` grid scaling. Not yet fixed — awaiting go-ahead. See §3.
+- **Layout (Phase 1): fixed and verified against a production build** — the `--breakpoint-sm: 350px` override reverted to Tailwind's true default, all 16 homepage sections unified onto one `max-w-screen-2xl` container, 3 grids gained `2xl:` column scaling, missing `sizes` props/viewport export/nav ARIA attributes all added, 2 more dead files discovered and one deleted. Along the way, found that `next dev`'s Turbopack can render responsive breakpoints in the wrong cascade order — **verified this doesn't affect the actual production build**, but worth knowing if local dev ever looks visually wrong. Two findings (removing `overflow-x-hidden` band-aids) deliberately left alone — see §3 for why. See §3.
 - **Quick wins still open:** delete a 213MB unreferenced duplicate asset folder, fix broken lint tooling (`next lint` doesn't run on Next 16; `@typescript-eslint/*` wasn't installed), add the missing `zod`/`sharp` dependencies that currently only resolve by luck. See §4/§7.
 - **`tsc --noEmit` is clean (0 errors)** — TypeScript hygiene is good.
 
@@ -132,7 +132,10 @@ using the real credentials from Vercel's production env vars (not committed anyw
 
 **Content note:** the two new certification rows and the CareerOS project row all use a placeholder image (`/images/certs/blank.png`) since no real assets exist for them yet — replace via Admin → Certifications / Admin → Projects when you have real images.
 
-## 3. Phase 1 — Responsive & Layout
+## 3. Phase 1 — Responsive & Layout (FIXED)
+
+### ⚠️ Important discovery made while fixing this phase
+While verifying the breakpoint fix, I found that **`next dev` (Turbopack) can generate CSS with incorrect cascade order for responsive variants** — in dev mode, `sm:grid-cols-2` was incorrectly winning over `lg:grid-cols-3`/`2xl:grid-cols-5` at wide viewports (verified via live `getComputedStyle` testing). I initially thought this meant my fixes were broken. **It isn't a real bug in the fix** — I ran a full `next build` + `next start` (the actual production build Vercel deploys) and re-ran the identical tests: every container, breakpoint, and grid resolved correctly (Skills grid: 5 equal 271px columns at a 1536px viewport; `lg:grid-cols-3` correctly beat `sm:grid-cols-2`). This is a Turbopack dev-server-only artifact, not something that will affect the deployed site — but worth knowing if `npm run dev` ever *looks* wrong locally: check `next build` before assuming a regression.
 
 ### Root cause (read first)
 Three compounding structural issues explain essentially all reported symptoms:
@@ -140,29 +143,32 @@ Three compounding structural issues explain essentially all reported symptoms:
 2. **No shared container.** Scrolling one page, the horizontal container alternates with no shared constant: `max-w-7xl` (Navbar, Hero, About, Skills, Projects, Certificates, Resume, Career, GitHub Stats, Knowledge Base, Footer, SubHero), `max-w-6xl` (Pipeline Strip, Achievements, Services, Contact), `max-w-5xl` (Experience) — all `mx-auto`. The content edge visibly jumps 64–128px per side between sections. This is the direct cause of "broken alignment."
 3. **No `2xl:` scaling anywhere** (zero matches repo-wide) — Skills/Projects/Certifications/Services/Achievements grids all cap their column count at `lg`/`xl` and never add more at `2xl`, and since containers cap at `max-w-7xl` (1280px) regardless of viewport, a 1920px+/ultrawide monitor just gets dead margin past 1280px.
 
-**Recommended fix direction:** one shared `Container` component/class used by every section+navbar+footer; revert or rename `--breakpoint-sm` (e.g. to `--breakpoint-xs`) and re-audit `sm:` usages against actual intent; add `2xl:grid-cols-*` steps and consider widening grid containers on ultrawide.
+**Fix applied:** all 16 homepage section containers (Navbar, Hero, About, Experience, Skills, Projects, Certificates, Resume, Contact, Footer, Achievements, Services, Pipeline Strip, Career Centre, GitHub Stats, Knowledge Base) now share one container spec: `max-w-screen-2xl mx-auto` with `px-4 sm:px-6 lg:px-8 2xl:px-16` padding (or the section-level equivalent). `--breakpoint-sm` reverted to Tailwind's true default (640px), declared explicitly rather than omitted (see the dev-server discovery note above — omitting it entirely shifted its position in the generated stylesheet and broke cascade order against `lg:`/`xl:`/`2xl:` in dev mode specifically). Verified against a production build: all 16 containers resolve to exactly `1536px` max-width, no exceptions.
 
 ### Findings
-| # | File:Line | Issue | Severity |
-|---|---|---|---|
-| L01 | `globals.css:37` | `--breakpoint-sm: 350px` override breaks mobile-first cascade site-wide | Critical |
-| L02 | `page.tsx:59-75` (container survey) | Three different container widths (`max-w-7xl`/`6xl`/`5xl`) across sections, no shared constant | High |
-| L03 | `FooterMain.tsx:32`, `PipelineStrip.tsx:114` | Padding scale (`px-4 sm:px-6` only) doesn't match the `lg:px-8` used elsewhere, gutters misalign at `lg`+ | Medium |
-| L04 | `SkillsMain.tsx:117` | Grid caps at `xl:grid-cols-4`, no `2xl:` step; combined with `max-w-7xl` container, dead space on ultrawide | High |
-| L05 | `ProjectsMain.tsx:109` | Grid caps at `xl:grid-cols-3`, never reaches 4 cols despite container width allowing it | Medium |
-| L06 | `CertificateMain.tsx:173` | Grid caps at `lg:grid-cols-4`, no `xl`/`2xl` bump | Low-Medium |
-| L07 | `AchievementsSection.tsx:21`, `ServicesSection.tsx:72`, `CareerCentreSection.tsx:66` | Same capped-grid pattern, no `2xl:` | Low |
-| L08 | `layout.tsx:90` | `overflow-x-hidden` on `<body>` — band-aid masking real overflow source | High |
-| L09 | `SkillsMain.tsx:78`, `AboutMeMain.tsx:23`, `ProjectsMain.tsx:87`, `ExperienceMain.tsx:35` | Additional per-section `overflow-x-hidden` — three suppression layers signal unfixed overflow bugs (also risks clipping intentional sticky/glow effects) | Medium |
-| L10 | `HeroMain.tsx:125-127` | Fixed-px decorative glow blobs (`w-[700px]`/`w-[500px]`/`w-[800px]`) with negative offsets, saved only by parent `overflow-hidden` rather than responsive sizing | Low |
-| L11 | `ExperienceTopLeft.tsx:5` | `w-[300px]` fixed width, no responsive variant | Low |
-| L12 | `GitHubStats.tsx:290` | `min-w-[600px]` inside `overflow-x-auto` — acceptable (scrolls) but forces horizontal scroll on phones | Low |
-| L13 | `HeroMain.tsx` badges, `SubHeroMain.tsx:9` | `whitespace-nowrap` on user-editable-length strings with no wrap fallback — clipping risk at smallest widths | Low |
-| L14 | `NavbarMain.tsx:98-101` | Mobile menu toggle button works (keyboard-accessible by default) but has no `aria-label`; panel has no `aria-expanded`/`aria-controls` | Medium |
-| L15 | `NavbarToggler.tsx` (whole file) | Second, unused hamburger implementation (Zustand `useMenuStore`) — dead code, risk of future confusion | Low |
-| L16 | `HeroMain.tsx:86` | Terminal card `min-h-[260px] sm:min-h-[230px]` — given L01, `sm:` fires early; worth a manual 320px check alongside the typewriter animation | Low |
-| L17 | `HeroMain.tsx:206-213`, `AboutMeMain.tsx:117`, `ProjectsMain.tsx:18-23`, `CertificateMain.tsx:44,122` | Zero `sizes` props on any `fill`-mode `next/image` (5 usages, repo-wide) — forces oversized mobile downloads, hurts LCP | Medium |
-| L18 | `layout.tsx` | No `export const viewport` defined anywhere — relying on Next.js framework default instead of an explicit declaration | Medium |
+| # | File:Line | Issue | Severity | Status |
+|---|---|---|---|---|
+| L01 | `globals.css:37` | `--breakpoint-sm: 350px` override breaks mobile-first cascade site-wide | Critical | ✅ Fixed — reverted to 640px |
+| L02 | `page.tsx:59-75` (container survey) | Three different container widths (`max-w-7xl`/`6xl`/`5xl`) across sections, no shared constant | High | ✅ Fixed — unified to `max-w-screen-2xl` everywhere |
+| L03 | `FooterMain.tsx:32`, `PipelineStrip.tsx:114` | Padding scale (`px-4 sm:px-6` only) doesn't match the `lg:px-8` used elsewhere, gutters misalign at `lg`+ | Medium | ✅ Fixed — PipelineStrip now has `lg:px-8 2xl:px-16` (Footer was already correct on closer inspection — its padding already matched, the original finding was slightly imprecise) |
+| L04 | `SkillsMain.tsx:117` | Grid caps at `xl:grid-cols-4`, no `2xl:` step; combined with `max-w-7xl` container, dead space on ultrawide | High | ✅ Fixed — added `2xl:grid-cols-5`, verified 5 equal columns in production build |
+| L05 | `ProjectsMain.tsx:109` | Grid caps at `xl:grid-cols-3`, never reaches 4 cols despite container width allowing it | Medium | ✅ Fixed — added `2xl:grid-cols-4`, verified in production build |
+| L06 | `CertificateMain.tsx:173` | Grid caps at `lg:grid-cols-4`, no `xl`/`2xl` bump | Low-Medium | ✅ Fixed — added `2xl:grid-cols-5`, verified in production build |
+| L07 | `AchievementsSection.tsx:21`, `ServicesSection.tsx:72`, `CareerCentreSection.tsx:66` | Same capped-grid pattern, no `2xl:` | Low | Container widened for edge alignment; column counts deliberately **not** bumped — these grids have fixed item counts (6 achievements, 5 services, 4 career-centre tools) that already divide evenly into their current column count, so adding more columns would just leave empty cells |
+| L08 | `layout.tsx:90` | `overflow-x-hidden` on `<body>` — band-aid masking real overflow source | High | **Not removed** — see note below |
+| L09 | `SkillsMain.tsx:78`, `AboutMeMain.tsx:23`, `ProjectsMain.tsx:87`, `ExperienceMain.tsx:35` | Additional per-section `overflow-x-hidden` | Medium | **Not removed** — see note below |
+| L10 | `HeroMain.tsx:125-127` | Fixed-px decorative glow blobs, saved only by parent `overflow-hidden` | Low | ✅ Fixed — wrapped each in `min(Npx, Nvw)` so they cap to viewport width instead of relying solely on the overflow clip |
+| L11 | `ExperienceTopLeft.tsx:5` | `w-[300px]` fixed width, no responsive variant | Low | **Found to be dead code** — `ExperienceTopLeft`/`ExperienceTop` are never imported by the live app (only self-reference each other). Not fixed (not worth editing unreachable code); added to Phase 6 deletion list |
+| L12 | `GitHubStats.tsx:290` | `min-w-[600px]` inside `overflow-x-auto` | Low | No change — this is the acceptable pattern (scrolls instead of breaking layout), as originally noted |
+| L13 | `HeroMain.tsx` badges, `SubHeroMain.tsx:9` | `whitespace-nowrap` on user-editable-length strings with no wrap fallback | Low | HeroMain's badges are now short, real skill-derived labels (see Phase 2 DATA-03) — low residual risk. `SubHeroMain.tsx` **turned out to be dead code too** (never imported anywhere) — added to Phase 6 deletion list, not fixed |
+| L14 | `NavbarMain.tsx:98-101` | Mobile menu toggle missing `aria-label`/`aria-expanded`/`aria-controls` | Medium | ✅ Fixed — added all three, plus `id="mobile-menu"` on the panel to match `aria-controls` |
+| L15 | `NavbarToggler.tsx` (whole file) | Second, unused hamburger implementation — dead code | Low | ✅ Fixed — deleted |
+| L16 | `HeroMain.tsx:86` | Terminal card `min-h-[260px] sm:min-h-[230px]` — given L01, `sm:` fired early | Low | ✅ Resolved as a side effect of the L01 fix — `sm:` now correctly means 640px+, so the 230px height only applies at real tablet width as originally intended |
+| L17 | `HeroMain.tsx:206-213`, `AboutMeMain.tsx:117`, `ProjectsMain.tsx:18-23`, `CertificateMain.tsx:44,122` | Zero `sizes` props on any `fill`-mode `next/image` (5 usages) | Medium | ✅ Fixed — added viewport/container-aware `sizes` to all 5 |
+| L18 | `layout.tsx` | No `export const viewport` defined | Medium | ✅ Fixed — added `viewport` export with `width=device-width, initial-scale=1` and theme-color |
+
+### L08/L09 — deliberately left as-is, not guessed
+Removing the `overflow-x-hidden` band-aids without being able to reliably test every narrow breakpoint felt too risky — if there's a real, still-unfixed overflow source I haven't found, removing the safety net would produce a visible horizontal scrollbar in production, which is worse than leaving a band-aid in place. I fixed the two concrete overflow risks I *could* identify with confidence (L10 glow blobs, and confirmed L11/L13's flagged components are actually dead code and unreachable), which removes some of the pressure behind these two findings, but didn't attempt removing the `overflow-x-hidden` declarations themselves. If you want this pushed further, it would need real device/browser testing across the 320–768px range that I don't have reliable tooling for in this environment.
 
 ---
 
@@ -185,7 +191,7 @@ Three compounding structural issues explain essentially all reported symptoms:
 ### Dead/duplicate code
 | # | Finding | Severity |
 |---|---|---|
-| Q07 | `src/components/ui/CommandPalette.tsx` — imported in `layout.tsx:8` but never rendered anywhere | Medium |
+| Q07 | ~~`src/components/ui/CommandPalette.tsx` — imported in `layout.tsx:8` but never rendered anywhere~~ **Correction (found during Phase 1):** the component is rendered, in `NavbarMain.tsx:80`. Only `layout.tsx`'s separate, redundant import is actually dead — remove that one import line only | Medium → Low |
 | Q08 | `src/components/ui/NewsletterSignup.tsx` — defined/exported but imported nowhere | Medium |
 | Q09 | `src/app/admin/AdminDashboard.tsx:23,30` — same `AnalyticsTab` component imported twice under two names (`AnalyticsTab` and unused `AnalyticsTabNew`) | Low |
 | Q10 | `src/domains/profile/components/heroSection/HeroText.tsx` — dead, see DATA-06 in §2 | Medium |
@@ -291,16 +297,18 @@ This silently defeats every `requireAdmin`/`requireUser` check across all 25 `/a
 The domain-driven restructure described in `Implementation_plan.md` §3/§7 has **already happened** — `src/domains/*`, `src/db/schema/*`, `src/ai/*` all exist and match the target shape. This is not a ground-up restructure; it's targeted cleanup on top of an already-good structure.
 
 ### Safe deletions (zero references confirmed via repo-wide grep)
-| Item | Size/Detail |
-|---|---|
-| `public/Resource Images/Documents/` | **213MB**, byte-for-byte duplicate of `public/resources/docs` (same filenames/sizes); nothing in `src/` references `Resource Images` at all — highest-leverage single cleanup in this whole audit |
-| `src/domains/profile/components/heroSection/HeroText.tsx` | Dead, hardcoded, superseded by `HeroMain.tsx` (DATA-06) |
-| `src/domains/profile/components/navbar/NavbarToggler.tsx` | Dead, superseded by `NavbarMain.tsx`'s inline toggle (L15) |
-| `src/components/ui/CommandPalette.tsx` | Imported but never rendered (Q07) |
-| `src/components/ui/NewsletterSignup.tsx` | Imported nowhere (Q08) |
-| `HeroPic.tsx`, `HeroImage.tsx`, `AboutMeImage.tsx`, `SkillsCircle.tsx`, `SubSkills.tsx` | Dead, unoptimized `<img>` (Q12/P07) |
-| `AdminDashboard.tsx` duplicate `AnalyticsTabNew` import | Dead alias (Q09) |
-| `.claude/worktrees/agent-*` (4 dirs, ~1.86GB) | Not git-tracked, but local disk hygiene — leftover from prior agent sessions, worth clearing manually outside of git |
+| Item | Size/Detail | Status |
+|---|---|---|
+| `public/Resource Images/Documents/` | **213MB**, byte-for-byte duplicate of `public/resources/docs` (same filenames/sizes); nothing in `src/` references `Resource Images` at all — highest-leverage single cleanup in this whole audit | Pending |
+| `src/domains/profile/components/heroSection/HeroText.tsx` | Dead, hardcoded, superseded by `HeroMain.tsx` (DATA-06) | ✅ Deleted (during Phase 2) |
+| `src/domains/profile/components/navbar/NavbarToggler.tsx` | Dead, superseded by `NavbarMain.tsx`'s inline toggle (L15) | ✅ Deleted (during Phase 1) |
+| `src/domains/profile/components/subHeroSection/SubHeroMain.tsx` | Dead — never imported anywhere (found during Phase 1, not in the original Phase 3 audit) | Pending |
+| `src/domains/profile/components/experienceSection/ExperienceTop.tsx` + `ExperienceTopLeft.tsx` | Dead pair — `ExperienceTop` (which imports `ExperienceTopLeft`) is never imported by the live app (found during Phase 1, not in the original Phase 3 audit) | Pending |
+| `layout.tsx:8`'s `CommandPalette` import (not the component itself) | Correction to Q07: the component is **not** dead — it's actually rendered in `NavbarMain.tsx:80`. Only `layout.tsx`'s separate, redundant import of it is unused; remove that one import line, don't delete the component | Pending |
+| `src/components/ui/NewsletterSignup.tsx` | Imported nowhere (Q08) | Pending |
+| `HeroPic.tsx`, `HeroImage.tsx`, `AboutMeImage.tsx`, `SkillsCircle.tsx`, `SubSkills.tsx` | Dead, unoptimized `<img>` (Q12/P07) | Pending |
+| `AdminDashboard.tsx` duplicate `AnalyticsTabNew` import | Dead alias (Q09) | Pending |
+| `.claude/worktrees/agent-*` (4 dirs, ~1.86GB) | Not git-tracked, but local disk hygiene — leftover from prior agent sessions, worth clearing manually outside of git | Pending |
 
 ### Config hygiene
 - Fix `package.json` duplicate `devDependencies` entries (Q05).

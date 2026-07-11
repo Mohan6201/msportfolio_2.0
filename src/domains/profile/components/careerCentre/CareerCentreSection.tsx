@@ -42,8 +42,8 @@ const TOOLS = [
 
 export default function CareerCentreSection() {
   return (
-    <section id="career-centre" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-t border-white/5">
-      <div className="max-w-7xl mx-auto">
+    <section id="career-centre" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 2xl:px-16 border-t border-white/5">
+      <div className="max-w-screen-2xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-14">
           <div>
             <p className="section-tag mb-4">Exclusive Platform</p>

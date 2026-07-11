@@ -147,14 +147,14 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks, skil
           className="absolute inset-0 opacity-[0.12]"
           style={{ backgroundImage: "url('/images/profile/brand-icon.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
         />
-        <div className="absolute -top-40 -right-60 w-[700px] h-[700px] rounded-full bg-cyan/5 blur-[140px]" />
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-orange/5 blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-cyan/3 blur-[180px]" />
+        <div className="absolute -top-40 -right-60 w-[min(700px,90vw)] h-[min(700px,90vw)] rounded-full bg-cyan/5 blur-[140px]" />
+        <div className="absolute -bottom-40 -left-40 w-[min(500px,80vw)] h-[min(500px,80vw)] rounded-full bg-orange/5 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,100vw)] h-[min(400px,50vw)] rounded-full bg-cyan/3 blur-[180px]" />
         {/* Diagonal grid accent */}
         <div className="absolute inset-0 bg-gradient-to-br from-cyan/3 via-transparent to-orange/2" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 sm:pt-24 pb-16 sm:pb-20">
+      <div className="relative z-10 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 2xl:px-16 w-full pt-24 sm:pt-24 pb-16 sm:pb-20">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
           {/* ── Left ── */}
@@ -233,6 +233,7 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks, skil
                   src="/images/profile/avatar.png"
                   alt={profile.fullName}
                   fill
+                  sizes="(min-width: 1024px) 256px, 208px"
                   className="object-cover object-top"
                   priority
                 />

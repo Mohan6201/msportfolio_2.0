@@ -17,7 +17,7 @@ export default async function AchievementsSection() {
 
   return (
     <section id="achievements" className="py-12 sm:py-16 border-y border-white/5">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 2xl:px-16">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
           {STATS.map(({ key, label, Icon, color, border, bg }) => {
             const value = achievements[key as StatKey];

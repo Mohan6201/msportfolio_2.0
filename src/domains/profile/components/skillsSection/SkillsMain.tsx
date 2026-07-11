@@ -75,8 +75,8 @@ export default function SkillsMain({ skills }: { skills: SkillRow[] }) {
   );
 
   return (
-    <section id="skills" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto">
+    <section id="skills" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 2xl:px-16 overflow-x-hidden">
+      <div className="max-w-screen-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -114,7 +114,7 @@ export default function SkillsMain({ skills }: { skills: SkillRow[] }) {
         <AnimatePresence mode="popLayout">
           <motion.div
             key={active}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3"
           >
             {filtered.map((s, i) => (
               <SkillCard

@@ -57,7 +57,7 @@ const SERVICES = [
 export default function ServicesSection() {
   return (
     <section id="services" className="py-16 sm:py-24 bg-darkBrown">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 2xl:px-16">
         <div className="text-center mb-10 sm:mb-14">
           <p className="section-tag mb-3">Available for Hire</p>
           <h2 className="font-special text-2xl sm:text-5xl font-bold text-white mb-4">

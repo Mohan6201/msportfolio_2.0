@@ -41,7 +41,13 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
         {/* Badge image */}
         <div className="relative h-24 rounded-xl overflow-hidden border border-white/5" style={{ backgroundColor: "#0d0d14" }}>
           {src ? (
-            <Image src={src} alt={cert.title} fill className="object-contain p-2" />
+            <Image
+              src={src}
+              alt={cert.title}
+              fill
+              sizes="(min-width: 1536px) 20vw, (min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+              className="object-contain p-2"
+            />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <Award className="w-10 h-10 text-cyan/40" />
@@ -119,7 +125,7 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
 
               {/* Certificate image — tall enough to read content */}
               <div className="relative w-full bg-white/5" style={{ minHeight: "520px" }}>
-                <Image src={src!} alt={cert.title} fill className="object-contain" />
+                <Image src={src!} alt={cert.title} fill sizes="(min-width: 672px) 672px, 100vw" className="object-contain" />
               </div>
 
               <div className="flex items-center justify-between px-5 py-4 border-t border-white/10">
@@ -156,8 +162,8 @@ export default function CertificateMain({
   certifications: CertificationRow[];
 }) {
   return (
-    <section id="certificates" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <section id="certificates" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 2xl:px-16">
+      <div className="max-w-screen-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -170,7 +176,7 @@ export default function CertificateMain({
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
           {certifications.map((cert, i) => (
             <CertCard key={cert.id} cert={cert} index={i} />
           ))}

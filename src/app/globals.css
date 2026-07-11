@@ -34,7 +34,14 @@
   --font-mono: var(--font-jetbrains), "Cascadia Code", ui-monospace, monospace;
 
   /* ── Breakpoints ── */
-  --breakpoint-sm: 350px;
+  /* --breakpoint-sm restored to Tailwind's true default (640px) — it was
+     previously overridden to 350px, which caused every `sm:` utility in the
+     codebase to fire almost immediately on real phones instead of at tablet
+     width, breaking the mobile-first cascade site-wide. Declared explicitly
+     (not omitted) so it stays in source order with the other breakpoints —
+     omitting it entirely shifted sm:'s generated CSS to a different position
+     in the stylesheet and broke cascade ordering against lg:/xl:/2xl:. */
+  --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import ChatWidget from "@/domains/profile/components/chat/ChatWidget";
@@ -56,6 +56,12 @@ export const metadata: Metadata = {
     creator: "@Mohan6201",
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#05080f",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

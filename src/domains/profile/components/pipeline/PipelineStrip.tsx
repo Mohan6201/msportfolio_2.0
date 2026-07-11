@@ -111,11 +111,11 @@ export default function PipelineStrip() {
   }, [inView]);
 
   return (
-    <section ref={ref} className="relative py-8 sm:py-10 px-4 sm:px-6 border-y border-white/5 overflow-hidden">
+    <section ref={ref} className="relative py-8 sm:py-10 px-4 sm:px-6 lg:px-8 2xl:px-16 border-y border-white/5 overflow-hidden">
       {/* subtle background */}
       <div className="absolute inset-0 bg-gradient-to-r from-cyan/2 via-transparent to-orange/2 pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-screen-2xl mx-auto">
         {/* Header row */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}

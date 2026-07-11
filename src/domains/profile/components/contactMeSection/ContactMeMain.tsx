@@ -25,8 +25,8 @@ export default function ContactMeMain({ profile, socialLinks }: ContactMeMainPro
   ];
 
   return (
-    <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+    <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 2xl:px-16">
+      <div className="max-w-screen-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

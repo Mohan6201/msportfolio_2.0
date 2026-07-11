@@ -29,11 +29,11 @@ export default function FooterMain({ profile }: FooterMainProps) {
   const firstName = profile.fullName.split(" ")[0].toLowerCase();
 
   return (
-    <footer className="relative pt-12 sm:pt-16 pb-8 px-4 sm:px-6 lg:px-8 border-t border-white/5 overflow-hidden">
+    <footer className="relative pt-12 sm:pt-16 pb-8 px-4 sm:px-6 lg:px-8 2xl:px-16 border-t border-white/5 overflow-hidden">
       {/* Glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[1px] bg-gradient-to-r from-transparent via-cyan/30 to-transparent" />
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-screen-2xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 mb-10 sm:mb-12">
           {/* Brand */}
           <div>

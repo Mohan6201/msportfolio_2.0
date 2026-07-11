@@ -19,6 +19,7 @@ function ProjectCard({ project, index }: { project: ParsedProject; index: number
           src={project.imageUrl}
           alt={project.name}
           fill
+          sizes="(min-width: 1536px) 25vw, (min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
           className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
@@ -84,8 +85,8 @@ export default function ProjectsMain({ projects, githubUrl }: {
   githubUrl?: string | null;
 }) {
   return (
-    <section id="projects" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto">
+    <section id="projects" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 2xl:px-16 overflow-x-hidden">
+      <div className="max-w-screen-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -106,7 +107,7 @@ export default function ProjectsMain({ projects, githubUrl }: {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5 sm:gap-6">
           {projects.map((project, i) => (
             <ProjectCard key={project.id} project={project} index={i} />
           ))}

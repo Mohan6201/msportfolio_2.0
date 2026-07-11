@@ -1,6 +1,6 @@
 # MS Portfolio 2.0 — Full Audit Report
 
-**Status:** All 7 phases investigated (read-only). **Phases 5 (Security), 2 (Data Accuracy), 1 (Responsive & Layout), 3 (Code Quality), and 4 (Performance/SEO/Accessibility) are now fixed and verified**; only Phase 6 (cleanup) remains, awaiting your go-ahead.
+**Status: All 7 phases complete.** Every phase has been investigated, fixed where safe to do so, and verified — most against a real production build, not just assumed. See §"Summary — all 7 phases complete" near the end for the full picture, including what's still open and needs your input.
 
 ## Executive Summary
 
@@ -10,7 +10,7 @@
 - **Layout (Phase 1): fixed and verified against a production build** — the `--breakpoint-sm: 350px` override reverted to Tailwind's true default, all 16 homepage sections unified onto one `max-w-screen-2xl` container, 3 grids gained `2xl:` column scaling, missing `sizes` props/viewport export/nav ARIA attributes all added. Along the way, found that `next dev`'s Turbopack can render responsive breakpoints in the wrong cascade order — **verified this doesn't affect the actual production build**. Two findings (removing `overflow-x-hidden` band-aids) deliberately left alone. See §3.
 - **Code quality (Phase 3): mostly fixed.** Lint tooling repaired (`next lint` → `eslint .`, plus the `.claude/worktrees` inflation fix) and now essentially clean (40 problems → 1, an intentional one); `package.json` deps fixed (zod/sharp declared, dedup'd, one genuinely-unused dep removed); the three duplicate auth-check helpers consolidated into one shared `requireRole()` and re-verified live against a production build; **9 more dead files deleted** across this and the earlier phases. **Deliberately not attempted:** adding Zod validation to every API route, unifying inconsistent response envelopes, and a 1046-occurrence hardcoded-hex-color sweep. See §4.
 - **Performance/SEO/Accessibility (Phase 4): mostly fixed.** Added `sitemap.ts`/`robots.ts` (the Critical gap), `noindex` on `/admin`/`/account`/`/recruiter`, canonical URLs on all 12 public pages, fixed the duplicate homepage `<h1>`, converted 3 raw `<img>` usages to `next/image`, added `prefers-reduced-motion` support (global CSS + targeted fix on the one continuously-looping animation), and fixed focus-visibility on the 17 inputs/links that had genuinely zero indication. Found and fixed a real bug along the way: `CertificateLogo.tsx`'s domain lookup was silently failing for 2 certs due to issuer-string mismatches. **Deliberately deferred:** contrast verification (needs visual tooling I don't have here), ARIA tab semantics (needs matching keyboard interaction, not just attributes), and dynamic-import/bundle-splitting work (behavior-adjacent, needs dedicated testing). See §5.
-- **Quick wins still open:** delete a 213MB unreferenced duplicate asset folder (Phase 6), and there's 1.86GB of old `.claude/worktrees/` session data from June 17 sitting on disk that's not git-tracked but hasn't been touched — your call on whether to clear it.
+- **Cleanup (Phase 6): done.** Deleted the 213MB verified-duplicate asset folder (SHA-256 checked, not just filename/size), ~12MB of other orphaned loose files, and 1.86GB of old `.claude/worktrees/` session data (confirmed with you before deleting the latter two) — roughly 2GB reclaimed. Wrote `ARCHITECTURE.md` documenting the folder structure. No restructure needed — the domain-driven structure was already correct. See §7.
 - **`tsc --noEmit` is clean (0 errors)** throughout every phase.
 
 ---
@@ -294,14 +294,16 @@ This silently defeats every `requireAdmin`/`requireUser` check across all 25 `/a
 - `.gitignore` correctly excludes `.env*`/`portfolio.db*`; full git history confirms neither was ever committed.
 - `seed-kt` and all `scripts/seed-*.ts` are either admin-gated or unreachable over HTTP.
 
-## 7. Phase 6 — Cleanup & Restructure Candidates
+## 7. Phase 6 — Cleanup & Restructure Candidates (FIXED)
 
-The domain-driven restructure described in `Implementation_plan.md` §3/§7 has **already happened** — `src/domains/*`, `src/db/schema/*`, `src/ai/*` all exist and match the target shape. This is not a ground-up restructure; it's targeted cleanup on top of an already-good structure.
+The domain-driven restructure described in `Implementation_plan.md` §3/§7 had **already happened** before this audit — `src/domains/*`, `src/db/schema/*`, `src/ai/*` all exist and match the target shape. No ground-up restructure was needed or attempted; this phase was targeted cleanup on top of an already-good structure.
 
-### Safe deletions (zero references confirmed via repo-wide grep)
+### Safe deletions — all done
 | Item | Size/Detail | Status |
 |---|---|---|
-| `public/Resource Images/Documents/` | **213MB**, byte-for-byte duplicate of `public/resources/docs` (same filenames/sizes); nothing in `src/` references `Resource Images` at all — highest-leverage single cleanup in this whole audit, still the biggest open item | Pending |
+| `public/Resource Images/Documents/` | **213MB** — re-verified with SHA-256 checksums (not just filename/size) against `public/resources/docs`: all 51 files byte-for-byte identical, zero unique content lost | ✅ Deleted |
+| `public/Resource Images/*` (loose files: old resume PDF, certificate images, GIFs, ~12MB) | Confirmed unreferenced anywhere in `src/`; current resume/certs are already served from the DB-managed paths (`public/resume/`, `public/images/certs/`) — these were leftover uploads from before that migration. Confirmed with you before deleting since these weren't verified duplicates like `Documents/` was, just orphaned. | ✅ Deleted (with your confirmation) |
+| `.claude/worktrees/agent-*` (4 dirs, ~1.86GB) | Not git-tracked, predates this session (June 17). Confirmed with you before deleting since it was old session data I couldn't fully verify was safe to lose. | ✅ Deleted (with your confirmation) |
 | `src/domains/profile/components/heroSection/HeroText.tsx` | Dead, hardcoded, superseded by `HeroMain.tsx` (DATA-06) | ✅ Deleted (Phase 2) |
 | `src/domains/profile/components/navbar/NavbarToggler.tsx` | Dead, superseded by `NavbarMain.tsx`'s inline toggle (L15) | ✅ Deleted (Phase 1) |
 | `src/domains/profile/components/subHeroSection/SubHeroMain.tsx` | Dead — never imported anywhere (found during Phase 1) | ✅ Deleted (Phase 3) |
@@ -310,23 +312,52 @@ The domain-driven restructure described in `Implementation_plan.md` §3/§7 has 
 | `src/components/ui/NewsletterSignup.tsx` | Imported nowhere (Q08) | ✅ Deleted (Phase 3) |
 | `HeroPic.tsx`, `HeroImage.tsx`, `AboutMeImage.tsx`, `SkillsCircle.tsx`, `SubSkills.tsx` | Dead, unoptimized `<img>` (Q12/P07) | ✅ Deleted, all 5 (Phase 3) |
 | `AdminDashboard.tsx` duplicate `AnalyticsTabNew` import | Dead alias (Q09) | ✅ Fixed (Phase 3) |
-| `.claude/worktrees/agent-*` (4 dirs, ~1.86GB) | Not git-tracked, but local disk hygiene — leftover from prior agent sessions (June 17), predates this session. Left alone — deleting old session data without confirming you don't need it felt like the wrong call to make unilaterally | Pending, needs your OK |
 
-### Config hygiene
-- ~~Fix `package.json` duplicate `devDependencies` entries (Q05).~~ ✅ Fixed (Phase 3)
-- ~~Add missing `zod` and `sharp` to `dependencies` (Q03/Q04).~~ ✅ Fixed (Phase 3)
-- ~~Fix or replace the `"lint"` script (Q01).~~ ✅ Fixed (Phase 3)
-- ~~Remove or wire up the stale `ADMIN_SECRET` entry in `.env.example` (SEC-09).~~ ✅ Fixed (Phase 5)
-- ~~Verify the 4 `depcheck`-flagged "unused" deps.~~ ✅ Done (Phase 3) — 3 were false positives (kept), `@google/generative-ai` was genuinely unused (removed)
+**Repo-adjacent disk usage went from ~466MB (`public/`) + 1.86GB (worktrees) down to 243MB (`public/`) + ~16KB (`.claude/`) — roughly 2GB reclaimed.**
 
-### Naming/structure — already consistent
-No `-old`/`-v2`/`copy`/`temp`/`.bak` files found anywhere (checked repo-wide). Domain folder structure already matches the target shape from `Implementation_plan.md` §3. **No large-scale file-moving restructure is warranted or recommended** — doing one now would be pure churn against an already-correct structure, contrary to the "nothing gets thrown away, everything gets organized" principle the project's own Implementation Plan states, and against your own instruction not to change functionality while restructuring.
+### Config hygiene — all done (Phase 3/5)
+Package.json duplicates, missing zod/sharp deps, the broken lint script, the stale `ADMIN_SECRET` doc, and the 4 depcheck-flagged deps were all resolved in earlier phases — see §4/§6.
 
-### `ARCHITECTURE.md`
-Recommend writing this once the above cleanup lands, documenting the folder map that already exists (domains, db/schema, ai/ gateway pattern) rather than a new one — it's mostly a documentation task, not a code change.
+### Naming/structure — already consistent, no restructure needed
+No `-old`/`-v2`/`copy`/`temp`/`.bak` files found anywhere. Domain folder structure already matched the target shape from `Implementation_plan.md` §3 before this audit started. No large-scale file-moving restructure was warranted — doing one would have been pure churn against an already-correct structure.
+
+### `ARCHITECTURE.md` — written
+Added at the repo root: folder map, "where new code goes" guide, conventions (shared container spec, auth pattern), and a note on the two harmless empty leftover directories (`src/data/`, `src/state/`, not git-tracked).
 
 ---
 
-## Next steps
+## Summary — all 7 phases complete
 
-This concludes Phase 0's full-report mandate. Nothing has been changed. Please review §2 (data accuracy — needs your input on DATA-00 before I touch anything), §6 (security — SEC-01 is live and I'd recommend fixing regardless of the rest), and the rest at your pace, then tell me which phases to execute and in what order. I'd suggest: SEC-01 first (isolated, urgent), then Phase 2 data fixes (once DATA-00 is answered), then Phase 1 layout, then the rest — but it's your call.
+| Phase | Status |
+|---|---|
+| 0 — Inventory | ✅ Done (read-only) |
+| 1 — Responsive & Layout | ✅ Fixed & verified against production build |
+| 2 — Resume/Data Accuracy | ✅ Fixed & verified (2 items deferred pending your input — see §2) |
+| 3 — Code Quality | ✅ Fixed & verified (3 large items deferred as separate projects — see §4) |
+| 4 — Performance/SEO/A11y | ✅ Fixed & verified against production build (3 items deferred — see §5) |
+| 5 — Security | ✅ Fixed & verified live, including the Critical exploit |
+| 6 — Cleanup | ✅ Done — ~2GB reclaimed, `ARCHITECTURE.md` written |
+
+### Still open, needs your input
+1. **Körber cert date** (DATA-07) — DB says 2023-09-09, resume says Sep 2025.
+2. **Swirepay start month** (DATA-04) — DB says Sep 2025, resume says Nov 2025.
+3. **Production Turso** has not been touched by any Phase 2 data fix — only local `portfolio.db`. Run `scripts/migrate-phase2-resume-sync.mjs` against production (with real env vars) when ready.
+4. **`CRON_SECRET`** (SEC-03) — confirm it's actually set in Vercel's production environment; the code fix makes the cron endpoint fail closed if it's missing, but doesn't set it for you.
+5. Two placeholder images (new certs + CareerOS project) need real assets uploaded via Admin when available.
+
+### Deliberately deferred as their own future projects (not started)
+- Zod validation across every API route (Q13)
+- Unifying inconsistent API response envelopes (Q14)
+- 1046-occurrence hardcoded-hex-color → design-token consolidation (Q15)
+- `next/dynamic` + Framer Motion `LazyMotion` bundle-splitting (P04/P05/P06)
+- Contrast verification pass (A03) — needs visual tooling
+- ARIA tab semantics + matching keyboard interaction for the admin dashboard (A07)
+- Removing the `overflow-x-hidden` band-aids on `<body>`/sections (L08/L09) — needs real narrow-viewport testing
+
+### What to verify on the live site after deploy
+- Homepage renders correctly at mobile (375px), tablet (768px), laptop (1280px), and ultrawide (1920px+) widths — the container/breakpoint fixes should show consistent edges and no dead margin on wide monitors.
+- Hero stats show real counts (5 projects, 5 certs as of this audit).
+- `/sitemap.xml` and `/robots.txt` both load.
+- `/admin`, `/account`, `/recruiter` pages are not indexed (check `<meta name="robots">` is `noindex, nofollow`).
+- The new CareerOS project and 2 new certifications appear (with placeholder images until you upload real ones).
+- Trying to sign up with a crafted `role` field no longer grants admin (SEC-01 — should already be safe given Better Auth's own validation, but worth a spot-check).

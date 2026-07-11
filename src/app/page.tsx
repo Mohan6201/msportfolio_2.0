@@ -57,7 +57,14 @@ export default async function Home() {
   return (
     <main className="bg-darkBrown">
       <NavbarMain />
-      <HeroMain profile={profile} yearsOfExperience={data.yearsOfExperience} socialLinks={socialLinks} />
+      <HeroMain
+        profile={profile}
+        yearsOfExperience={data.yearsOfExperience}
+        socialLinks={socialLinks}
+        skills={skills}
+        projectCount={projects.length}
+        certCount={certifications.length}
+      />
       <PipelineStrip />
       {show("about")          && <AboutMeMain profile={profile} yearsOfExperience={data.yearsOfExperience} socialLinks={socialLinks} />}
       {show("experience")     && <ExperienceMain experiences={experiences} />}

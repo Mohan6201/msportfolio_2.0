@@ -5,7 +5,7 @@ import { Link } from "react-scroll";
 import { FiArrowRight, FiDownload, FiGithub, FiLinkedin } from "react-icons/fi";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import Image from "next/image";
-import type { ProfileRow, SocialLinkRow } from "@/domains/profile/services/profile.service";
+import type { ProfileRow, SocialLinkRow, SkillRow } from "@/domains/profile/services/profile.service";
 
 const PIPELINE_STAGES = [
   { label: "Code",    status: "done",    color: "green"  },
@@ -15,26 +15,50 @@ const PIPELINE_STAGES = [
   { label: "Monitor", status: "idle",    color: "purple" },
 ];
 
-const TECH_BADGES = [
-  { label: "AWS",            cls: "text-orange  border-orange/25  bg-orange/5"  },
-  { label: "Docker",         cls: "text-cyan    border-cyan/25    bg-cyan/5"    },
-  { label: "Terraform",      cls: "text-green   border-green/25   bg-green/5"   },
-  { label: "GitHub Actions", cls: "text-white   border-white/15   bg-white/3"   },
-  { label: "Ansible",        cls: "text-orange  border-orange/20  bg-orange/5"  },
-  { label: "Jenkins",        cls: "text-cyan    border-cyan/20    bg-cyan/5"    },
+const BADGE_COLORS = [
+  "text-orange border-orange/25 bg-orange/5",
+  "text-cyan   border-cyan/25   bg-cyan/5",
+  "text-green  border-green/25  bg-green/5",
+  "text-white  border-white/15  bg-white/3",
+  "text-orange border-orange/20 bg-orange/5",
+  "text-cyan   border-cyan/20   bg-cyan/5",
 ];
+
+/** Short badge label from a (possibly compound "A · B · C") skill name. */
+function shortSkillLabel(name: string): string {
+  return name.split(" · ")[0];
+}
+
+/** Top N skills by level, deduped by short label — drives both the badge row and the terminal's stack.sh line. */
+function topSkillLabels(skills: SkillRow[], count: number): string[] {
+  const sorted = [...skills].sort((a, b) => b.level - a.level);
+  const labels: string[] = [];
+  for (const s of sorted) {
+    const label = shortSkillLabel(s.name);
+    if (!labels.includes(label)) labels.push(label);
+    if (labels.length >= count) break;
+  }
+  return labels;
+}
 
 interface HeroMainProps {
   profile: ProfileRow;
   yearsOfExperience: string;
   socialLinks: SocialLinkRow[];
+  skills: SkillRow[];
+  projectCount: number;
+  certCount: number;
 }
 
-function TerminalBlock({ profile, yearsOfExperience }: { profile: ProfileRow; yearsOfExperience: string }) {
+function TerminalBlock({
+  profile, yearsOfExperience, stackLabels, projectCount,
+}: {
+  profile: ProfileRow; yearsOfExperience: string; stackLabels: string[]; projectCount: number;
+}) {
   const LINES = [
     { prompt: "$ whoami",           output: `${profile.fullName} — ${profile.title} @ ${profile.currentCompany}` },
-    { prompt: "$ cat stack.sh",     output: "AWS · Docker · Terraform · GitHub Actions · Ansible · Jenkins" },
-    { prompt: "$ uptime",           output: `${yearsOfExperience} in production  •  10+ shipped projects` },
+    { prompt: "$ cat stack.sh",     output: stackLabels.join(" · ") },
+    { prompt: "$ uptime",           output: `${yearsOfExperience} in production  •  ${projectCount}+ shipped projects` },
     { prompt: "$ systemctl status", output: "● active (running)  —  Available for DevOps roles" },
   ];
 
@@ -108,11 +132,12 @@ function TerminalBlock({ profile, yearsOfExperience }: { profile: ProfileRow; ye
   );
 }
 
-export default function HeroMain({ profile, yearsOfExperience, socialLinks }: HeroMainProps) {
+export default function HeroMain({ profile, yearsOfExperience, socialLinks, skills, projectCount, certCount }: HeroMainProps) {
   const github = socialLinks.find((s) => s.platform === "github")?.url ?? profile.githubUrl ?? "#";
   const linkedin = socialLinks.find((s) => s.platform === "linkedin")?.url ?? profile.linkedinUrl ?? "#";
   const resumeUrl = profile.resumeUrl ?? "/resume/Mohana_Srinivasan_Resume.pdf";
   const yrsNum = Math.floor(parseFloat(yearsOfExperience));
+  const stackLabels = topSkillLabels(skills, 6);
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden grid-bg">
@@ -156,7 +181,7 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
               </h1>
             </div>
 
-            <TerminalBlock profile={profile} yearsOfExperience={yearsOfExperience} />
+            <TerminalBlock profile={profile} yearsOfExperience={yearsOfExperience} stackLabels={stackLabels} projectCount={projectCount} />
 
             <div className="flex flex-col sm:flex-row flex-wrap gap-3 mt-1">
               <Link to="contact" smooth duration={600} offset={-80} className="cursor-pointer w-full sm:w-auto">
@@ -223,9 +248,9 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
             {/* Stat cards */}
             <div className="grid grid-cols-3 gap-2.5 sm:gap-3 w-full max-w-[320px] sm:max-w-[280px] mt-2">
               {[
-                { value: yrsNum, suffix: "+", label: "Years Exp.", cls: "border-cyan/15 text-cyan" },
-                { value: 10,     suffix: "+", label: "Projects",  cls: "border-green/15 text-green" },
-                { value: 3,      suffix: "",  label: "Certs",     cls: "border-orange/15 text-orange" },
+                { value: yrsNum,      suffix: "+", label: "Years Exp.", cls: "border-cyan/15 text-cyan" },
+                { value: projectCount, suffix: "+", label: "Projects",  cls: "border-green/15 text-green" },
+                { value: certCount,    suffix: "",  label: "Certs",     cls: "border-orange/15 text-orange" },
               ].map(({ value, suffix, label, cls }) => (
                 <div key={label} className={`glass rounded-xl p-2.5 sm:p-3 text-center border ${cls.split(" ")[0]}`}>
                   <p className={`text-lg sm:text-xl font-bold font-mono ${cls.split(" ")[1]}`}>
@@ -270,12 +295,12 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks }: He
               </div>
             </div>
 
-            {/* Tech badges */}
+            {/* Tech badges — derived from real skill data, top 6 by level */}
             <div className="flex flex-wrap justify-center gap-2 max-w-[320px] sm:max-w-[300px] px-2">
-              {TECH_BADGES.map(({ label, cls }) => (
+              {stackLabels.map((label, i) => (
                 <span
                   key={label}
-                  className={`px-2.5 py-1 rounded-md border text-[10px] sm:text-[11px] font-mono font-medium whitespace-nowrap ${cls}`}
+                  className={`px-2.5 py-1 rounded-md border text-[10px] sm:text-[11px] font-mono font-medium whitespace-nowrap ${BADGE_COLORS[i % BADGE_COLORS.length]}`}
                 >
                   {label}
                 </span>

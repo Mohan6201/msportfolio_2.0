@@ -1,15 +1,14 @@
 # MS Portfolio 2.0 — Full Audit Report
 
-**Status:** All 7 phases investigated (read-only). **SEC-01 has been fixed and verified** (see below); everything else in this report is still proposed work awaiting your go-ahead.
+**Status:** All 7 phases investigated (read-only). **Phase 5 (Security) and Phase 2 (Data Accuracy) are now fixed and verified**; Phases 1, 3, 4, 6 are still proposed work awaiting your go-ahead.
 
 ## Executive Summary
 
-- **56 findings** across 7 phases: 1 Critical (live exploit — **now fixed**), 2 High/Critical-adjacent, ~20 High, ~25 Medium, ~10 Low.
-- ~~**Fix this first, independent of everything else:** SEC-01 — any visitor can self-promote to admin/owner via a crafted sign-up request (`src/auth/index.ts`, missing `input: false` on the `role` field).~~ **✅ FIXED.** Added `input: false` to the `role` additionalField in `src/auth/index.ts`. Verified live against the dev server: `POST /api/auth/sign-up/email` with `role:"admin"` in the body now silently ignored (creates with default `role:"user"`), and `POST /api/auth/update-user` with `role:"owner"` now explicitly rejected (`FIELD_NOT_ALLOWED`). Test account created during verification was deleted from the DB afterward. See §6.
-- **One open question blocks several Phase 2 fixes:** DATA-00 — the resume shows your Swirepay role ending "Jun 2026" (today is 2026-07-11) but the site says you're still there. Need your confirmation before touching current-employer messaging. See §2.
-- **Root cause of the layout complaints is identified and narrow:** a `--breakpoint-sm: 350px` override breaking the mobile-first cascade, three different container widths used across sections, and zero `2xl:` grid scaling. See §3.
-- **Data drift confirmed:** the local dev DB is byte-identical to the original one-time seed script — nothing has been updated via the admin panel since the resume moved on. Title, bio, skills, certifications, and experience all need reconciling. See §2.
-- **Quick wins:** delete a 213MB unreferenced duplicate asset folder, fix broken lint tooling (`next lint` doesn't run on Next 16; `@typescript-eslint/*` wasn't installed), add the missing `zod`/`sharp` dependencies that currently only resolve by luck. See §4/§7.
+- **56 findings** across 7 phases: 1 Critical (live exploit — **fixed**), 2 High/Critical-adjacent, ~20 High, ~25 Medium, ~10 Low.
+- **Security (Phase 5): all 9 actionable findings fixed and verified live** — the critical role-escalation exploit is closed, plus an IDOR, a cron-auth bypass, an unscoped interview update, five missing rate limits, an SVG-upload XSS risk, and stale docs. See §6.
+- **Data accuracy (Phase 2): fixed and verified live** — title/bio/skills/certifications/experience reconciled against the resume, hardcoded Hero stats (10+ Projects, 3 Certs, fixed 6-item tech badge list) now derive from real DB counts, one dead component deleted, a missing project (CareerOS) added. Two items deliberately left unresolved pending your input: the Körber cert date (DB 2023 vs resume 2025) and the Swirepay start month (DB Sep vs resume Nov). **Production Turso has not been touched** — only local `portfolio.db`; a ready-to-run migration script is provided for production. See §2.
+- **Root cause of the layout complaints is identified and narrow:** a `--breakpoint-sm: 350px` override breaking the mobile-first cascade, three different container widths used across sections, and zero `2xl:` grid scaling. Not yet fixed — awaiting go-ahead. See §3.
+- **Quick wins still open:** delete a 213MB unreferenced duplicate asset folder, fix broken lint tooling (`next lint` doesn't run on Next 16; `@typescript-eslint/*` wasn't installed), add the missing `zod`/`sharp` dependencies that currently only resolve by luck. See §4/§7.
 - **`tsc --noEmit` is clean (0 errors)** — TypeScript hygiene is good.
 
 ---
@@ -62,35 +61,35 @@ Consequence: audit.md's Phase 2 premise ("locate hardcoded resume data across co
 **Source of truth:** `public/resume/Mohana_Srinivasan_Resume.pdf` (latest, user-confirmed accurate).
 **Compared against:** live local DB content (`portfolio.db`, tables `profiles`/`experiences`/`skills`/`certifications`/`projects`), which — per §1.4 — is identical to `scripts/seed-profile.ts`, and against hardcoded UI strings found during inventory.
 
-### DATA-00 — ⚠️ Needs your confirmation before any fix (Critical, blocks other fixes)
-The resume lists the Swirepay role as **"AWS DevOps Engineer, Nov 2025 – Jun 2026"** (i.e. an end date, not "Present"). Today's date is 2026-07-11 — after that end date. The DB has `experiences.is_current = true`, `end_date = null` for Swirepay, and `profiles.current_company = "Swirepay"`, and the homepage hero/terminal/SEO metadata all say "currently at Swirepay" / "Available for DevOps opportunities."
-**Question:** Have you actually left Swirepay? If yes, `current_company`/`current_designation`/`is_current` and all "currently at X" copy need to change to your latest role (or to a general "open to work" framing with Swirepay as most-recent). If the "Jun 2026" end date on the resume is a template/formatting bug, the resume itself may need fixing instead. This determines the correct fix for DATA-01, DATA-04, and the SEO metadata finding below — **do not proceed with those fixes until this is resolved.**
+### ✅ DATA-00 — Resolved: still at Swirepay
+Confirmed by user — the "Jun 2026" end date on the resume's Swirepay line is a resume formatting artifact, not an actual departure. `current_company`/`is_current`/"currently at Swirepay" messaging is correct as-is; no change needed. This unblocked DATA-01 and DATA-04 below.
 
-### DATA-01 — Job title / designation mismatch (High)
+### ✅ DATA-01 — Job title / designation mismatch (FIXED)
 - `profiles.title` = `"DevOps Engineer"`; `profiles.currentDesignation` = `"DevOps Engineer"`; `HeroText.tsx` (dead file, see DATA-06) hardcodes `"AWS DevOps Engineer"`; `HeroMain.tsx` line 148 renders `{profile.title} • {profile.currentCompany}` (dynamic, reads DB).
 - Resume header tagline: **"DevOps & Cloud Infrastructure Engineer"**. Resume experience-section title for the Swirepay role: **"AWS DevOps Engineer"**.
 - `src/app/layout.tsx` SEO metadata keywords include `"DevOps Engineer"` (line 30) and JSON-LD `jobTitle: "AWS DevOps Engineer"` (line 66) — internally inconsistent with `profiles.title`.
-- **Fix:** once DATA-00 is resolved, set `profiles.title` to match the resume's chosen brand tagline, and make sure `layout.tsx` metadata pulls the same string rather than a separately hardcoded one.
+**Fix applied:** `profiles.title` → "DevOps & Cloud Infrastructure Engineer" (public brand tagline), `profiles.currentDesignation` and the Swirepay `experiences.jobTitle` → "AWS DevOps Engineer" (matches resume's per-role title). `layout.tsx` JSON-LD `jobTitle` already said "AWS DevOps Engineer" — now consistent with the DB, no edit needed there.
 
-### DATA-02 — Bio / summary completely out of date (High)
+### ✅ DATA-02 — Bio / summary completely out of date (FIXED)
 - DB `profiles.bio`: *"AWS DevOps Engineer building scalable cloud infrastructure, CI/CD pipelines, and automated delivery systems."*
 - Resume summary is far richer and more current: 4 years IT experience, Windows Server/Hyper-V background, Swirepay fintech specifics, "reduced CI/CD build time by 75%", Prometheus/Grafana/Loki/Tempo observability stack built from scratch.
-- **Fix:** rewrite `profiles.bio` (via Admin → Profile tab, once the app is running) to reflect the resume summary, condensed for a hero/about-page context.
+**Fix applied:** `profiles.bio` rewritten with a condensed version of the resume summary.
 
-### DATA-03 — Skills list drifted (Medium-High)
+### ✅ DATA-03 — Skills list drifted (FIXED)
 DB skills (15 rows, cloud/devops/backend/monitoring categories) vs. resume's technical-skills list:
 - **On resume, missing from DB entirely:** Windows Server, Hyper-V, IIS, CodeBuild, Loki, Tempo, OTel Collector, Lambda, Nginx, Jira, Confluence, Agile/Scrum, ServiceNow.
 - **In DB, not on resume (verify still relevant / deprioritize):** Ansible, GitHub Actions, Jenkins CI, Bash Shell Scripting, Django, React/Next.js. (Some of these — e.g. React/Next.js — may be legitimately kept as "used to build this portfolio" evidence even though they're not on the resume; use judgment rather than deleting wholesale.)
 - Also: `HeroMain.tsx` `TECH_BADGES` (lines 18–25) and `TerminalBlock`'s `$ cat stack.sh` line (line 36) hardcode a **separate, third** tech list ("AWS · Docker · Terraform · GitHub Actions · Ansible · Jenkins") that matches neither the DB skills nor the resume exactly.
-- **Fix:** reconcile DB `skills` table to the resume list (add missing, decide fate of extras), then make `HeroMain.tsx`'s badges/terminal line derive from the same `skills` data instead of a third hardcoded array.
+**Fix applied:** added 4 new grouped skill rows — "Windows Server · Hyper-V · IIS" (backend), "CodeBuild · Lambda" (cloud), "Nginx" (devops), "Loki · Tempo · OTel Collector" (monitoring) — matching the existing grouped-entry convention. Left the DB-only extras (Ansible, GitHub Actions, Jenkins CI, Bash Shell Scripting, Django, React/Next.js) in place rather than deleting — a portfolio can reasonably show a broader toolkit than a 1-page resume, and removing true information is a stronger claim than adding missing information; flagging this judgment call rather than presenting it as an obvious fix. Deliberately **not added**: Jira/Confluence/Agile-Scrum/ServiceNow — these are process/collaboration tools, not a good fit for the Skills grid's numeric proficiency-bar format (would require inventing a percentage with no basis). `HeroMain.tsx`'s `TECH_BADGES` and the terminal's `$ cat stack.sh` line were both hardcoded, disconnected arrays — replaced with a `topSkillLabels()` helper that derives the top 6 skills by level from the real `skills` data, deduped by short label.
 
-### DATA-04 — Experience timeline structure mismatch (Medium, tied to DATA-00)
+### ✅ DATA-04 — Experience timeline structure mismatch (partially fixed, one item deferred)
 - Resume presents the Swirepay tenure as **one line, "Nov 2025 – Jun 2026"**; DB has it as `"SEP 2025"` → current, no end date. Start month differs (Nov vs Sep) in addition to the end-date question in DATA-00.
 - Resume consolidates the entire Enterprise Soft Labs tenure (Apr 2022 – Aug 2025) into **one role**, "Infrastructure & Cloud Engineer," describing Windows Server/Hyper-V/IIS/WMS/AWS work together. DB models this as **three separate roles** (Trainee Consultant → Staff Consultant → AWS DevOps Engineer) with different titles and narrower responsibility bullets per stage.
-- Neither structure is "wrong," but they tell different stories — worth a deliberate choice: keep DB's more granular promotion history (arguably better for a portfolio — shows growth) but update the *content* of each stage to match resume's richer detail, or collapse to match the resume 1:1. Recommend keeping the granular version but enriching each stage's `responsibilities` with resume detail (Windows Server 2019/2022 install-from-scratch, Hyper-V VM provisioning, IIS app-pool/SSL config are currently missing from any DB row).
-- Resume also lists two pre-2022 "Site Engineer" roles (civil engineering, 2018–2021) explicitly separated from "4 years of IT experience" — these are correctly **absent** from the DB; recommend leaving them out of the DevOps-focused portfolio (confirm with you, but this looks intentional on the resume's part, not an omission).
+- Neither structure is "wrong," but they tell different stories. **Fix applied:** kept the DB's granular 3-role promotion history (shows growth better than collapsing to one line) and enriched the "Staff Consultant" role's `responsibilities` with the resume's Hyper-V and IIS detail (VM provisioning/networking, Application Pools/SSL/web.config) that wasn't in any DB row before.
+- **Deferred, not guessed:** the Swirepay start-month discrepancy (DB "SEP 2025" vs resume "Nov 2025") was left as-is — given the resume's Swirepay *end* date is already confirmed wrong (DATA-00), its start date isn't a fully reliable source either, and I'm not confident enough to silently pick one. Please confirm which start month is correct.
+- Resume also lists two pre-2022 "Site Engineer" roles (civil engineering, 2018–2021) explicitly separated from "4 years of IT experience" — left **absent** from the DB, matching what looks like an intentional resume framing choice for a DevOps-focused portfolio.
 
-### DATA-05 — Hero stat cards hardcoded, contradict real data (High)
+### ✅ DATA-05 — Hero stat cards hardcoded, contradict real data (FIXED)
 `HeroMain.tsx` lines 224–237, the "Stat cards" grid:
 ```
 { value: yrsNum, ... label: "Years Exp." }   // ✅ dynamic — derived from calcExperience()
@@ -98,24 +97,40 @@ DB skills (15 rows, cloud/devops/backend/monitoring categories) vs. resume's tec
 { value: 3,  suffix: "",  label: "Certs" }    // ❌ hardcoded — DB has 4 certifications, resume implies 5
 ```
 Also `TerminalBlock` line 37: `` `${yearsOfExperience} in production  •  10+ shipped projects` `` — same hardcoded "10+" bug repeated in a second place.
-**Fix:** derive `Projects` and `Certs` counts from `projects.length` / `certifications.length` (already fetched in `getAllProfileData()`, just not threaded through to `HeroMain`), matching the "no hardcoded content" Golden Rule the Blueprint itself specifies.
+**Fix applied:** `page.tsx` now passes `projectCount={projects.length}` and `certCount={certifications.length}` through to `HeroMain`, which uses them in both the stat cards and the terminal's `$ uptime` line. Verified live: server-rendered payload shows `projectCount:5, certCount:5` (both real, current counts).
 
-### DATA-06 — Dead component, doubly-hardcoded (Medium, also a Phase-6 cleanup item)
-`src/domains/profile/components/heroSection/HeroText.tsx` is **never imported anywhere** (confirmed via repo-wide grep — only self-references). It hardcodes `"AWS DevOps Engineer"`, a "3.5 years..." blurb, and stats `3.5+ Years / 10+ Projects / AWS Certified` — all stale and all dead code. Safe to delete in Phase 6 (not referenced, so zero risk).
+### ✅ DATA-06 — Dead component, doubly-hardcoded (FIXED — deleted)
+`src/domains/profile/components/heroSection/HeroText.tsx` was **never imported anywhere** (confirmed via repo-wide grep — only self-references). It hardcoded `"AWS DevOps Engineer"`, a "3.5 years..." blurb, and stats `3.5+ Years / 10+ Projects / AWS Certified` — all stale and all dead code. **Deleted.**
 
-### DATA-07 — Certifications: one missing entirely, one stale, one issuer-name inconsistency (Medium-High)
+### ✅ DATA-07 — Certifications: one missing entirely, one stale, one issuer-name inconsistency (FIXED, one item deferred)
 - DB has **"DevOps Certified Expert (In-Progress)"**, issuer "Guvi", dated 2025-05-17. Resume shows this program has since **completed and split into two distinct entries**: "Advanced DevOps & Cloud Engineering Program" (GUVI Geek Network, Grade A, Jan 2026) and "DevOps Program" (GUVI x HCL, May–Oct 2025). The DB's single in-progress row is now outdated on two counts (no longer in-progress, and undercounts by one cert).
 - Issuer name mismatch: DB `"RedSys9 Tech Pvt Ltd"` vs resume `"Red9SysTech"` for the AWS Solutions Architect Associate cert — pick the correct legal/brand name (resume presumably more recently verified) and use it consistently.
-- Date mismatch: DB has Körber "Warehouse Advantage Certified Associate" dated `2023-09-09`; resume shows `Sep 2025` for the same cert. One of these is wrong — flag for you to confirm which date is correct (2023 aligns better with the Körber-era work history 2022–2023, so 2025 on the resume may be a typo, but don't assume).
-- **Fix:** replace the single stale GUVI row with the two resume-accurate rows, correct the issuer name, and confirm/correct the Körber date with you before changing it.
+- **Deferred, not guessed:** DB has Körber "Warehouse Advantage Certified Associate" dated `2023-09-09`; resume shows `Sep 2025` for the same cert. One of these is wrong, but I can't determine which from the documents alone — **left unchanged, needs your confirmation.**
+**Fix applied:** deleted the stale "DevOps Certified Expert (In-Progress)" row, inserted the two resume-accurate replacement certs ("Advanced DevOps & Cloud Engineering Program" / GUVI Geek Network, and "DevOps Program" / GUVI x HCL), and corrected the AWS Solutions Architect cert's issuer to "Red9SysTech" (was "RedSys9 Tech Pvt Ltd"). Both new cert rows use a placeholder badge image (`/images/certs/blank.png`) — needs real badge images uploaded via Admin → Certifications when available.
 
-### DATA-08 — "CareerOS" project entirely missing from the live portfolio (Medium)
-Resume's Projects section headlines **"CareerOS — AI-Powered Professional Intelligence Platform (in development)"** — described as a solo-designed AI-native career platform (Google ADK + LangGraph, Kubernetes/ArgoCD, Dockerized Django+React MVP). This project does not exist anywhere in the DB `projects` table or on the public `/projects` page. Given it's the resume's lead project, its absence undersells current work. Recommend adding it (marked "in development" per the resume) once you confirm the description is safe to publish publicly (e.g. no confidential employer IP).
+### ✅ DATA-08 — "CareerOS" project entirely missing from the live portfolio (FIXED)
+Resume's Projects section headlines **"CareerOS — AI-Powered Professional Intelligence Platform (in development)"** — described as a solo-designed AI-native career platform (Google ADK + LangGraph, Kubernetes/ArgoCD, Dockerized Django+React MVP). This project didn't exist anywhere in the DB `projects` table or on the public `/projects` page.
+**Fix applied:** added as a new project row, description mirrors the resume's own wording (which is already public via the downloadable PDF on this site, so this isn't a new disclosure). Uses a placeholder image (`/images/certs/blank.png`) and `link: "#"` since there's no live URL yet — **needs a real screenshot/link uploaded via Admin → Projects** once available.
 
-### DATA-09 — SEO/JSON-LD metadata inherits the same staleness (Medium, depends on DATA-00/01)
-`src/app/layout.tsx`: description says "currently at Swirepay" (line 28) and JSON-LD `jobTitle: "AWS DevOps Engineer"` (line 66) — both should be re-derived once DATA-00/DATA-01 are resolved, ideally from the same profile data rather than a fourth hardcoded copy.
+### ✅ DATA-09 — SEO/JSON-LD metadata (no change needed)
+`src/app/layout.tsx`: description says "currently at Swirepay" and JSON-LD `jobTitle: "AWS DevOps Engineer"` — both are now confirmed accurate given DATA-00's resolution and DATA-01's fix (Swirepay `experiences.jobTitle` is now also "AWS DevOps Engineer"). No edit needed. Making this metadata dynamically derived from the profile domain instead of hardcoded is a legitimate follow-up, but that's an architecture change (Phase 3/4 territory), not a data-accuracy fix — left out of scope here.
 
 ---
+
+## Phase 2 execution summary
+All local `portfolio.db` changes were applied via `scripts/migrate-phase2-resume-sync.mjs` — a content-matched (not hardcoded-ID), idempotent migration script safe to re-run. Verified via `tsc --noEmit` (clean) and a live dev-server render (no errors; correct title/bio/skills/certs/experience/CareerOS all present in the server-rendered payload; `projectCount:5, certCount:5`).
+
+**⚠️ Production Turso has not been touched.** This repo has two independent databases — local `portfolio.db` (used above) and a separate production Turso instance — and per the risk/blast-radius guidance for this session, I did not modify production data without explicit confirmation. To apply the same fixes to production:
+```
+DATABASE_URL=<production Turso URL> TURSO_AUTH_TOKEN=<production token> node scripts/migrate-phase2-resume-sync.mjs
+```
+using the real credentials from Vercel's production env vars (not committed anywhere in this repo).
+
+**Two items still need your input before they can be finalized:**
+1. **Körber cert date** — DB says 2023-09-09, resume says Sep 2025. Which is correct?
+2. **Swirepay start month** — DB says Sep 2025, resume says Nov 2025. Which is correct?
+
+**Content note:** the two new certification rows and the CareerOS project row all use a placeholder image (`/images/certs/blank.png`) since no real assets exist for them yet — replace via Admin → Certifications / Admin → Projects when you have real images.
 
 ## 3. Phase 1 — Responsive & Layout
 

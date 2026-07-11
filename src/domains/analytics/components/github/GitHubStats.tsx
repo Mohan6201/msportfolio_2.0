@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { FiGithub, FiStar, FiGitBranch, FiExternalLink, FiUsers, FiBook } from "react-icons/fi";
@@ -124,6 +124,17 @@ export default function GitHubStats() {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
+  const [snakeLoaded, setSnakeLoaded] = useState(false);
+  const [snakeError, setSnakeError] = useState(false);
+  const snakeImgRef = useRef<HTMLImageElement>(null);
+
+  // A cached/instant image load can fire the native `load` event before React attaches
+  // the onLoad listener, leaving snakeLoaded stuck false even though the image rendered.
+  useEffect(() => {
+    if (snakeImgRef.current?.complete && snakeImgRef.current.naturalWidth > 0) {
+      setSnakeLoaded(true);
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -279,24 +290,72 @@ export default function GitHubStats() {
           </>
         )}
 
-        {/* GitHub contribution graph embed */}
+        {/* GitHub contribution snake */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-12 glass rounded-2xl p-6 border border-white/5"
+          className="mt-12 glass rounded-2xl p-6 border border-white/5 relative overflow-hidden"
         >
-          <p className="text-xs font-mono text-lightGrey/50 mb-4">Contribution Activity</p>
-          <div className="overflow-x-auto rounded-xl">
-            <img
-              src={`https://ghchart.rshah.org/00d4ff/${GITHUB_USERNAME}`}
-              alt="GitHub contribution chart"
-              className="w-full min-w-[600px] rounded-lg opacity-90"
-              style={{ filter: "saturate(1.4) brightness(1.1)" }}
-            />
+          <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-cyan/5 blur-[100px] pointer-events-none" />
+
+          <div className="flex items-center justify-between mb-4 relative">
+            <p className="text-xs font-mono text-lightGrey/50">
+              Contribution Snake <span className="text-lightGrey/30">— eats through a year of commits</span>
+            </p>
+            <span className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green/10 border border-green/20 text-green text-[10px] font-mono shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
+              Live
+            </span>
           </div>
+
+          <div className="overflow-x-auto rounded-xl relative min-h-[140px] flex items-center justify-center">
+            {!snakeLoaded && !snakeError && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-full min-w-[600px] h-[140px] rounded-lg bg-white/5 animate-pulse" />
+              </div>
+            )}
+
+            {snakeError ? (
+              <div className="w-full py-8 text-center">
+                <p className="text-xs font-mono text-lightGrey/50">
+                  Snake preview unavailable right now —{" "}
+                  <a
+                    href={`https://github.com/${GITHUB_USERNAME}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-cyan hover:text-lightCyan transition-colors"
+                  >
+                    view contributions on GitHub →
+                  </a>
+                </p>
+              </div>
+            ) : (
+              <img
+                ref={snakeImgRef}
+                src={`https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_USERNAME}/output/github-snake-dark.svg`}
+                alt={`${GITHUB_USERNAME}'s GitHub contribution snake — a snake animates across the contribution graph, growing longer as it eats each day's commit square`}
+                className="w-full min-w-[600px] rounded-lg transition-opacity duration-500"
+                style={{
+                  opacity: snakeLoaded ? 0.95 : 0,
+                  filter: "hue-rotate(58deg) saturate(1.5) brightness(1.2) contrast(1.05)",
+                }}
+                onLoad={() => setSnakeLoaded(true)}
+                onError={() => setSnakeError(true)}
+              />
+            )}
+          </div>
+
           <p className="text-[10px] font-mono text-lightGrey/30 mt-3 text-center">
-            Powered by ghchart.rshah.org · updated daily
+            Snake grows one square longer per contribution · regenerated daily via{" "}
+            <a
+              href="https://github.com/Platane/snk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-lightGrey/50 hover:text-cyan transition-colors"
+            >
+              Platane/snk
+            </a>
           </p>
         </motion.div>
       </div>

@@ -89,16 +89,20 @@ function DesktopPreview({ pdfUrl }: { pdfUrl: string }) {
           className="w-full h-full overflow-auto"
           style={{ padding: zoom > 100 ? "8px" : 0 }}
         >
+          {/* src intentionally excludes the zoom level — changing it on every zoom click
+              forced the browser to fully reload the embedded PDF viewer from scratch each
+              time. Visual zoom is handled below via the CSS `zoom` property instead, which
+              rescales the already-loaded content without re-fetching anything. */}
           <iframe
-            src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&zoom=${zoom}`}
+            src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1`}
             title="Mohana Srinivasan Resume"
             className="border-0 block"
+            loading="lazy"
             style={{
-              width: `${zoom}%`,
+              width: "100%",
               height: "100%",
               minHeight: "880px",
-              minWidth: zoom > 100 ? `${zoom}%` : "100%",
-              transformOrigin: "top left",
+              zoom: `${zoom}%`,
             }}
             onLoad={() => setLoaded(true)}
           />

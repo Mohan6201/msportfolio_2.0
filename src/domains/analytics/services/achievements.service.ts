@@ -7,6 +7,8 @@ import { getProfile, getExperiences, calcExperience, earliestExperienceStart } f
 import { STATIC_DOCS } from "@/domains/knowledge/lib/staticDocs";
 import { count } from "drizzle-orm";
 
+const STATIC_DOC_FILENAMES = new Set(STATIC_DOCS.map((d) => d.file));
+
 export interface AchievementsData {
   yearsExperience: string;
   projectsDelivered: number;
@@ -18,11 +20,11 @@ export interface AchievementsData {
 
 export async function getAchievements(): Promise<AchievementsData> {
   try {
-    const [profile, projectCount, certCount, ktCount, iqCount, pvCount] = await Promise.all([
+    const [profile, projectCount, certCount, ktFilenames, iqCount, pvCount] = await Promise.all([
       getProfile(),
       db.select({ count: count() }).from(projects),
       db.select({ count: count() }).from(certifications),
-      db.select({ count: count() }).from(ktDocuments),
+      db.select({ filename: ktDocuments.filename }).from(ktDocuments),
       db.select({ count: count() }).from(interviewQuestions),
       db.select({ count: count() }).from(pageViews),
     ]);
@@ -30,11 +32,15 @@ export async function getAchievements(): Promise<AchievementsData> {
     const experiences = profile ? await getExperiences(profile.id) : [];
     const careerStart = earliestExperienceStart(experiences) ?? profile?.careerStartDate;
 
+    // Admin-uploaded docs that duplicate a bundled static doc (same filename) shouldn't be
+    // double-counted — the KT Centre page dedupes the same way when merging the two lists.
+    const uniqueUploadedCount = ktFilenames.filter((r) => !STATIC_DOC_FILENAMES.has(r.filename)).length;
+
     return {
       yearsExperience: profile && careerStart ? calcExperience(careerStart) : "0+ years",
       projectsDelivered: projectCount[0]?.count ?? 0,
       certificationsEarned: certCount[0]?.count ?? 0,
-      ktDocuments: STATIC_DOCS.length + (ktCount[0]?.count ?? 0),
+      ktDocuments: STATIC_DOCS.length + uniqueUploadedCount,
       interviewQuestions: iqCount[0]?.count ?? 0,
       totalPageViews: pvCount[0]?.count ?? 0,
     };

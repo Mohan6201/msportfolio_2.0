@@ -352,7 +352,11 @@ export default function KnowledgeBase() {
 
   useEffect(() => { fetchUploaded(); }, []);
 
-  const allDocs = [...uploadedDocs, ...STATIC_DOCS];
+  // Some admin-uploaded docs duplicate a bundled static doc (same filename) — drop those
+  // from the uploaded list so the grid and counts don't show the same PDF twice.
+  const staticFilenames = new Set(STATIC_DOCS.map((d) => d.file));
+  const dedupedUploaded = uploadedDocs.filter((d) => !staticFilenames.has(d.file));
+  const allDocs = [...dedupedUploaded, ...STATIC_DOCS];
   const filtered = active === "All" ? allDocs : allDocs.filter((d) => d.category === active);
   const visibleDocs = showAllDocs ? filtered : filtered.slice(0, COLLAPSED_DOC_COUNT);
 

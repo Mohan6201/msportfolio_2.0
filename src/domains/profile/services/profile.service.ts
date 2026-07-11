@@ -27,13 +27,37 @@ function parseJSON<T>(json: string, fallback: T): T {
   try { return JSON.parse(json) as T; } catch { return fallback; }
 }
 
-/** Years of experience auto-calculated from career_start_date */
-export function calcExperience(careerStartDate: string): string {
-  const start = new Date(careerStartDate);
+/** Years of experience auto-calculated from a career start date. */
+export function calcExperience(careerStart: string | Date): string {
+  const start = typeof careerStart === "string" ? new Date(careerStart) : careerStart;
   const now = new Date();
   const years = (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
   const rounded = Math.floor(years * 2) / 2; // nearest 0.5
   return `${rounded}+ years`;
+}
+
+const MONTHS: Record<string, number> = {
+  JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5,
+  JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11,
+};
+
+/** Parses experience start/end dates in either "MMM YYYY" (e.g. "NOV 2025") or ISO form. */
+function parseExperienceDate(raw: string): Date | null {
+  const m = raw.trim().toUpperCase().match(/^([A-Z]{3})\s+(\d{4})$/);
+  if (m && m[1] in MONTHS) return new Date(Number(m[2]), MONTHS[m[1]], 1);
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Earliest start date across all experience entries — so "years of experience" auto-updates
+ * (like LinkedIn) whenever a role is added to the timeline, instead of relying on a separately
+ * maintained profile field that can drift out of sync.
+ */
+export function earliestExperienceStart(exps: ParsedExperience[]): Date | null {
+  const dates = exps.map((e) => parseExperienceDate(e.startDate)).filter((d): d is Date => d !== null);
+  if (dates.length === 0) return null;
+  return dates.reduce((min, d) => (d < min ? d : min), dates[0]);
 }
 
 // ── Queries ───────────────────────────────────────────────────────────────────
@@ -112,6 +136,8 @@ export async function getAllProfileData() {
       getSocialLinks(profile.id),
     ]);
 
+  const careerStart = earliestExperienceStart(allExperiences) ?? profile.careerStartDate;
+
   return {
     profile,
     skills: allSkills,
@@ -119,7 +145,7 @@ export async function getAllProfileData() {
     certifications: allCertifications,
     projects: allProjects,
     socialLinks: allSocialLinks,
-    yearsOfExperience: calcExperience(profile.careerStartDate),
+    yearsOfExperience: calcExperience(careerStart),
   };
 }
 

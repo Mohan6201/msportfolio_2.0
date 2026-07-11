@@ -49,7 +49,7 @@ const [profile] = await db
     fullName: "Mohana Srinivasan",
     title: "DevOps & Cloud Infrastructure Engineer",
     bio: "Cloud Infrastructure and DevOps Engineer with 4+ years of IT experience spanning enterprise on-premises infrastructure and modern AWS cloud environments. Most recently drove fintech-grade CI/CD at Swirepay — shipped 100+ pipelines, cut build times by 75%, led zero-downtime ECS Fargate migrations, and built a Prometheus-Grafana-Loki-Tempo observability stack from scratch. Now open to new DevOps, SRE, and Cloud Engineering opportunities.",
-    location: "Hitech City, Hyderabad, India",
+    location: "Velachery, Chennai, India",
     email: "mohandevopssme@gmail.com",
     phone: "+91 80988 85683",
     avatarUrl: "/images/profile/avatar.png",

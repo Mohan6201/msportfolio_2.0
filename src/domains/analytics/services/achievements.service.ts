@@ -3,7 +3,8 @@ import { projects, certifications } from "@/db/schema/profile";
 import { ktDocuments } from "@/db/schema/legacy";
 import { interviewQuestions } from "@/db/schema/interview";
 import { pageViews } from "@/db/schema/analytics";
-import { getProfile, calcExperience } from "@/domains/profile/services/profile.service";
+import { getProfile, getExperiences, calcExperience, earliestExperienceStart } from "@/domains/profile/services/profile.service";
+import { STATIC_DOCS } from "@/domains/knowledge/lib/staticDocs";
 import { count } from "drizzle-orm";
 
 export interface AchievementsData {
@@ -26,11 +27,14 @@ export async function getAchievements(): Promise<AchievementsData> {
       db.select({ count: count() }).from(pageViews),
     ]);
 
+    const experiences = profile ? await getExperiences(profile.id) : [];
+    const careerStart = earliestExperienceStart(experiences) ?? profile?.careerStartDate;
+
     return {
-      yearsExperience: profile ? calcExperience(profile.careerStartDate) : "0+ years",
+      yearsExperience: profile && careerStart ? calcExperience(careerStart) : "0+ years",
       projectsDelivered: projectCount[0]?.count ?? 0,
       certificationsEarned: certCount[0]?.count ?? 0,
-      ktDocuments: ktCount[0]?.count ?? 0,
+      ktDocuments: STATIC_DOCS.length + (ktCount[0]?.count ?? 0),
       interviewQuestions: iqCount[0]?.count ?? 0,
       totalPageViews: pvCount[0]?.count ?? 0,
     };

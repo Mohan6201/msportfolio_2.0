@@ -16,6 +16,17 @@ function formatCertDate(raw: string): string {
   return raw;
 }
 
+/** A cert is "in progress" only if its date is missing or genuinely in the future —
+ * not simply because it lacks a public verification link. Plenty of completed training
+ * programs don't issue a shareable credential URL, and treating that as "unfinished" is
+ * misleading to anyone reading the certifications list. */
+function isCertInProgress(raw: string): boolean {
+  if (!raw) return true;
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return false;
+  return d.getTime() > Date.now();
+}
+
 function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -28,6 +39,7 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
       : `/${raw.replace(/^\/+/, "")}`;
 
   const displayDate = formatCertDate(cert.date ?? "");
+  const inProgress = isCertInProgress(cert.date ?? "");
 
   return (
     <>
@@ -71,9 +83,9 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
               >
                 Verify <ExternalLink className="w-2.5 h-2.5" />
               </a>
-            ) : (
+            ) : inProgress ? (
               <span className="badge badge-orange text-[9px]">In Progress</span>
-            )}
+            ) : null}
           </div>
 
           {src && (
@@ -138,8 +150,10 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
                   >
                     <ExternalLink className="w-3.5 h-3.5" /> Verify Credential
                   </a>
-                ) : (
+                ) : inProgress ? (
                   <span className="badge badge-orange text-[10px]">In Progress</span>
+                ) : (
+                  <span />
                 )}
                 <button
                   onClick={() => setExpanded(false)}

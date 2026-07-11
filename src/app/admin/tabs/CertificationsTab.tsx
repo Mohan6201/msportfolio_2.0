@@ -254,27 +254,31 @@ function CertForm({ form, onChange, onSave, onCancel, saving }: {
           <input className={inp} type="number" value={form.sortOrder} onChange={e => onChange({ ...form, sortOrder: Number(e.target.value) })} />
         </div>
         <div>
-          <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-2">Credential Status</label>
-          {/* In Progress toggle */}
+          <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-2">Public Verification Link</label>
+          <p className="text-[10px] text-[#6B7280] font-mono mb-2 leading-relaxed">
+            Public site shows "In Progress" only when the date above is in the future — not just
+            because this link is empty. Leave blank for completed certs with no shareable URL.
+          </p>
+          {/* Has-link toggle */}
           <label className="flex items-center gap-3 cursor-pointer mb-3">
             <div
               onClick={() => onChange({ ...form, link: form.link === null ? "" : null })}
               className="relative w-10 h-5 rounded-full transition-colors flex-shrink-0 cursor-pointer"
-              style={{ backgroundColor: form.link === null ? "#00D964" : "#26262B" }}
+              style={{ backgroundColor: form.link !== null ? "#00D964" : "#26262B" }}
             >
               <div
                 className="absolute top-0.5 w-4 h-4 rounded-full transition-transform"
                 style={{
-                  backgroundColor: form.link === null ? "#0A0A0B" : "#6B7280",
-                  transform: form.link === null ? "translateX(22px)" : "translateX(2px)",
+                  backgroundColor: form.link !== null ? "#0A0A0B" : "#6B7280",
+                  transform: form.link !== null ? "translateX(22px)" : "translateX(2px)",
                 }}
               />
             </div>
-            <span className="text-xs font-mono" style={{ color: form.link === null ? "#00D964" : "#6B7280" }}>
-              {form.link === null ? "In Progress" : "Completed"}
+            <span className="text-xs font-mono" style={{ color: form.link !== null ? "#00D964" : "#6B7280" }}>
+              {form.link !== null ? "Has a link" : "No public link"}
             </span>
           </label>
-          {/* Credential link — only shown when NOT in progress */}
+          {/* Credential link — only shown when the toggle above is on */}
           {form.link !== null && (
             <input
               className={inp}

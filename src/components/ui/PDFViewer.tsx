@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Download, ExternalLink, Minimize2, Maximize2, Loader2, FileText } from "lucide-react";
+import { X, Download, ExternalLink, Minimize2, Maximize2, Loader2, FileText, AlertTriangle } from "lucide-react";
 
 interface PDFViewerState {
   open: boolean;
@@ -31,11 +31,20 @@ function ViewerModal({ state, onClose, onTogglePip }: {
   onTogglePip: () => void;
 }) {
   const [loaded, setLoaded] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   const [pipPos, setPipPos] = useState({ x: 24, y: 24 });
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setLoaded(false); }, [state.url]);
+  useEffect(() => { setLoaded(false); setTimedOut(false); }, [state.url]);
+
+  // Browser download managers (IDM etc.) and some content blockers silently intercept
+  // embedded PDF requests — the iframe's onLoad never fires and the spinner spins forever.
+  useEffect(() => {
+    if (loaded) return;
+    const t = setTimeout(() => setTimedOut(true), 6000);
+    return () => clearTimeout(t);
+  }, [loaded, state.url]);
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     if (!state.pip) return;
@@ -76,9 +85,19 @@ function ViewerModal({ state, onClose, onTogglePip }: {
           </button>
         </div>
         <div className="relative flex-1 bg-[#1a1a1a]">
-          {!loaded && (
+          {!loaded && !timedOut && (
             <div className="absolute inset-0 flex items-center justify-center bg-[#0a0f1a] z-10">
               <Loader2 className="w-6 h-6 text-cyan animate-spin" />
+            </div>
+          )}
+          {!loaded && timedOut && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#0a0f1a] z-10 px-4 text-center">
+              <AlertTriangle className="w-5 h-5 text-orange" />
+              <p className="text-[11px] font-mono text-lightGrey/60">Preview blocked — try opening directly</p>
+              <a href={state.url} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan text-black text-[11px] font-mono font-bold hover:bg-lightCyan transition-colors">
+                <ExternalLink className="w-3 h-3" /> Open in New Tab
+              </a>
             </div>
           )}
           <iframe src={state.url} className="w-full h-full border-0" onLoad={() => setLoaded(true)} title={state.title} />
@@ -139,10 +158,31 @@ function ViewerModal({ state, onClose, onTogglePip }: {
 
         {/* PDF iframe */}
         <div className="relative flex-1 bg-[#1a1a1a]">
-          {!loaded && (
+          {!loaded && !timedOut && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#05080f] z-10">
               <Loader2 className="w-8 h-8 text-cyan animate-spin" />
               <p className="text-xs font-mono text-lightGrey/50">Loading document...</p>
+            </div>
+          )}
+          {!loaded && timedOut && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#05080f] z-10 px-6 text-center">
+              <AlertTriangle className="w-7 h-7 text-orange" />
+              <div>
+                <p className="text-sm font-mono text-white font-medium">Preview is taking longer than expected</p>
+                <p className="text-xs font-mono text-lightGrey/50 mt-1.5 max-w-xs">
+                  A browser extension or download manager may be blocking the embedded preview.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <a href={state.url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan text-black text-xs font-mono font-bold hover:bg-lightCyan transition-colors">
+                  <ExternalLink className="w-3.5 h-3.5" /> Open in New Tab
+                </a>
+                <a href={state.url} download
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/10 text-lightGrey text-xs font-mono hover:border-cyan/40 hover:text-cyan transition-all">
+                  <Download className="w-3.5 h-3.5" /> Download
+                </a>
+              </div>
             </div>
           )}
           <iframe

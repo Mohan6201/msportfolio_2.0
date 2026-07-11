@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   keywords: [
     "DevOps Engineer", "AWS Engineer", "Cloud Engineer", "CI/CD",
     "Docker", "ECS Fargate", "Terraform", "CodePipeline",
-    "Mohana Srinivasan", "Hyderabad", "Open to Work",
+    "Mohana Srinivasan", "Chennai", "Open to Work",
   ],
   authors: [{ name: "Mohana Srinivasan", url: "https://m-s-r-portfolio.vercel.app" }],
   creator: "Mohana Srinivasan",

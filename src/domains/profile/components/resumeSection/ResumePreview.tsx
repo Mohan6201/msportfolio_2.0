@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { Download, ExternalLink, FileText, Loader2, Minimize2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, Download, ExternalLink, FileText, Loader2, Minimize2 } from "lucide-react";
 import { usePDFViewer } from "@/components/ui/PDFViewer";
 
 interface ResumePreviewProps {
@@ -42,10 +42,20 @@ function MobilePreview({ pdfUrl }: { pdfUrl: string }) {
 
 function DesktopPreview({ pdfUrl }: { pdfUrl: string }) {
   const [loaded, setLoaded] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   const [zoom, setZoom] = useState(100);
   const { openPDF } = usePDFViewer();
 
   const zoomLevels = [75, 100, 125, 150];
+
+  // Browser download managers (IDM etc.) and some ad/content blockers silently intercept
+  // embedded PDF requests and return an empty response — the iframe's onLoad never fires
+  // and the spinner would otherwise spin forever. Fall back to a direct-access prompt.
+  useEffect(() => {
+    if (loaded) return;
+    const t = setTimeout(() => setTimedOut(true), 6000);
+    return () => clearTimeout(t);
+  }, [loaded]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -78,10 +88,40 @@ function DesktopPreview({ pdfUrl }: { pdfUrl: string }) {
         className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-cyan/5 bg-[#1a1a1a]"
         style={{ height: "900px" }}
       >
-        {!loaded && (
+        {!loaded && !timedOut && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-[#1a1a1a]">
             <Loader2 className="w-7 h-7 text-cyan animate-spin" />
             <p className="text-xs font-mono text-lightGrey/60">Loading resume...</p>
+          </div>
+        )}
+
+        {!loaded && timedOut && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-[#1a1a1a] px-6 text-center">
+            <AlertTriangle className="w-7 h-7 text-orange" />
+            <div>
+              <p className="text-sm font-mono text-white font-medium">Preview is taking longer than expected</p>
+              <p className="text-xs font-mono text-lightGrey/50 mt-1.5 max-w-xs">
+                A browser extension or download manager may be blocking the embedded preview.
+                Open the PDF directly instead:
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <a
+                href={pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan text-black text-xs font-mono font-bold hover:bg-lightCyan transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> Open in New Tab
+              </a>
+              <a
+                href={pdfUrl}
+                download="Mohana_Srinivasan_Resume.pdf"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/10 text-lightGrey text-xs font-mono hover:border-cyan/40 hover:text-cyan transition-all"
+              >
+                <Download className="w-3.5 h-3.5" /> Download
+              </a>
+            </div>
           </div>
         )}
 

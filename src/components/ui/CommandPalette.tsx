@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ArrowRight, X, Terminal, Mail, User, Briefcase, Award, Code2, Database, FileText } from "lucide-react";
 import { FiGithub as GithubIcon } from "react-icons/fi";
@@ -22,6 +23,8 @@ export default function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   const filtered = NAV_ITEMS.filter((i) =>
     i.label.toLowerCase().includes(query.toLowerCase())
@@ -77,7 +80,7 @@ export default function CommandPalette() {
                 <div className="py-2 max-h-72 overflow-y-auto">
                   {filtered.map((item) => {
                     const Icon = item.icon;
-                    if (item.type === "scroll") {
+                    if (item.type === "scroll" && isHome) {
                       return (
                         <Link
                           key={item.id}
@@ -96,7 +99,7 @@ export default function CommandPalette() {
                     return (
                       <NextLink
                         key={item.id}
-                        href={item.id}
+                        href={item.type === "scroll" ? `/#${item.id}` : item.id}
                         onClick={() => setOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 hover:bg-cyan/5 cursor-pointer group transition-colors"
                       >

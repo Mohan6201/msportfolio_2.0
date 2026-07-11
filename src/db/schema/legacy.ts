@@ -11,12 +11,6 @@ export const contacts = sqliteTable("contacts", {
   createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
 });
 
-export const newsletter = sqliteTable("newsletter", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  email: text("email").notNull().unique(),
-  createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
-});
-
 export const ktDocuments = sqliteTable("kt_documents", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull(),

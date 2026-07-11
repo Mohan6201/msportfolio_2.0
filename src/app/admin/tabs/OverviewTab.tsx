@@ -1,11 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Users, Loader2 } from "lucide-react";
+import { Mail, Loader2 } from "lucide-react";
 
 interface Stats {
   contacts: { total: number | bigint; unread: number | bigint };
-  subscribers: { total: number | bigint };
 }
 
 export function OverviewTab() {
@@ -22,8 +21,7 @@ export function OverviewTab() {
   return (
     <div className="grid sm:grid-cols-2 gap-4">
       {[
-        { label: "Messages",    value: stats.contacts.total,    sub: `${stats.contacts.unread} unread`, icon: <Mail className="w-6 h-6" /> },
-        { label: "Subscribers", value: stats.subscribers.total, sub: "newsletter",                      icon: <Users className="w-6 h-6" /> },
+        { label: "Messages", value: stats.contacts.total, sub: `${stats.contacts.unread} unread`, icon: <Mail className="w-6 h-6" /> },
       ].map((s) => (
         <motion.div key={s.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
           className="bg-black/30 border border-lightBrown rounded-2xl p-6">

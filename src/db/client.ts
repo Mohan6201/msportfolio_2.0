@@ -35,12 +35,6 @@ if (process.env.NEXT_PHASE !== "phase-production-build") {
     created_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
-  CREATE TABLE IF NOT EXISTS newsletter (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    email      TEXT    NOT NULL UNIQUE,
-    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
-  );
-
   CREATE TABLE IF NOT EXISTS kt_documents (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     title       TEXT    NOT NULL,

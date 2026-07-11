@@ -1,6 +1,6 @@
 import { eq, desc, sql } from "drizzle-orm";
 import { db } from "./client";
-import { contacts, newsletter, ktDocuments } from "./schema/legacy";
+import { contacts, ktDocuments } from "./schema/legacy";
 import { projects } from "./schema/profile";
 
 // ── Contacts ─────────────────────────────────────────────────────────────────
@@ -20,19 +20,6 @@ export async function getAllContacts() {
 
 export async function markContactRead(id: number) {
   await db.update(contacts).set({ read: 1 }).where(eq(contacts.id, id));
-}
-
-// ── Newsletter ─────────────────────────────────────────────────────────────────
-
-export async function insertSubscriber(email: string) {
-  await db.insert(newsletter).values({ email }).onConflictDoNothing();
-}
-
-export async function getAllSubscribers() {
-  return db
-    .select({ id: newsletter.id, email: newsletter.email, createdAt: newsletter.createdAt })
-    .from(newsletter)
-    .orderBy(desc(newsletter.createdAt));
 }
 
 // ── KT Documents ──────────────────────────────────────────────────────────────
@@ -83,18 +70,16 @@ export async function deleteKTDocument(id: number) {
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
 export async function getStats() {
-  const [c, n] = await Promise.all([
+  const [c] = await Promise.all([
     db
       .select({
         total: sql<number>`count(*)`,
         unread: sql<number>`sum(case when ${contacts.read}=0 then 1 else 0 end)`,
       })
       .from(contacts),
-    db.select({ total: sql<number>`count(*)` }).from(newsletter),
   ]);
   return {
     contacts: c[0],
-    subscribers: n[0],
   };
 }
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllContacts, getAllSubscribers, getStats, getDashboardStats, markContactRead } from "@/db/queries";
+import { getAllContacts, getStats, getDashboardStats, markContactRead } from "@/db/queries";
 import { requireAdmin } from "@/lib/adminAuth";
 
 export async function GET(req: NextRequest) {
@@ -8,9 +8,8 @@ export async function GET(req: NextRequest) {
 
   const tab = req.nextUrl.searchParams.get("tab") ?? "stats";
 
-  if (tab === "contacts")    return NextResponse.json({ data: await getAllContacts() });
-  if (tab === "subscribers") return NextResponse.json({ data: await getAllSubscribers() });
-  if (tab === "dashboard")   return NextResponse.json(await getDashboardStats());
+  if (tab === "contacts")  return NextResponse.json({ data: await getAllContacts() });
+  if (tab === "dashboard") return NextResponse.json(await getDashboardStats());
 
   return NextResponse.json({ stats: await getStats() });
 }

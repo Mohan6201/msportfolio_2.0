@@ -17,7 +17,6 @@ import { ProjectsTab }        from "./tabs/ProjectsTab";
 import { CertificationsTab }  from "./tabs/CertificationsTab";
 import { SocialLinksTab }     from "./tabs/SocialLinksTab";
 import { MessagesTab }        from "./tabs/MessagesTab";
-import { SubscribersTab }     from "./tabs/SubscribersTab";
 import { AnalyticsTab }       from "./tabs/AnalyticsTab";
 import { KTDocumentsTab }     from "./tabs/KTDocumentsTab";
 import { KTCategoriesTab }    from "./tabs/KTCategoriesTab";
@@ -34,7 +33,7 @@ type Section =
   | "certifications" | "social"
   | "kt-documents" | "kt-categories"
   | "users" | "job-preferences" | "job-matches"
-  | "messages" | "newsletter"
+  | "messages"
   | "analytics" | "site-settings" | "admin-account" | "media-library";
 
 interface NavItem { id: Section; label: string; icon: React.ElementType }
@@ -73,8 +72,7 @@ const NAV: NavGroup[] = [
   {
     label: "ENGAGEMENT",
     items: [
-      { id: "messages",   label: "Messages",   icon: Mail },
-      { id: "newsletter", label: "Newsletter", icon: Bell },
+      { id: "messages", label: "Messages", icon: Mail },
     ],
   },
   {
@@ -123,7 +121,6 @@ export default function AdminDashboard() {
       case "certifications": return <CertificationsTab key={key} />;
       case "social":         return <SocialLinksTab key={key} />;
       case "messages":       return <MessagesTab key={key} />;
-      case "newsletter":     return <SubscribersTab key={key} />;
       case "analytics":      return <AnalyticsTab key={key} />;
       case "kt-documents":   return <KTDocumentsTab key={key} />;
       case "kt-categories":  return <KTCategoriesTab key={key} />;

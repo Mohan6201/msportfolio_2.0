@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-scroll";
@@ -19,6 +20,8 @@ const NAV_LINKS = [
 export default function NavbarMain() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -50,7 +53,7 @@ export default function NavbarMain() {
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">
             {NAV_LINKS.map((item) =>
-              item.type === "scroll" ? (
+              isHome ? (
                 <Link
                   key={item.label}
                   to={item.to}
@@ -64,7 +67,7 @@ export default function NavbarMain() {
               ) : (
                 <NextLink
                   key={item.label}
-                  href={item.to}
+                  href={`/#${item.to}`}
                   className="px-3 py-2 text-sm font-mono text-lightGrey hover:text-cyan transition-colors duration-200 rounded-lg hover:bg-cyan/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan/60 relative group"
                 >
                   {item.label}
@@ -85,12 +88,21 @@ export default function NavbarMain() {
               className="w-8 h-8 flex items-center justify-center rounded-lg text-lightGrey hover:text-cyan hover:bg-cyan/5 transition-all duration-200">
               <FiLinkedin className="w-4 h-4" />
             </a>
-            <Link to="contact" smooth duration={600} offset={-80} className="cursor-pointer">
-              <motion.button whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 rounded-lg bg-cyan text-black text-sm font-mono font-bold hover:bg-lightCyan transition-colors duration-200 shadow-cyanShadow">
-                Hire Me →
-              </motion.button>
-            </Link>
+            {isHome ? (
+              <Link to="contact" smooth duration={600} offset={-80} className="cursor-pointer">
+                <motion.button whileTap={{ scale: 0.95 }}
+                  className="px-4 py-2 rounded-lg bg-cyan text-black text-sm font-mono font-bold hover:bg-lightCyan transition-colors duration-200 shadow-cyanShadow">
+                  Hire Me →
+                </motion.button>
+              </Link>
+            ) : (
+              <NextLink href="/#contact">
+                <motion.button whileTap={{ scale: 0.95 }}
+                  className="px-4 py-2 rounded-lg bg-cyan text-black text-sm font-mono font-bold hover:bg-lightCyan transition-colors duration-200 shadow-cyanShadow">
+                  Hire Me →
+                </motion.button>
+              </NextLink>
+            )}
           </div>
 
           {/* Mobile toggle */}
@@ -117,14 +129,14 @@ export default function NavbarMain() {
           >
             <div className="px-4 py-4 flex flex-col gap-1">
               {NAV_LINKS.map((item) =>
-                item.type === "scroll" ? (
+                isHome ? (
                   <Link key={item.label} to={item.to} smooth duration={600} offset={-80}
                     onClick={() => setMenuOpen(false)}
                     className="px-3 py-2.5 text-sm font-mono text-lightGrey hover:text-cyan hover:bg-cyan/5 rounded-lg cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan/60">
                     <span className="text-green mr-2">$</span>{item.label}
                   </Link>
                 ) : (
-                  <NextLink key={item.label} href={item.to}
+                  <NextLink key={item.label} href={`/#${item.to}`}
                     onClick={() => setMenuOpen(false)}
                     className="px-3 py-2.5 text-sm font-mono text-lightGrey hover:text-cyan hover:bg-cyan/5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan/60">
                     <span className="text-green mr-2">$</span>{item.label}
@@ -132,11 +144,19 @@ export default function NavbarMain() {
                 )
               )}
               <div className="pt-3 mt-2 border-t border-white/5">
-                <Link to="contact" smooth duration={600} offset={-80} onClick={() => setMenuOpen(false)}>
-                  <button className="w-full py-2.5 rounded-lg bg-cyan text-black text-sm font-mono font-bold hover:bg-lightCyan transition-colors">
-                    Hire Me →
-                  </button>
-                </Link>
+                {isHome ? (
+                  <Link to="contact" smooth duration={600} offset={-80} onClick={() => setMenuOpen(false)}>
+                    <button className="w-full py-2.5 rounded-lg bg-cyan text-black text-sm font-mono font-bold hover:bg-lightCyan transition-colors">
+                      Hire Me →
+                    </button>
+                  </Link>
+                ) : (
+                  <NextLink href="/#contact" onClick={() => setMenuOpen(false)}>
+                    <button className="w-full py-2.5 rounded-lg bg-cyan text-black text-sm font-mono font-bold hover:bg-lightCyan transition-colors">
+                      Hire Me →
+                    </button>
+                  </NextLink>
+                )}
               </div>
             </div>
           </motion.div>

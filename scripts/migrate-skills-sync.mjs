@@ -10,12 +10,20 @@
 // Production:        DATABASE_URL=libsql://... TURSO_AUTH_TOKEN=... node scripts/migrate-skills-sync.mjs
 
 import { createClient } from "@libsql/client";
+import { ensureMigrationsTable, hasRun, markApplied } from "./lib/migrationGuard.mjs";
 
+const MIGRATION_NAME = "skills-sync";
 const url = process.env.DATABASE_URL ?? "file:../portfolio.db";
 const authToken = process.env.TURSO_AUTH_TOKEN;
 const client = createClient(authToken ? { url, authToken } : { url });
 
 console.log(`Skills sync — target: ${url}\n`);
+
+await ensureMigrationsTable(client);
+if (await hasRun(client, MIGRATION_NAME)) {
+  console.log(`⏭  ${MIGRATION_NAME} already applied to this database — skipping.`);
+  process.exit(0);
+}
 
 const SKILLS = [
   { name: "AWS EC2 · ECS · S3 · IAM · RDS",       category: "cloud",      level: 92, iconKey: "FaAws",          sortOrder: 0 },
@@ -51,5 +59,7 @@ for (const s of SKILLS) {
 }
 
 console.log(`✔ skills: replaced ${before.rows[0].c} row(s) with ${SKILLS.length} resume-accurate row(s)`);
+
+await markApplied(client, MIGRATION_NAME);
 console.log("\nDone.");
 process.exit(0);

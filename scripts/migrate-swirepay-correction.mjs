@@ -7,12 +7,20 @@
 // Production:        DATABASE_URL=libsql://... TURSO_AUTH_TOKEN=... node scripts/migrate-swirepay-correction.mjs
 
 import { createClient } from "@libsql/client";
+import { ensureMigrationsTable, hasRun, markApplied } from "./lib/migrationGuard.mjs";
 
+const MIGRATION_NAME = "swirepay-correction";
 const url = process.env.DATABASE_URL ?? "file:../portfolio.db";
 const authToken = process.env.TURSO_AUTH_TOKEN;
 const client = createClient(authToken ? { url, authToken } : { url });
 
 console.log(`Swirepay correction — target: ${url}\n`);
+
+await ensureMigrationsTable(client);
+if (await hasRun(client, MIGRATION_NAME)) {
+  console.log(`⏭  ${MIGRATION_NAME} already applied to this database — skipping.`);
+  process.exit(0);
+}
 
 // ── 1. Experience: correct dates, mark no longer current, accurate content ─────
 const swirepayTech = JSON.stringify([
@@ -44,5 +52,6 @@ await client.execute({
 });
 console.log("✔ profiles: bio updated to honest open-to-work framing");
 
+await markApplied(client, MIGRATION_NAME);
 console.log("\nDone.");
 process.exit(0);

@@ -7,12 +7,20 @@
 // Production:        DATABASE_URL=libsql://... TURSO_AUTH_TOKEN=... node scripts/migrate-portfolio-project-correction.mjs
 
 import { createClient } from "@libsql/client";
+import { ensureMigrationsTable, hasRun, markApplied } from "./lib/migrationGuard.mjs";
 
+const MIGRATION_NAME = "portfolio-project-correction";
 const url = process.env.DATABASE_URL ?? "file:../portfolio.db";
 const authToken = process.env.TURSO_AUTH_TOKEN;
 const client = createClient(authToken ? { url, authToken } : { url });
 
 console.log(`Portfolio project correction — target: ${url}\n`);
+
+await ensureMigrationsTable(client);
+if (await hasRun(client, MIGRATION_NAME)) {
+  console.log(`⏭  ${MIGRATION_NAME} already applied to this database — skipping.`);
+  process.exit(0);
+}
 
 const description =
   "This very portfolio — built with Next.js 16, TypeScript, Tailwind v4, LibSQL, and deployed on Vercel. Features an AI assistant (MOJOMO), an AI-powered Career Centre (resume ATS scoring, job matching, mock interviews), a 50-doc DevOps knowledge base, and a full custom admin dashboard.";
@@ -33,5 +41,6 @@ const res = await client.execute({
 });
 console.log(`✔ projects: corrected "Next.js DevOps Portfolio" entry (${res.rowsAffected} row) — removed blog/comments/newsletter mentions, Next.js 15 → 16`);
 
+await markApplied(client, MIGRATION_NAME);
 console.log("\nDone.");
 process.exit(0);

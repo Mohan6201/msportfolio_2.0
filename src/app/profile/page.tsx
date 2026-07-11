@@ -19,6 +19,8 @@ export default async function PublicProfilePage() {
   if (!data) redirect("/");
 
   const { profile, experiences, yearsOfExperience, socialLinks } = data;
+  const hasGithubLink = socialLinks.some((s) => s.platform === "github");
+  const hasLinkedinLink = socialLinks.some((s) => s.platform === "linkedin");
 
   const identityLinks = [
     { href: "/skills",           label: "Skills Matrix" },
@@ -62,13 +64,13 @@ export default async function PublicProfilePage() {
 
           {/* Social */}
           <div className="flex flex-wrap gap-3">
-            {profile.githubUrl && (
+            {profile.githubUrl && !hasGithubLink && (
               <a href={profile.githubUrl} target="_blank" rel="noopener"
                 className="flex items-center gap-2 px-4 py-2 glass border border-white/10 hover:border-cyan/30 hover:text-cyan text-lightGrey rounded-xl text-xs font-mono transition-all">
                 <GitBranch className="w-4 h-4" /> GitHub
               </a>
             )}
-            {profile.linkedinUrl && (
+            {profile.linkedinUrl && !hasLinkedinLink && (
               <a href={profile.linkedinUrl} target="_blank" rel="noopener"
                 className="flex items-center gap-2 px-4 py-2 glass border border-white/10 hover:border-cyan/30 hover:text-cyan text-lightGrey rounded-xl text-xs font-mono transition-all">
                 <Globe className="w-4 h-4" /> LinkedIn

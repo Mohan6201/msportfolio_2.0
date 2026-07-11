@@ -1,5 +1,5 @@
 import { getAchievements } from "@/domains/analytics/services/achievements.service";
-import { Zap, Rocket, Award, BookOpen, MessageSquare, PenLine } from "lucide-react";
+import { Zap, Rocket, Award, BookOpen, MessageSquare } from "lucide-react";
 
 const STATS = [
   { key: "yearsExperience",      label: "Years Experience",   Icon: Zap,           color: "text-cyan",       border: "border-cyan/20",       bg: "bg-cyan/5" },
@@ -7,7 +7,6 @@ const STATS = [
   { key: "certificationsEarned", label: "Certifications",     Icon: Award,          color: "text-yellow-400", border: "border-yellow-400/20", bg: "bg-yellow-400/5" },
   { key: "ktDocuments",          label: "KT Documents",       Icon: BookOpen,       color: "text-green",      border: "border-green/20",      bg: "bg-green/5" },
   { key: "interviewQuestions",   label: "Interview Q&A",      Icon: MessageSquare,  color: "text-[#a78bfa]",  border: "border-[#a78bfa]/20",  bg: "bg-[#a78bfa]/5" },
-  { key: "blogPosts",            label: "Blog Posts",         Icon: PenLine,        color: "text-[#ff4d94]",  border: "border-[#ff4d94]/20",  bg: "bg-[#ff4d94]/5" },
 ] as const;
 
 type StatKey = (typeof STATS)[number]["key"];
@@ -18,7 +17,7 @@ export default async function AchievementsSection() {
   return (
     <section id="achievements" className="py-12 sm:py-16 border-y border-white/5">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 2xl:px-16">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
           {STATS.map(({ key, label, Icon, color, border, bg }) => {
             const value = achievements[key as StatKey];
             return (

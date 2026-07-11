@@ -24,11 +24,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://m-s-r-portfolio.vercel.app"),
   title: "MS Portfolio | Mohana Srinivasan",
   description:
-    "AWS DevOps Engineer with 4+ years building production-grade cloud infrastructure, CI/CD pipelines, and Kubernetes deployments on AWS — currently at Swirepay.",
+    "AWS DevOps Engineer with 4+ years building production-grade cloud infrastructure and CI/CD pipelines — 100+ pipelines shipped, 75% faster builds, zero-downtime ECS Fargate migrations. Most recently at Swirepay. Open to new DevOps, SRE, and Cloud Engineering roles.",
   keywords: [
     "DevOps Engineer", "AWS Engineer", "Cloud Engineer", "CI/CD",
-    "Docker", "Kubernetes", "Terraform", "GitHub Actions",
-    "Mohana Srinivasan", "Swirepay", "Hyderabad",
+    "Docker", "ECS Fargate", "Terraform", "CodePipeline",
+    "Mohana Srinivasan", "Hyderabad", "Open to Work",
   ],
   authors: [{ name: "Mohana Srinivasan", url: "https://m-s-r-portfolio.vercel.app" }],
   creator: "Mohana Srinivasan",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "MS Portfolio | Mohana Srinivasan",
     description:
-      "Portfolio of Mohana Srinivasan — AWS DevOps Engineer specialising in cloud infrastructure, CI/CD automation, and Kubernetes deployments.",
+      "AWS DevOps Engineer specialising in CI/CD automation, ECS Fargate, and cloud observability. Open to new opportunities.",
     type: "website",
     url: "https://m-s-r-portfolio.vercel.app",
     siteName: "Mohana Srinivasan",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "MS Portfolio | Mohana Srinivasan",
-    description: "AWS DevOps Engineer — cloud infra, CI/CD, Docker, Kubernetes, Terraform.",
+    description: "AWS DevOps Engineer — CI/CD, ECS Fargate, Terraform, Observability. Open to work.",
     creator: "@Mohan6201",
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
@@ -72,12 +72,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     jobTitle: "AWS DevOps Engineer",
     url: "https://m-s-r-portfolio.vercel.app",
     email: "mohandevopssme@gmail.com",
-    worksFor: { "@type": "Organization", name: "Swirepay" },
+    alumniOf: { "@type": "Organization", name: "Swirepay Technologies Pvt. Ltd." },
     sameAs: [
       "https://www.linkedin.com/in/mohan6201",
       "https://github.com/Mohan6201",
     ],
-    knowsAbout: ["AWS", "DevOps", "Docker", "Kubernetes", "CI/CD", "Terraform", "Helm", "Vault"],
+    knowsAbout: ["AWS", "DevOps", "Docker", "ECS Fargate", "CI/CD", "Terraform", "IAM", "Observability"],
   };
 
   return (

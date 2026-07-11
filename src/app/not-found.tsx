@@ -36,9 +36,9 @@ export default function NotFound() {
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan text-black font-mono font-bold text-sm hover:bg-lightCyan transition-colors shadow-cyanShadow">
             <Terminal className="w-4 h-4" /> Go Home
           </Link>
-          <Link href="/blog"
+          <Link href="/projects"
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-lightBrown/40 text-lightGrey font-mono text-sm hover:border-cyan/30 hover:text-cyan transition-all">
-            Read Blog →
+            View Projects →
           </Link>
         </div>
       </div>

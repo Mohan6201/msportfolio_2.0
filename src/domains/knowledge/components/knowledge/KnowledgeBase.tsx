@@ -7,6 +7,9 @@ import {
   Upload, X, CheckCircle, AlertCircle, Loader2, Plus, Search,
 } from "lucide-react";
 import { usePDFViewer } from "@/components/ui/PDFViewer";
+import ExpandDivider from "@/components/ui/ExpandDivider";
+
+const COLLAPSED_DOC_COUNT = 8;
 
 const BASE = "/resources/docs";
 const u = (f: string) => encodeURI(`${BASE}/${f}`);
@@ -401,6 +404,7 @@ export default function KnowledgeBase() {
   const [active, setActive] = useState("All");
   const [uploadedDocs, setUploadedDocs] = useState<Doc[]>([]);
   const [showUpload, setShowUpload] = useState(false);
+  const [showAllDocs, setShowAllDocs] = useState(false);
 
   const fetchUploaded = async () => {
     try {
@@ -423,6 +427,12 @@ export default function KnowledgeBase() {
 
   const allDocs = [...uploadedDocs, ...STATIC_DOCS];
   const filtered = active === "All" ? allDocs : allDocs.filter((d) => d.category === active);
+  const visibleDocs = showAllDocs ? filtered : filtered.slice(0, COLLAPSED_DOC_COUNT);
+
+  const selectCategory = (cat: string) => {
+    setActive(cat);
+    setShowAllDocs(false);
+  };
 
   const counts = CATEGORIES.reduce<Record<string, number>>((acc, cat) => {
     acc[cat] = cat === "All" ? allDocs.length : allDocs.filter((d) => d.category === cat).length;
@@ -479,7 +489,7 @@ export default function KnowledgeBase() {
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
-              onClick={() => setActive(cat)}
+              onClick={() => selectCategory(cat)}
               className={`px-3 py-1.5 rounded-lg text-xs font-mono border transition-all duration-200 ${
                 active === cat
                   ? "bg-cyan/15 border-cyan/40 text-cyan"
@@ -495,13 +505,21 @@ export default function KnowledgeBase() {
         </motion.div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           <AnimatePresence mode="popLayout">
-            {filtered.map((doc, i) => (
+            {visibleDocs.map((doc, i) => (
               <DocCard key={`${doc.source}-${doc.file}`} doc={doc} index={i} />
             ))}
           </AnimatePresence>
         </div>
+
+        {filtered.length > COLLAPSED_DOC_COUNT && (
+          <ExpandDivider
+            expanded={showAllDocs}
+            onToggle={() => setShowAllDocs((v) => !v)}
+            caption={showAllDocs ? `Showing all ${filtered.length} documents` : `${COLLAPSED_DOC_COUNT} of ${filtered.length} documents`}
+          />
+        )}
 
         {/* CTA */}
         <motion.div

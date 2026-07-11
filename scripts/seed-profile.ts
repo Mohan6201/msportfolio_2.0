@@ -1,6 +1,8 @@
 #!/usr/bin/env tsx
 /**
- * Seeds the profile database with data from the legacy portfolio.config.ts.
+ * Seeds the profile database. This is the from-scratch fallback if the profile
+ * table is ever empty — kept in sync with the live, admin-managed data so a
+ * reseed doesn't reintroduce stale content. Last synced: 2026-07-11.
  * Run with: npm run db:seed
  *
  * Requires DATABASE_URL (and TURSO_AUTH_TOKEN for remote Turso).
@@ -45,15 +47,15 @@ const [profile] = await db
   .insert(profiles)
   .values({
     fullName: "Mohana Srinivasan",
-    title: "DevOps Engineer",
-    bio: "AWS DevOps Engineer building scalable cloud infrastructure, CI/CD pipelines, and automated delivery systems.",
+    title: "DevOps & Cloud Infrastructure Engineer",
+    bio: "Cloud Infrastructure and DevOps Engineer with 4+ years of IT experience spanning enterprise on-premises infrastructure and modern AWS cloud environments. Most recently drove fintech-grade CI/CD at Swirepay — shipped 100+ pipelines, cut build times by 75%, led zero-downtime ECS Fargate migrations, and built a Prometheus-Grafana-Loki-Tempo observability stack from scratch. Now open to new DevOps, SRE, and Cloud Engineering opportunities.",
     location: "Hitech City, Hyderabad, India",
     email: "mohandevopssme@gmail.com",
     phone: "+91 80988 85683",
     avatarUrl: "/images/profile/avatar.png",
     careerStartDate: "2022-04-01",
     currentCompany: "Swirepay",
-    currentDesignation: "DevOps Engineer",
+    currentDesignation: "AWS DevOps Engineer",
     resumeUrl: "/resume/Mohana_Srinivasan_Resume.pdf",
     githubUrl: "https://github.com/Mohan6201",
     linkedinUrl: "https://www.linkedin.com/in/mohan6201",
@@ -75,21 +77,25 @@ await db.insert(skills).values([
   { profileId: profile.id, name: "AWS EC2 · ECS · S3 · IAM · RDS", category: "cloud",      level: 92, iconKey: "FaAws",          sortOrder: 0 },
   { profileId: profile.id, name: "Route 53 · VPC · CloudWatch",     category: "cloud",      level: 87, iconKey: "FaAws",          sortOrder: 1 },
   { profileId: profile.id, name: "CodePipeline · ECR · ALB",        category: "cloud",      level: 83, iconKey: "FaAws",          sortOrder: 2 },
+  { profileId: profile.id, name: "CodeBuild · Lambda",               category: "cloud",      level: 85, iconKey: "FaAws",          sortOrder: 16 },
   // ── DevOps & IaC ───────────────────────────────────────────────────────────
   { profileId: profile.id, name: "Docker",                           category: "devops",     level: 90, iconKey: "FaDocker",       sortOrder: 3 },
   { profileId: profile.id, name: "Terraform",                        category: "devops",     level: 85, iconKey: "SiTerraform",    sortOrder: 4 },
   { profileId: profile.id, name: "Ansible",                          category: "devops",     level: 72, iconKey: "SiAnsible",      sortOrder: 5 },
   { profileId: profile.id, name: "GitHub Actions",                   category: "devops",     level: 90, iconKey: "SiGithubactions",sortOrder: 6 },
   { profileId: profile.id, name: "Jenkins CI",                       category: "devops",     level: 78, iconKey: "FaJenkins",      sortOrder: 7 },
+  { profileId: profile.id, name: "Nginx",                            category: "devops",     level: 78, iconKey: "SiNginx",        sortOrder: 17 },
   // ── Languages & Backend ────────────────────────────────────────────────────
   { profileId: profile.id, name: "Python",                           category: "backend",    level: 82, iconKey: "FaPython",       sortOrder: 8 },
   { profileId: profile.id, name: "Bash Shell Scripting",             category: "backend",    level: 85, iconKey: "SiGnubash",      sortOrder: 9 },
   { profileId: profile.id, name: "Django",                           category: "backend",    level: 70, iconKey: "SiDjango",       sortOrder: 10 },
   { profileId: profile.id, name: "React / Next.js",                  category: "backend",    level: 68, iconKey: "FaReact",        sortOrder: 11 },
   { profileId: profile.id, name: "Linux Administration",             category: "backend",    level: 88, iconKey: "SiLinux",        sortOrder: 12 },
+  { profileId: profile.id, name: "Windows Server · Hyper-V · IIS",   category: "backend",    level: 85, iconKey: "FaWindows",      sortOrder: 15 },
   // ── Monitoring ─────────────────────────────────────────────────────────────
   { profileId: profile.id, name: "Grafana",                          category: "monitoring", level: 76, iconKey: "SiGrafana",      sortOrder: 13 },
   { profileId: profile.id, name: "Prometheus",                       category: "monitoring", level: 74, iconKey: "SiPrometheus",   sortOrder: 14 },
+  { profileId: profile.id, name: "Loki · Tempo · OTel Collector",    category: "monitoring", level: 78, iconKey: "SiGrafana",      sortOrder: 18 },
 ]);
 console.log("  ✔  Skills inserted");
 
@@ -97,19 +103,19 @@ console.log("  ✔  Skills inserted");
 await db.insert(experiences).values([
   {
     profileId: profile.id,
-    jobTitle: "DevOps Engineer",
-    company: "Swirepay",
+    jobTitle: "AWS DevOps Engineer",
+    company: "Swirepay Technologies Pvt. Ltd.",
     companyUrl: "https://swirepay.com",
-    startDate: "SEP 2025",
-    endDate: null,
-    isCurrent: true,
-    tech: JSON.stringify(["AWS", "Kubernetes", "Terraform", "GitHub Actions", "Vault", "Helm"]),
+    startDate: "NOV 2025",
+    endDate: "JUN 2026",
+    isCurrent: false,
+    tech: JSON.stringify(["AWS", "ECS Fargate", "CodePipeline", "CodeBuild", "Prometheus", "Grafana"]),
     responsibilities: JSON.stringify([
-      "Architecting and managing cloud infrastructure for PCI-DSS-compliant payment processing on AWS.",
-      "Implementing Kubernetes (EKS) with Helm for microservices orchestration and zero-downtime deployments.",
-      "Designing multi-stage CI/CD pipelines for secure, automated fintech application releases.",
-      "Managing secrets using HashiCorp Vault and AWS Secrets Manager across environments.",
-      "Ensuring 99.99% availability for payment gateway systems with auto-scaling and DR strategy.",
+      "CI/CD Engineering: Built and maintained 100+ CodePipeline + CodeBuild pipelines across ap-south-1 and us-east-1 for Node.js, Spring Boot, Python, and React/Vite — full Bitbucket → CodeCommit → CodePipeline → CodeBuild → ECR → ECS delivery chain, with pipeline status and CloudWatch logs tracked at every stage.",
+      "Build Optimisation: Engineered 4-layer S3 caching (JAR, Maven, BuildKit, Trivy DB) with zstd compression and migrated to ECR Public base images — cut cold builds from 40→10 min and cached builds from 25→6 min (75% faster).",
+      "ECS Fargate Migrations: Led zero-downtime EC2 → ECS Fargate production migrations, including Apache Superset — covering Aurora RDS permissions, ALB health checks, CORS, Secrets Manager re-encryption, and Route 53 DNS cutover.",
+      "IAM Security Hardening: Replaced AWS-managed policies with scoped least-privilege inline roles across 10+ ECS task/execution roles; resolved cross-account ECR pull issues spanning 3 AWS accounts.",
+      "Observability Platform: Built a Prometheus + Grafana + Loki + Tempo + OTel Collector stack on ECS from scratch, with path-based ALB routing, Cloud Map DNS, and Grafana SMTP alerting for RDS CPU and application incidents.",
     ]),
     sortOrder: 0,
   },
@@ -142,6 +148,8 @@ await db.insert(experiences).values([
       "Led end-to-end WMS platform migration from HighJump to Körber across DEV, UAT, and PROD.",
       "Managed high-scalability WMS deployments; configured IIS, Bartender, and remote printing services.",
       "Provisioned and configured Windows Server 2022 on physical hardware for production use.",
+      "Administered Hyper-V — provisioned and managed VMs, allocated compute resources, and configured virtual networking for enterprise application environments.",
+      "Configured and maintained IIS for enterprise web apps — site creation, Application Pools, bindings, SSL integration, and web.config management for production ASP.NET applications.",
     ]),
     sortOrder: 2,
   },
@@ -167,21 +175,30 @@ console.log("  ✔  Experiences inserted");
 await db.insert(certifications).values([
   {
     profileId: profile.id,
-    title: "DevOps Certified Expert (In-Progress)",
-    issuer: "Guvi",
-    date: "2025-05-17",
-    description: "Hands-on training with Git, Jenkins, Docker, Ansible, Terraform, and Kubernetes covering end-to-end DevOps workflows.",
+    title: "Advanced DevOps & Cloud Engineering Program",
+    issuer: "GUVI Geek Network",
+    date: "2026-01-01",
+    description: "Grade A — advanced hands-on DevOps and cloud engineering training program.",
     imageUrl: "/images/certs/blank.png",
     sortOrder: 0,
   },
   {
     profileId: profile.id,
-    title: "AWS Solutions Architect Associate",
-    issuer: "RedSys9 Tech Pvt Ltd",
+    title: "AWS Solutions Architect Associate (Training)",
+    issuer: "Red9SysTech",
     date: "2025-04-21",
-    description: "Designing scalable, secure, and reliable AWS cloud architectures using EC2, S3, VPC, IAM, and more.",
+    description: "Batch #8 — designing scalable, secure, and reliable AWS cloud architectures using EC2, S3, VPC, IAM, and more.",
     imageUrl: "/images/certs/asa.jfif",
     sortOrder: 1,
+  },
+  {
+    profileId: profile.id,
+    title: "DevOps Program",
+    issuer: "GUVI x HCL",
+    date: "2025-10-01",
+    description: "May–Oct 2025 — hands-on DevOps training covering Git, Jenkins, Docker, Ansible, Terraform, and Kubernetes.",
+    imageUrl: "/images/certs/blank.png",
+    sortOrder: 2,
   },
   {
     profileId: profile.id,
@@ -191,7 +208,7 @@ await db.insert(certifications).values([
     description: "Real-time warehouse operations and inventory management expertise; supply chain efficiency optimization.",
     imageUrl: "/images/certs/korber.png",
     link: "https://www.credly.com/badges/e12dca0f-078f-40ab-b8e9-647121ddf599/linked_in_profile",
-    sortOrder: 2,
+    sortOrder: 3,
   },
   {
     profileId: profile.id,
@@ -201,7 +218,7 @@ await db.insert(certifications).values([
     description: "Complete web application development with front-end and back-end technologies.",
     imageUrl: "/images/certs/3edge.png",
     link: "https://www.credly.com/badges/e12dca0f-078f-40ab-b8e9-647121ddf599/linked_in_profile",
-    sortOrder: 3,
+    sortOrder: 4,
   },
 ]);
 console.log("  ✔  Certifications inserted");
@@ -212,16 +229,16 @@ await db.insert(projects).values([
     profileId: profile.id,
     name: "Next.js DevOps Portfolio",
     year: "2025",
-    description: "This very portfolio — built with Next.js 15, TypeScript, Tailwind v4, LibSQL, and deployed on Vercel. Features AI chatbot, blog CMS, admin dashboard, and full analytics.",
+    description: "This very portfolio — built with Next.js 16, TypeScript, Tailwind v4, LibSQL, and deployed on Vercel. Features an AI chatbot, admin dashboard, and full analytics.",
     imageUrl: "/images/projects/portfolio.png",
     link: "https://m-s-r-portfolio.vercel.app",
     githubUrl: "https://github.com/Mohan6201",
-    tech: JSON.stringify(["Next.js 15", "TypeScript", "Tailwind", "LibSQL", "Vercel", "Gemini AI"]),
+    tech: JSON.stringify(["Next.js 16", "TypeScript", "Tailwind", "LibSQL", "Vercel", "Gemini AI"]),
     responsibilities: JSON.stringify([
-      "Architected production-grade Next.js 15 app with App Router and server components.",
-      "Integrated Google Gemini 2.0 Flash AI chatbot with context-aware DevOps responses.",
-      "Built blog CMS with MDX, OG image generation, comments, and newsletter subscription.",
-      "Implemented SQLite/LibSQL database with admin dashboard for content management.",
+      "Architected a production-grade Next.js app with a domain-driven structure and server components.",
+      "Integrated a Google Gemini AI chatbot with context-aware DevOps responses.",
+      "Built an admin dashboard with full content management for profile, skills, experience, and projects.",
+      "Implemented SQLite/LibSQL database with Drizzle ORM and Better Auth.",
       "Deployed with Vercel Analytics, Speed Insights, and automated CI/CD on every push.",
     ]),
     align: "right",
@@ -277,6 +294,23 @@ await db.insert(projects).values([
     ]),
     align: "left",
     sortOrder: 3,
+  },
+  {
+    profileId: profile.id,
+    name: "CareerOS — AI-Powered Professional Intelligence Platform",
+    year: "2026 (in development)",
+    description: "Solo-designed an AI-native career platform architecture built around a persistent \"Professional Twin\" user model, a hybrid multi-agent system (Google ADK + LangGraph), and an event-driven microservices design with a Kubernetes/ArgoCD deployment plan. Currently building the MVP on a Dockerized Django + React stack with CI/CD automation.",
+    imageUrl: "/images/certs/blank.png",
+    link: "#",
+    tech: JSON.stringify(["Google ADK", "LangGraph", "Kubernetes", "ArgoCD", "Django", "React", "Docker", "CI/CD"]),
+    responsibilities: JSON.stringify([
+      "Solo-designed the end-to-end architecture: persistent \"Professional Twin\" user model.",
+      "Hybrid multi-agent system combining Google ADK and LangGraph for career intelligence workflows.",
+      "Event-driven microservices design with a Kubernetes/ArgoCD deployment plan.",
+      "Building the MVP on a Dockerized Django + React stack with CI/CD automation.",
+    ]),
+    align: "right",
+    sortOrder: 4,
   },
 ]);
 console.log("  ✔  Projects inserted");

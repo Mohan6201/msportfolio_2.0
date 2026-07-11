@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { FiGithub, FiStar, FiGitBranch, FiExternalLink, FiUsers, FiBook } from "react-icons/fi";
+import ExpandDivider from "@/components/ui/ExpandDivider";
+
+const COLLAPSED_REPO_COUNT = 6;
 
 const GITHUB_USERNAME = "Mohan6201";
 
@@ -154,7 +157,7 @@ export default function GitHubStats() {
     fetchData();
   }, []);
 
-  const visibleRepos = showAll ? repos : repos.slice(0, 9);
+  const visibleRepos = showAll ? repos : repos.slice(0, COLLAPSED_REPO_COUNT);
 
   return (
     <section id="github" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 2xl:px-16">
@@ -249,7 +252,7 @@ export default function GitHubStats() {
         {/* Repo grid */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {Array.from({ length: 9 }).map((_, i) => (
+            {Array.from({ length: COLLAPSED_REPO_COUNT }).map((_, i) => (
               <div key={i} className="glass rounded-xl p-5 border border-white/5 h-36 animate-pulse" />
             ))}
           </div>
@@ -266,16 +269,12 @@ export default function GitHubStats() {
               ))}
             </div>
 
-            {repos.length > 9 && (
-              <div className="flex justify-center mt-8">
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setShowAll((v) => !v)}
-                  className="px-6 py-2.5 rounded-xl border border-white/10 text-sm font-mono text-lightGrey hover:border-cyan/30 hover:text-cyan transition-all duration-200"
-                >
-                  {showAll ? "Show less ↑" : `Show all ${repos.length} repos ↓`}
-                </motion.button>
-              </div>
+            {repos.length > COLLAPSED_REPO_COUNT && (
+              <ExpandDivider
+                expanded={showAll}
+                onToggle={() => setShowAll((v) => !v)}
+                caption={showAll ? `Showing all ${repos.length} repositories` : `${COLLAPSED_REPO_COUNT} of ${repos.length} repositories`}
+              />
             )}
           </>
         )}

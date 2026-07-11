@@ -11,17 +11,6 @@ export const contacts = sqliteTable("contacts", {
   createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
 });
 
-export const blogComments = sqliteTable("blog_comments", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  postSlug: text("post_slug").notNull(),
-  author: text("author").notNull(),
-  email: text("email").notNull(),
-  body: text("body").notNull(),
-  approved: integer("approved").notNull().default(0),
-  ip: text("ip"),
-  createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
-});
-
 export const newsletter = sqliteTable("newsletter", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   email: text("email").notNull().unique(),

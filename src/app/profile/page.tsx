@@ -95,6 +95,7 @@ export default async function PublicProfilePage() {
           </div>
           {profile.currentCompany && (
             <div className="glass rounded-xl border border-white/10 p-5 text-center col-span-2">
+              <p className="text-lightGrey/40 text-[9px] font-mono uppercase tracking-wider mb-1.5">Most Recent Role · Open to Work</p>
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Briefcase className="w-4 h-4 text-cyan" />
                 <p className="text-white font-mono text-sm font-bold">{profile.currentCompany}</p>

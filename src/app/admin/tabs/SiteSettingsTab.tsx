@@ -26,7 +26,6 @@ const SECTIONS: { key: string; label: string; desc: string }[] = [
   { key: "careerCentre", label: "Career Centre",  desc: "Job search CTA section" },
   { key: "githubStats",  label: "GitHub Stats",   desc: "Live GitHub contribution graph" },
   { key: "ktCentre",     label: "KT Centre",      desc: "Knowledge base / PDF library" },
-  { key: "blog",         label: "Blog",           desc: "Blog posts section" },
   { key: "contact",      label: "Contact",        desc: "Contact form and details" },
 ];
 

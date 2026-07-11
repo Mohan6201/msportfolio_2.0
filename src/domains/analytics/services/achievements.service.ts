@@ -4,7 +4,6 @@ import { ktDocuments } from "@/db/schema/legacy";
 import { interviewQuestions } from "@/db/schema/interview";
 import { pageViews } from "@/db/schema/analytics";
 import { getProfile, calcExperience } from "@/domains/profile/services/profile.service";
-import { getAllPosts } from "@/domains/blog/lib/blog";
 import { count } from "drizzle-orm";
 
 export interface AchievementsData {
@@ -13,7 +12,6 @@ export interface AchievementsData {
   certificationsEarned: number;
   ktDocuments: number;
   interviewQuestions: number;
-  blogPosts: number;
   totalPageViews: number;
 }
 
@@ -28,15 +26,12 @@ export async function getAchievements(): Promise<AchievementsData> {
       db.select({ count: count() }).from(pageViews),
     ]);
 
-    const blogPosts = getAllPosts().length;
-
     return {
       yearsExperience: profile ? calcExperience(profile.careerStartDate) : "0+ years",
       projectsDelivered: projectCount[0]?.count ?? 0,
       certificationsEarned: certCount[0]?.count ?? 0,
       ktDocuments: ktCount[0]?.count ?? 0,
       interviewQuestions: iqCount[0]?.count ?? 0,
-      blogPosts,
       totalPageViews: pvCount[0]?.count ?? 0,
     };
   } catch {
@@ -46,7 +41,6 @@ export async function getAchievements(): Promise<AchievementsData> {
       certificationsEarned: 0,
       ktDocuments: 0,
       interviewQuestions: 0,
-      blogPosts: 0,
       totalPageViews: 0,
     };
   }

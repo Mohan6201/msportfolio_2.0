@@ -9,16 +9,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
     ],
   },
-  serverExternalPackages: [
-    "unified",
-    "remark-parse",
-    "remark-gfm",
-    "remark-rehype",
-    "rehype-raw",
-    "rehype-stringify",
-    "gray-matter",
-    "@libsql/client",
-  ],
+  serverExternalPackages: ["@libsql/client"],
 };
 
 export default nextConfig;

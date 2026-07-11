@@ -49,15 +49,17 @@ export default function AboutMeMain({ profile, yearsOfExperience }: AboutMeMainP
               </div>
               <div className="terminal-body !px-4 sm:!px-6 text-[0.8rem] sm:text-sm leading-relaxed break-words">
                 <p className="text-lightGrey mb-3">
-                  I&apos;m a <span className="text-cyan font-semibold">{profile.title}</span> currently at{" "}
-                  <span className="text-orange font-semibold">{profile.currentCompany}</span>,
-                  building cloud-native payment infrastructure on AWS.
+                  I&apos;m a <span className="text-cyan font-semibold">{profile.title}</span> — most recently at{" "}
+                  <span className="text-orange font-semibold">{profile.currentCompany}</span>, where I shipped
+                  <span className="text-white font-semibold"> 100+ CI/CD pipelines</span> and cut build times by{" "}
+                  <span className="text-green font-semibold">75%</span> for a fintech payments platform.
+                  <span className="text-cyan"> Currently open to new opportunities.</span>
                 </p>
                 <p className="text-lightGrey mb-3">
-                  Over <span className="text-green font-semibold">{yrsNum}+ years</span>, I&apos;ve designed
-                  CI/CD pipelines, containerised microservices with Docker on AWS ECS,
-                  and automated infrastructure with Terraform &amp; Ansible — reducing deployment times
-                  from <span className="text-cyan">hours to minutes</span>.
+                  Over <span className="text-green font-semibold">{yrsNum}+ years</span>, I&apos;ve led zero-downtime
+                  ECS Fargate migrations, hardened IAM across multi-account AWS environments, and built
+                  observability stacks (Prometheus, Grafana, Loki, Tempo) from scratch —
+                  turning <span className="text-cyan">hours-long deploys into minutes</span>.
                 </p>
                 <p className="text-lightGrey">
                   My approach: <span className="text-white font-semibold">automate everything, monitor obsessively,

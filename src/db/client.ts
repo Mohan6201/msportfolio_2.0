@@ -35,17 +35,6 @@ if (process.env.NEXT_PHASE !== "phase-production-build") {
     created_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
-  CREATE TABLE IF NOT EXISTS blog_comments (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    post_slug  TEXT    NOT NULL,
-    author     TEXT    NOT NULL,
-    email      TEXT    NOT NULL,
-    body       TEXT    NOT NULL,
-    approved   INTEGER NOT NULL DEFAULT 0,
-    ip         TEXT,
-    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
-  );
-
   CREATE TABLE IF NOT EXISTS newsletter (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     email      TEXT    NOT NULL UNIQUE,

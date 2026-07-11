@@ -34,7 +34,7 @@ PROFILE:
 • Email: ${profile.email}
 • LinkedIn: ${profile.linkedinUrl ?? "N/A"}
 • GitHub: ${profile.githubUrl ?? "N/A"}
-• Current Company: ${profile.currentCompany}
+• Status: Actively seeking new DevOps / SRE / Cloud Engineering opportunities (open to work). Most recent employer is listed in EXPERIENCE below — do not describe him as currently employed there; the dates and "Present"/end date in EXPERIENCE reflect his real employment status.
 
 EXPERIENCE:
 ${expText}

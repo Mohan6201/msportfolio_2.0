@@ -56,10 +56,10 @@ function TerminalBlock({
   profile: ProfileRow; yearsOfExperience: string; stackLabels: string[]; projectCount: number;
 }) {
   const LINES = [
-    { prompt: "$ whoami",           output: `${profile.fullName} — ${profile.title} @ ${profile.currentCompany}` },
+    { prompt: "$ whoami",           output: `${profile.fullName} — ${profile.title}` },
     { prompt: "$ cat stack.sh",     output: stackLabels.join(" · ") },
     { prompt: "$ uptime",           output: `${yearsOfExperience} in production  •  ${projectCount}+ shipped projects` },
-    { prompt: "$ systemctl status", output: "● active (running)  —  Available for DevOps roles" },
+    { prompt: "$ systemctl status", output: "● open to work  —  Available for DevOps roles" },
   ];
 
   const [line, setLine] = useState(0);
@@ -104,7 +104,7 @@ function TerminalBlock({
         <span className="w-3 h-3 rounded-full bg-orange/70 flex-shrink-0" />
         <span className="w-3 h-3 rounded-full bg-green/70 flex-shrink-0" />
         <span className="ml-2 font-mono text-[10px] sm:text-xs text-lightGrey/50 truncate">
-          bash — {profile.fullName.split(" ")[0].toLowerCase()}@{profile.currentCompany.toLowerCase()} ~
+          bash — {profile.fullName.split(" ")[0].toLowerCase()}@devops ~
         </span>
       </div>
       <div className="terminal-body min-h-[260px] sm:min-h-[230px] !px-4 sm:!px-6 !text-[0.72rem] sm:!text-[0.84rem] break-words">
@@ -170,7 +170,7 @@ export default function HeroMain({ profile, yearsOfExperience, socialLinks, skil
             </div>
 
             <div>
-              <p className="section-tag mb-3 sm:mb-4 text-xs sm:text-sm">{profile.title} • {profile.currentCompany}</p>
+              <p className="section-tag mb-3 sm:mb-4 text-xs sm:text-sm">{profile.title} • Open to Work</p>
               <h1 className="font-special font-bold leading-[1.08]">
                 <span className="block text-3xl sm:text-5xl lg:text-[3.6rem] text-white mb-1 break-words">
                   {profile.fullName.split(" ")[0]}

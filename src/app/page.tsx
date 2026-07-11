@@ -25,7 +25,7 @@ import CareerCentreSection from "@/domains/profile/components/careerCentre/Caree
 const DEFAULTS: Record<string, boolean> = {
   about: true, experience: true, skills: true, projects: true,
   certifications: true, achievements: true, resume: true, services: true,
-  careerCentre: true, githubStats: true, ktCentre: true, blog: true, contact: true,
+  careerCentre: true, githubStats: true, ktCentre: true, contact: true,
 };
 
 async function getVisibility(): Promise<Record<string, boolean>> {

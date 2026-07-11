@@ -21,7 +21,6 @@ const DEFAULTS: Record<string, boolean> = {
   careerCentre: true,
   githubStats: true,
   ktCentre: true,
-  blog: true,
   contact: true,
 };
 

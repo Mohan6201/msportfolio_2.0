@@ -12,7 +12,6 @@ const NAV = [
   { label: "Projects",    to: "projects",    type: "scroll" },
   { label: "Certs",       to: "certificates",type: "scroll" },
   { label: "Contact",     to: "contact",     type: "scroll" },
-  { label: "Blog",        to: "/blog",       type: "link" },
 ];
 
 interface FooterMainProps {

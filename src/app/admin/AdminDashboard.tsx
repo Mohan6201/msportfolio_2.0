@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { createAuthClient } from "better-auth/react";
 import Image from "next/image";
 import {
-  LayoutDashboard, User, Briefcase, Zap, FolderOpen, Award, FileText,
-  BookOpen, Tag, Users, Target, Shuffle, Mail, MessageSquare, Bell,
+  LayoutDashboard, User, Briefcase, Zap, FolderOpen, Award,
+  BookOpen, Tag, Users, Target, Shuffle, Mail, Bell,
   Settings, ShieldCheck, LogOut, Search, Plus, ChevronDown, Images,
 } from "lucide-react";
 
@@ -15,10 +15,8 @@ import { SkillsTab }          from "./tabs/SkillsTab";
 import { ExperienceTab }      from "./tabs/ExperienceTab";
 import { ProjectsTab }        from "./tabs/ProjectsTab";
 import { CertificationsTab }  from "./tabs/CertificationsTab";
-import { BlogTab }            from "./tabs/BlogTab";
 import { SocialLinksTab }     from "./tabs/SocialLinksTab";
 import { MessagesTab }        from "./tabs/MessagesTab";
-import { CommentsTab }        from "./tabs/CommentsTab";
 import { SubscribersTab }     from "./tabs/SubscribersTab";
 import { AnalyticsTab }       from "./tabs/AnalyticsTab";
 import { KTDocumentsTab }     from "./tabs/KTDocumentsTab";
@@ -33,10 +31,10 @@ const authClient = createAuthClient();
 
 type Section =
   | "dashboard" | "profile" | "experience" | "skills" | "projects"
-  | "certifications" | "social" | "blog"
+  | "certifications" | "social"
   | "kt-documents" | "kt-categories"
   | "users" | "job-preferences" | "job-matches"
-  | "messages" | "comments" | "newsletter"
+  | "messages" | "newsletter"
   | "analytics" | "site-settings" | "admin-account" | "media-library";
 
 interface NavItem { id: Section; label: string; icon: React.ElementType }
@@ -55,7 +53,6 @@ const NAV: NavGroup[] = [
       { id: "skills",         label: "Skills",         icon: Zap },
       { id: "projects",       label: "Projects",       icon: FolderOpen },
       { id: "certifications", label: "Certifications", icon: Award },
-      { id: "blog",           label: "Blog Posts",     icon: FileText },
     ],
   },
   {
@@ -77,7 +74,6 @@ const NAV: NavGroup[] = [
     label: "ENGAGEMENT",
     items: [
       { id: "messages",   label: "Messages",   icon: Mail },
-      { id: "comments",   label: "Comments",   icon: MessageSquare },
       { id: "newsletter", label: "Newsletter", icon: Bell },
     ],
   },
@@ -125,10 +121,8 @@ export default function AdminDashboard() {
       case "skills":         return <SkillsTab key={key} />;
       case "projects":       return <ProjectsTab key={key} />;
       case "certifications": return <CertificationsTab key={key} />;
-      case "blog":           return <BlogTab key={key} />;
       case "social":         return <SocialLinksTab key={key} />;
       case "messages":       return <MessagesTab key={key} />;
-      case "comments":       return <CommentsTab key={key} />;
       case "newsletter":     return <SubscribersTab key={key} />;
       case "analytics":      return <AnalyticsTab key={key} />;
       case "kt-documents":   return <KTDocumentsTab key={key} />;

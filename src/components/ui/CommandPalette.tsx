@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ArrowRight, X, Terminal, BookOpen, Mail, User, Briefcase, Award, Code2, Database, FileText } from "lucide-react";
+import { Search, ArrowRight, X, Terminal, Mail, User, Briefcase, Award, Code2, Database, FileText } from "lucide-react";
 import { FiGithub as GithubIcon } from "react-icons/fi";
 import { Link } from "react-scroll";
 import NextLink from "next/link";
@@ -16,7 +16,6 @@ const NAV_ITEMS = [
   { id: "certificates",label: "Certifications",icon: Award,     type: "scroll" },
   { id: "resume",      label: "Resume",        icon: FileText,  type: "scroll" },
   { id: "contact",     label: "Contact",       icon: Mail,      type: "scroll" },
-  { id: "/blog",       label: "Blog",          icon: BookOpen,  type: "link" },
 ];
 
 export default function CommandPalette() {

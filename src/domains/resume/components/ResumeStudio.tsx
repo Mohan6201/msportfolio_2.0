@@ -731,7 +731,7 @@ export default function ResumeStudio() {
                       onChange={e => setJdText(e.target.value)}
                       rows={5}
                       placeholder="Paste the full job description here..."
-                      className="w-full rounded-lg px-3 py-2 text-base sm:text-[12px] font-mono focus:outline-none resize-none"
+                      className="w-full rounded-lg px-3 py-2 text-base sm:text-[12px] font-mono focus:outline-none focus:ring-2 focus:ring-cyan/60 resize-none"
                       style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B", color: "#9CA3AF" }}
                     />
                   </div>
@@ -795,7 +795,7 @@ export default function ResumeStudio() {
                   <textarea
                     value={coverLetter}
                     onChange={e => setCoverLetter(e.target.value)}
-                    className="w-full px-5 py-4 text-[14px] leading-relaxed focus:outline-none resize-none"
+                    className="w-full px-5 py-4 text-[14px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-cyan/60 resize-none"
                     style={{
                       backgroundColor: "#16161A",
                       color: "#FFFFFF",

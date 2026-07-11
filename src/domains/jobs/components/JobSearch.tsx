@@ -176,7 +176,7 @@ export default function JobSearch() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && search()}
               placeholder="Search jobs by title…"
-              className="flex-1 min-w-0 rounded-lg px-3 py-2 text-white text-base sm:text-xs font-mono placeholder-[#333] focus:outline-none"
+              className="flex-1 min-w-0 rounded-lg px-3 py-2 text-white text-base sm:text-xs font-mono placeholder-[#333] focus:outline-none focus:ring-2 focus:ring-cyan/60"
               style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
             />
             <button

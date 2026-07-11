@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "DevOps Services | Mohana Srinivasan",
   description:
     "Freelance DevOps & Cloud Engineering services — AWS setup, CI/CD pipelines, containerisation, Linux administration, and cloud architecture design.",
+  alternates: { canonical: "/services" },
 };
 
 export default function ServicesPage() {

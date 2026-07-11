@@ -1,6 +1,6 @@
 # MS Portfolio 2.0 — Full Audit Report
 
-**Status:** All 7 phases investigated (read-only). **Phases 5 (Security), 2 (Data Accuracy), 1 (Responsive & Layout), and 3 (Code Quality) are now fixed and verified**; Phases 4 and 6 are still proposed work awaiting your go-ahead.
+**Status:** All 7 phases investigated (read-only). **Phases 5 (Security), 2 (Data Accuracy), 1 (Responsive & Layout), 3 (Code Quality), and 4 (Performance/SEO/Accessibility) are now fixed and verified**; only Phase 6 (cleanup) remains, awaiting your go-ahead.
 
 ## Executive Summary
 
@@ -8,7 +8,8 @@
 - **Security (Phase 5): all 9 actionable findings fixed and verified live** — the critical role-escalation exploit is closed, plus an IDOR, a cron-auth bypass, an unscoped interview update, five missing rate limits, an SVG-upload XSS risk, and stale docs. See §6.
 - **Data accuracy (Phase 2): fixed and verified live** — title/bio/skills/certifications/experience reconciled against the resume, hardcoded Hero stats (10+ Projects, 3 Certs, fixed 6-item tech badge list) now derive from real DB counts, one dead component deleted, a missing project (CareerOS) added. Two items deliberately left unresolved pending your input: the Körber cert date (DB 2023 vs resume 2025) and the Swirepay start month (DB Sep vs resume Nov). **Production Turso has not been touched** — only local `portfolio.db`; a ready-to-run migration script is provided for production. See §2.
 - **Layout (Phase 1): fixed and verified against a production build** — the `--breakpoint-sm: 350px` override reverted to Tailwind's true default, all 16 homepage sections unified onto one `max-w-screen-2xl` container, 3 grids gained `2xl:` column scaling, missing `sizes` props/viewport export/nav ARIA attributes all added. Along the way, found that `next dev`'s Turbopack can render responsive breakpoints in the wrong cascade order — **verified this doesn't affect the actual production build**. Two findings (removing `overflow-x-hidden` band-aids) deliberately left alone. See §3.
-- **Code quality (Phase 3): mostly fixed.** Lint tooling repaired (`next lint` → `eslint .`, plus the `.claude/worktrees` inflation fix) and now essentially clean (40 problems → 1, an intentional one); `package.json` deps fixed (zod/sharp declared, dedup'd, one genuinely-unused dep removed); the three duplicate auth-check helpers consolidated into one shared `requireRole()` and re-verified live against a production build; **9 more dead files deleted** across this and the earlier phases. **Deliberately not attempted:** adding Zod validation to every API route, unifying inconsistent response envelopes, and a 1046-occurrence hardcoded-hex-color sweep — each is a substantial, behavior-adjacent project in its own right, not a quick code-quality fix. See §4.
+- **Code quality (Phase 3): mostly fixed.** Lint tooling repaired (`next lint` → `eslint .`, plus the `.claude/worktrees` inflation fix) and now essentially clean (40 problems → 1, an intentional one); `package.json` deps fixed (zod/sharp declared, dedup'd, one genuinely-unused dep removed); the three duplicate auth-check helpers consolidated into one shared `requireRole()` and re-verified live against a production build; **9 more dead files deleted** across this and the earlier phases. **Deliberately not attempted:** adding Zod validation to every API route, unifying inconsistent response envelopes, and a 1046-occurrence hardcoded-hex-color sweep. See §4.
+- **Performance/SEO/Accessibility (Phase 4): mostly fixed.** Added `sitemap.ts`/`robots.ts` (the Critical gap), `noindex` on `/admin`/`/account`/`/recruiter`, canonical URLs on all 12 public pages, fixed the duplicate homepage `<h1>`, converted 3 raw `<img>` usages to `next/image`, added `prefers-reduced-motion` support (global CSS + targeted fix on the one continuously-looping animation), and fixed focus-visibility on the 17 inputs/links that had genuinely zero indication. Found and fixed a real bug along the way: `CertificateLogo.tsx`'s domain lookup was silently failing for 2 certs due to issuer-string mismatches. **Deliberately deferred:** contrast verification (needs visual tooling I don't have here), ARIA tab semantics (needs matching keyboard interaction, not just attributes), and dynamic-import/bundle-splitting work (behavior-adjacent, needs dedicated testing). See §5.
 - **Quick wins still open:** delete a 213MB unreferenced duplicate asset folder (Phase 6), and there's 1.86GB of old `.claude/worktrees/` session data from June 17 sitting on disk that's not git-tracked but hasn't been touched — your call on whether to clear it.
 - **`tsc --noEmit` is clean (0 errors)** throughout every phase.
 
@@ -217,44 +218,45 @@ Removing the `overflow-x-hidden` band-aids without being able to reliably test e
 ### Hardcoded design tokens — deferred, not attempted
 **Q15 — 1046 raw hex-color occurrences across 59 `.tsx` files.** Heaviest: `ResumeStudio.tsx` (129), `CertificationsTab.tsx` (56), `KTDocumentsTab.tsx` (55), `MockInterview.tsx` (39), `BlueprintTemplate.tsx` (25). Real finding, but far too large to fix safely in this pass — 1046 occurrences across 59 files is its own dedicated design-token-consolidation project, and mechanically swapping hex values for theme tokens without visually verifying each one risks subtle color regressions across the whole site. Flagging for a future focused pass rather than attempting a rushed sweep.
 
-## 5. Phase 4 — Performance, SEO, Accessibility
+## 5. Phase 4 — Performance, SEO, Accessibility (FIXED, partial — see deferred items)
 
 ### Performance
-| # | File:Line | Issue | Severity |
-|---|---|---|---|
-| P01 | `next.config.ts:5-9` | `remotePatterns` covers Clearbit + Vercel Blob (matches usage) but provides no protection for images that bypass `next/image` entirely — see P02 | Low |
-| P02 | `GitHubStats.tsx:199-203,287-291`, `CertificateLogo.tsx:37-41` | GitHub avatar, `ghchart.rshah.org` contribution chart, Clearbit logos all use raw `<img>` instead of `next/image` — zero optimization/lazy-load/CLS protection | Medium |
-| P03 | `NavbarLogo.tsx:25-37`, `NavbarMain.tsx:41-45` | Site logo — rendered above the fold on every page — uses raw `<img>`, likely the LCP element on non-hero pages, no `priority`/preload | Medium |
-| — | `layout.tsx:2,15-22` | Fonts via `next/font/google` with `display: swap`, no manual `<link>`/`@import` — **pass, no finding** | — |
-| P04 | `layout.tsx:91-100` | `PDFViewerProvider`, `ChatWidget`, `CursorGlow`, `ScrollProgress`, `BackToTop`, `CommandPalette` all eagerly mounted client components on every route (incl. `/admin`); zero `next/dynamic` usage anywhere in the repo | Medium |
-| P05 | 30 files importing `framer-motion` | Full `motion`/`AnimatePresence` API imported directly rather than tree-shakeable `LazyMotion`/`m` pattern | Low-Medium |
-| — | `HeroMain.tsx:207-213` | LCP hero avatar correctly uses `next/image` with `priority`+`fill` — **pass** | — |
-| P06 | `devops-toolkit/page.tsx:2,28` | 9 generator components (`InfraPlayground`, `AWSArchitectGenerator`, etc.) all imported eagerly with no tab-based lazy loading — ships all 9 tools' JS to view one | Medium |
-| P07 | `HeroPic.tsx`, `HeroImage.tsx`, `AboutMeImage.tsx`, `SkillsCircle.tsx`, `SubSkills.tsx` | Dead, unimported components shipping unoptimized `<img>` markup — Phase 6 deletion candidates | Low |
+| # | File:Line | Issue | Severity | Status |
+|---|---|---|---|---|
+| P01 | `next.config.ts:5-9` | `remotePatterns` gap — no finding, just informational | Low | — |
+| P02 | `GitHubStats.tsx`, `CertificateLogo.tsx` | GitHub avatar and Clearbit logos used raw `<img>` instead of `next/image` | Medium | ✅ Fixed — both converted to `next/image` with `fill`+`sizes`; added `avatars.githubusercontent.com` to `remotePatterns`. **`ghchart.rshah.org` contribution chart deliberately left as raw `<img>`** — it's SVG, and enabling `next/image`'s SVG optimization requires `dangerouslyAllowSVG` (a security-relevant config change) for a third-party host with lower trust than avatars.githubusercontent.com/Clearbit; not worth the tradeoff for one below-the-fold chart. **Bonus fix found while in this file:** `CertificateLogo.tsx`'s `domainMap` keys didn't match the real issuer strings (one mismatch — "RedSys9 Tech Pvt Ltd" vs the corrected "Red9SysTech" — was caused by my own Phase 2 rename; others, like "Korber" vs "Körber", were pre-existing) — the Clearbit logo lookup was silently failing for those certs. Fixed all keys to match current DB values. |
+| P03 | `NavbarLogo.tsx` | Site logo (above the fold on every page) used raw `<img>`, no `priority` | Medium | ✅ Fixed — converted to `next/image` with `priority`, `fill`, `sizes="80px"` |
+| — | `layout.tsx` fonts | `next/font/google` with `display: swap` — **pass** | — | — |
+| P04 | `layout.tsx:91-100` | `PDFViewerProvider`/`ChatWidget`/`CursorGlow`/`ScrollProgress`/`BackToTop`/`CommandPalette` all eagerly mounted on every route, zero `next/dynamic` | Medium | Deferred — see below |
+| P05 | 30 files importing `framer-motion` | Full API import vs tree-shakeable `LazyMotion`/`m` pattern | Low-Medium | Deferred — see below |
+| P06 | `devops-toolkit/page.tsx` | 9 generator components eagerly imported, no tab-based lazy loading | Medium | Deferred — see below |
+| P07 | 5 dead components | Unoptimized `<img>` in dead code | Low | ✅ Fixed — all 5 deleted in Phase 3 |
 
-### SEO
-| # | File:Line | Issue | Severity |
-|---|---|---|---|
-| S01 | (missing) | No `src/app/sitemap.ts`/`robots.ts`, no static equivalents — search engines can't discover `/blog/[slug]`, `/projects`, etc., and have no crawl directives | **Critical** |
-| S02 | `layout.tsx:58` | Global `robots: { index: true, follow: true }` applies site-wide; combined with S01, `/admin/**`, `/account/**`, `/recruiter/**` have no `noindex` override and are crawlable/indexable by default | High |
-| — | `layout.tsx:24-59`, per-page metadata | Root metadata well-formed (title/description/OG/Twitter/Person JSON-LD); most static routes have per-page overrides; `blog/[slug]` uses `generateMetadata` — **mostly pass** | — |
-| S03 | (repo-wide) | Zero `alternates.canonical` usage anywhere despite `metadataBase` being set — no protection against duplicate-content indexing | Medium |
-| S04 | `blog/[slug]/page.tsx:16-30` | `generateMetadata` has no `openGraph.images` or per-post canonical (falls back to generic OG image) | Low |
-| — | `opengraph-image.tsx` (root + blog) | Both correctly wired via file convention — **pass** (note: uses cyan `#15d1e9`, not the site's green accent — cosmetic only) | — |
+**P04/P05/P06 deferred together, not attempted:** these all require restructuring how/when components load (converting to `next/dynamic`, switching Framer Motion's import pattern across 30 files, adding tab-based code-splitting to the toolkit page). Each is a real perf win but also a behavior-adjacent change with meaningful regression risk (a `next/dynamic`'d chat widget that flashes in late, a `LazyMotion` migration that silently drops an animation prop somewhere across 30 files) that deserves dedicated testing, not a rushed pass alongside everything else in this phase.
 
-### Accessibility
-| # | File:Line | Issue | Severity |
-|---|---|---|---|
-| A01 | `NavbarLogo.tsx:39` **and** `HeroMain.tsx:149-156` | Two `<h1>` elements on the homepage (nav renders one `hidden md:block` — still in the DOM/AX tree — plus Hero's) | High |
-| — | Section components (`AboutMeMain.tsx:37`, `ExperienceMain.tsx:45`, `SkillsMain.tsx:88`, etc.) | Heading hierarchy otherwise sound, one `<h2>` per section + `<h3>` for cards — **pass** | — |
-| A02 | `globals.css:9-29` | Color tokens well-defined; informational note: the dominant interactive accent is actually **cyan** (`#00d4ff`), not terminal-green — green is used sparingly. Worth knowing since the original brief assumed green as primary | Low (informational) |
-| A03 | `globals.css:243` (`.terminal-output`) + multiple `placeholder-[#444]`/`placeholder-[#374151]` on dark inputs (`account/login/page.tsx:165`, `admin/tabs/ProfileTab.tsx:13`) | Borderline/likely-failing contrast ratios against near-black backgrounds — needs a contrast-checker pass | Medium |
-| A04 | `account/login/page.tsx:165,187`, `admin/tabs/ProfileTab.tsx:13`, `AdminDashboard.tsx:214`, `KnowledgeBase.tsx:278,284,288,363`, `CommandPalette.tsx:72`, `ResumeStudio.tsx:690,705,734,798` | `focus:outline-none` with either no replacement or only a low-opacity border-color change — likely fails WCAG 2.4.11 focus-visibility | High |
-| A05 | `NavbarMain.tsx:55-74,116-129` | Primary nav links have `hover:` styling only, no `focus:`/`focus-visible:` — relies on possibly-invisible UA default outline on dark theme. (Contrast: `components/ui/button.tsx:7` does this correctly with `focus-visible:ring-3`) | Medium |
-| — | Image alt text (repo-wide) | No images missing `alt`; decorative images correctly use `alt="" aria-hidden`. Two weak/generic alts found only in already-dead components | Low |
-| A06 | `NavbarMain.tsx:98-101` | The mobile nav toggle **actually used on the live site** has no `aria-label`/`aria-expanded`/`aria-controls` — only a visual icon swap communicates state. (A separate unused `NavbarToggler.tsx` has partial ARIA but isn't imported anywhere — see Phase 6) | High |
-| A07 | (repo-wide) | Zero `role="tab"`/`aria-selected`/`aria-controls` anywhere — admin dashboard tab bar and any filter UIs give screen readers no indication of tab semantics/active state | Medium |
-| A08 | (repo-wide) | `prefers-reduced-motion` never checked or respected anywhere, despite Framer Motion in 30 files including always-on effects (`CursorGlow`, `ScrollProgress`, `NavbarLogo` pulse, `BackToTop`) | High |
+### SEO — mostly fixed
+| # | File:Line | Issue | Severity | Status |
+|---|---|---|---|---|
+| S01 | (missing) | No `sitemap.ts`/`robots.ts` | **Critical** | ✅ Fixed — added both. Sitemap covers all 12 public routes + every blog post (dynamic via `getAllPosts()`); robots.txt disallows `/admin`, `/account`, `/recruiter`, `/api` and points to the sitemap. Verified live: both render correctly, all public routes present |
+| S02 | `layout.tsx:58` | Global `index:true` applied to `/admin`, `/account`, `/recruiter` too | High | ✅ Fixed — added `layout.tsx` to each of the three directories with `robots: { index: false, follow: false }` (inherited by every nested subroute automatically). Verified live: `/admin/login`, `/account/login`, `/recruiter/login` all render `<meta name="robots" content="noindex, nofollow">`; robots.txt disallow is a second, complementary layer since disallow alone doesn't guarantee de-indexing per Google's own guidance |
+| — | Root metadata | Well-formed — **mostly pass** | — | — |
+| S03 | (repo-wide) | Zero `alternates.canonical` anywhere | Medium | ✅ Fixed — added to the root layout and all 11 other page-level metadata blocks (home, blog index, blog posts via `generateMetadata`, profile, blueprints, projects, monitoring-demo, certifications, skills, services, architecture, devops-toolkit, career-progress). Verified live: home page and a blog post both render correct `<link rel="canonical">` |
+| S04 | `blog/[slug]/page.tsx` | Thought to be missing `openGraph.images` | Low | **Turned out to be a non-issue** — `opengraph-image.tsx` already exists in that route segment, and Next.js auto-injects it into `openGraph.images` unless explicitly overridden. Verified live: `og:image` meta tag renders correctly with Next's own cache-busting query param, which a manual entry couldn't have replicated. No change needed (briefly added one, then reverted after confirming it was redundant) |
+| — | `opengraph-image.tsx` | Correctly wired — **pass** | — | — |
+
+### Accessibility — mostly fixed
+| # | File:Line | Issue | Severity | Status |
+|---|---|---|---|---|
+| A01 | `NavbarLogo.tsx` + `HeroMain.tsx` | Two `<h1>` on the homepage | High | ✅ Fixed — nav's `<h1>` changed to `<p>` (Hero's remains the page's one real h1) |
+| — | Section headings | Otherwise sound — **pass** | — | — |
+| A02 | `globals.css` | Informational (cyan is the real primary accent, not green) | Low | No action needed — informational only |
+| A03 | Contrast on dark inputs/terminal text | Borderline/likely-failing contrast ratios | Medium | **Deferred** — needs a real contrast-checker pass against rendered colors, which isn't something I can verify reliably without visual tooling in this environment. Flagging rather than guessing at hex values. |
+| A04 | 17 occurrences across 9 files with **zero** focus indication (`focus:outline-none`, nothing else) | High | ✅ Fixed — added `focus:ring-2 focus:ring-cyan/60` to all 17 (`ImageUploader.tsx`, `admin/login`, `account/login`, `account/signup` ×3, `account/forgot-password`, `account/reset-password` ×2, `ResumeStudio.tsx` ×2 genuinely-missing ones, `JobSearch.tsx`, `PreferencesForm.tsx`, `CommandPalette.tsx`). **Left ~33 other occurrences alone** that already have *some* focus indication via `focus:border-X` — that's a contrast-strength question (ties into A03), not a "missing" one, and I didn't want to conflate the two. Two of the originally-flagged `ResumeStudio.tsx` lines (690, 705) turned out to already have working focus indication via JS `onFocus`/`onBlur` handlers, not a Tailwind class — false positive in the original finding, left alone |
+| A05 | `NavbarMain.tsx` nav links | No `focus:`/`focus-visible:` styling | Medium | ✅ Fixed — added `focus-visible:ring-2 focus-visible:ring-cyan/60` to both desktop and mobile nav links |
+| — | Alt text | No findings — **pass** | — | — |
+| A06 | `NavbarMain.tsx` mobile toggle | Missing ARIA attributes | High | ✅ Already fixed in Phase 1 (L14) |
+| A07 | (repo-wide) | Zero ARIA tab semantics anywhere (admin dashboard, filters) | Medium | **Deferred** — the admin dashboard's tab UI is a button/sidebar-navigation pattern, not built as ARIA tabs. Retrofitting `role="tab"`/`aria-selected` correctly also requires matching keyboard interaction (arrow-key navigation between tabs per the WAI-ARIA APG pattern) — adding the attributes alone without that behavior would make it *worse*, not better, since screen reader users would get tab semantics that don't behave like tabs. This needs a real interaction-pattern implementation, not a quick attribute addition. |
+| A08 | (repo-wide) | `prefers-reduced-motion` never respected | High | ✅ Fixed — added a global `@media (prefers-reduced-motion: reduce)` CSS rule (catches CSS-driven transitions/animations and native smooth-scroll broadly) plus a targeted `useReducedMotion()` check on `NavbarLogo.tsx`'s infinite pulse-ring loop specifically, since Framer Motion's transform/opacity animations often run via the Web Animations API rather than plain CSS `animation` properties and wouldn't be caught by the CSS rule alone. The other ~29 files using Framer Motion (mostly one-shot entrance fades, not continuous loops) were left alone — lower priority and much larger scope to wire `useReducedMotion()` into every one individually |
 
 ## 6. Phase 5 — Security
 

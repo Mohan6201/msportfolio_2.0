@@ -126,7 +126,7 @@ export default function AccountSignupPage() {
                 onChange={e => setName(e.target.value)}
                 required
                 placeholder="Mohana Srinivasan"
-                className="w-full rounded-lg px-4 py-3 text-base sm:text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                className="w-full rounded-lg px-4 py-3 text-base sm:text-[13px] font-mono text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-cyan/60 transition-colors"
                 style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
               />
             </div>
@@ -139,7 +139,7 @@ export default function AccountSignupPage() {
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full rounded-lg px-4 py-3 text-base sm:text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                className="w-full rounded-lg px-4 py-3 text-base sm:text-[13px] font-mono text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-cyan/60 transition-colors"
                 style={{ backgroundColor: "#0A0A0B", border: error ? "1.5px solid #EF4444" : "1px solid #26262B" }}
               />
             </div>
@@ -154,7 +154,7 @@ export default function AccountSignupPage() {
                   required
                   minLength={8}
                   placeholder="Min 8 characters"
-                  className="w-full rounded-lg px-4 py-3 pr-12 text-base sm:text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                  className="w-full rounded-lg px-4 py-3 pr-12 text-base sm:text-[13px] font-mono text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-cyan/60 transition-colors"
                   style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
                 />
                 <button

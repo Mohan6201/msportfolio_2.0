@@ -20,12 +20,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${post.title} | Mohana Srinivasan`,
       description: post.description,
+      alternates: { canonical: `/blog/${slug}` },
       openGraph: {
         title: post.title,
         description: post.description,
         type: "article",
         publishedTime: post.date,
         tags: post.tags,
+        // No explicit `images` here — the opengraph-image.tsx file convention in
+        // this same route segment is auto-injected by Next.js unless overridden.
       },
     };
   } catch {

@@ -8,6 +8,7 @@ import { ArrowLeft, ExternalLink, Award } from "lucide-react";
 export const metadata: Metadata = {
   title: "Certifications | Mohana Srinivasan",
   description: "Professional certifications in AWS, DevOps, Cloud Engineering, and Linux administration.",
+  alternates: { canonical: "/certifications" },
 };
 
 export default async function CertificationsPage() {

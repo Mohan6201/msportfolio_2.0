@@ -10,6 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: data ? `${data.profile.fullName} | Professional Profile` : "Professional Profile",
     description: data?.profile.bio ?? "DevOps & Cloud Engineering professional profile.",
+    alternates: { canonical: "/profile" },
   };
 }
 

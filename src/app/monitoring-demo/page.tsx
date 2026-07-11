@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Live Monitoring Demo | MS Portfolio",
   description:
     "Live DevOps monitoring dashboard demo — CPU, memory, disk, request rate, service health, and log stream. Simulated real-time metrics.",
+  alternates: { canonical: "/monitoring-demo" },
 };
 
 export default function MonitoringDemoPage() {

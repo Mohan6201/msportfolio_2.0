@@ -117,7 +117,7 @@ export function ImageUploader({ value, onChange, folder = "uploads", label = "Im
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder="Or paste image URL directly"
-        className="w-full rounded-lg px-3 py-1.5 text-xs font-mono text-white placeholder-[#374151] focus:outline-none transition-colors"
+        className="w-full rounded-lg px-3 py-1.5 text-xs font-mono text-white placeholder-[#374151] focus:outline-none focus:ring-2 focus:ring-cyan/60 transition-colors"
         style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
       />
 

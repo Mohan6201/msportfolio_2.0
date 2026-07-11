@@ -57,7 +57,7 @@ export default function NavbarMain() {
                   to={item.to}
                   smooth duration={600}
                   offset={-80}
-                  className="px-3 py-2 text-sm font-mono text-lightGrey hover:text-cyan cursor-pointer transition-colors duration-200 rounded-lg hover:bg-cyan/5 relative group"
+                  className="px-3 py-2 text-sm font-mono text-lightGrey hover:text-cyan cursor-pointer transition-colors duration-200 rounded-lg hover:bg-cyan/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan/60 relative group"
                 >
                   {item.label}
                   <span className="absolute bottom-1 left-3 right-3 h-[1px] bg-cyan origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
@@ -66,7 +66,7 @@ export default function NavbarMain() {
                 <NextLink
                   key={item.label}
                   href={item.to}
-                  className="px-3 py-2 text-sm font-mono text-lightGrey hover:text-cyan transition-colors duration-200 rounded-lg hover:bg-cyan/5 relative group"
+                  className="px-3 py-2 text-sm font-mono text-lightGrey hover:text-cyan transition-colors duration-200 rounded-lg hover:bg-cyan/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan/60 relative group"
                 >
                   {item.label}
                   <span className="absolute bottom-1 left-3 right-3 h-[1px] bg-cyan origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
@@ -121,13 +121,13 @@ export default function NavbarMain() {
                 item.type === "scroll" ? (
                   <Link key={item.label} to={item.to} smooth duration={600} offset={-80}
                     onClick={() => setMenuOpen(false)}
-                    className="px-3 py-2.5 text-sm font-mono text-lightGrey hover:text-cyan hover:bg-cyan/5 rounded-lg cursor-pointer transition-colors">
+                    className="px-3 py-2.5 text-sm font-mono text-lightGrey hover:text-cyan hover:bg-cyan/5 rounded-lg cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan/60">
                     <span className="text-green mr-2">$</span>{item.label}
                   </Link>
                 ) : (
                   <NextLink key={item.label} href={item.to}
                     onClick={() => setMenuOpen(false)}
-                    className="px-3 py-2.5 text-sm font-mono text-lightGrey hover:text-cyan hover:bg-cyan/5 rounded-lg transition-colors">
+                    className="px-3 py-2.5 text-sm font-mono text-lightGrey hover:text-cyan hover:bg-cyan/5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan/60">
                     <span className="text-green mr-2">$</span>{item.label}
                   </NextLink>
                 )

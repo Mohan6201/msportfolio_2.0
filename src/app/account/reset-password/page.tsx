@@ -90,7 +90,7 @@ function ResetPasswordForm() {
               onChange={e => setPassword(e.target.value)}
               required minLength={8}
               placeholder="Min 8 characters"
-              className="w-full rounded-lg px-4 py-3 pr-12 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+              className="w-full rounded-lg px-4 py-3 pr-12 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-cyan/60 transition-colors"
               style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
             />
             <button
@@ -112,7 +112,7 @@ function ResetPasswordForm() {
             onChange={e => setConfirm(e.target.value)}
             required
             placeholder="Repeat password"
-            className="w-full rounded-lg px-4 py-3 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+            className="w-full rounded-lg px-4 py-3 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-cyan/60 transition-colors"
             style={{
               backgroundColor: "#0A0A0B",
               border: confirm && confirm !== password ? "1.5px solid #EF4444" : "1px solid #26262B",

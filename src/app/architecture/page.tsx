@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Architecture Showcase | MS Portfolio",
   description:
     "Interactive DevOps and cloud architecture diagrams — AWS 3-Tier, CI/CD Pipeline, Kubernetes, and Microservices. Click any component to explore.",
+  alternates: { canonical: "/architecture" },
 };
 
 export default function ArchitecturePage() {

@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 export const metadata: Metadata = {
   title: "Skills Matrix | Mohana Srinivasan",
   description: "Full technical skills matrix — DevOps, Cloud, Containers, Monitoring, IaC, Scripting, and more.",
+  alternates: { canonical: "/skills" },
 };
 
 const LEVEL_LABELS: Record<number, string> = { 1: "Familiar", 2: "Basic", 3: "Intermediate", 4: "Advanced", 5: "Expert" };

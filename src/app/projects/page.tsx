@@ -8,6 +8,7 @@ import { ArrowLeft, ExternalLink, GitBranch } from "lucide-react";
 export const metadata: Metadata = {
   title: "Projects | Mohana Srinivasan",
   description: "Portfolio of DevOps and Cloud Engineering projects — AWS infrastructure, CI/CD pipelines, containerisation, and more.",
+  alternates: { canonical: "/projects" },
 };
 
 export default async function ProjectsPage() {

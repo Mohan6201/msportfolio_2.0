@@ -4,6 +4,7 @@ import DevOpsToolkit from "@/domains/devops-toolkit/components/DevOpsToolkit";
 export const metadata: Metadata = {
   title: "DevOps Toolkit | MS Portfolio",
   description: "Free DevOps tools: Nginx config generator, Docker Compose generator, GitHub Actions generator, EC2 cost calculator, and AI AWS architecture designer.",
+  alternates: { canonical: "/devops-toolkit" },
 };
 
 export default function DevOpsToolkitPage() {

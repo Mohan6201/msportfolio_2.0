@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Blueprint Marketplace | MS Portfolio",
   description:
     "Reusable DevOps deployment blueprints — Django on AWS ECS, Next.js on Vercel, WordPress on EC2, GitHub Actions CI/CD, and Kubernetes on EKS. Step-by-step guides with commands.",
+  alternates: { canonical: "/blueprints" },
 };
 
 export default function BlueprintsPage() {

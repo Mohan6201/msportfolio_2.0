@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "logo.clearbit.com" },
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
       { protocol: "https", hostname: "public.blob.vercel-storage.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
     ],
   },
   serverExternalPackages: [

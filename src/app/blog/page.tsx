@@ -6,6 +6,7 @@ import { BookOpen, Clock, ArrowLeft, Terminal } from "lucide-react";
 export const metadata: Metadata = {
   title: "Blog | Mohana Srinivasan — DevOps & Cloud Engineering",
   description: "DevOps and cloud engineering insights — CI/CD, AWS, Docker, Kubernetes, Terraform, and more.",
+  alternates: { canonical: "/blog" },
 };
 
 export default function BlogPage() {

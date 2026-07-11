@@ -1,11 +1,13 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 
 const domainMap: Record<string, string> = {
-  "Guvi": "guvi.in",
+  "GUVI Geek Network": "guvi.in",
+  "GUVI x HCL": "guvi.in",
   "3Edge Solutions Pvt Ltd": "3edge.in",
-  "Korber Supply Chain": "koerber-supplychain.com",
-  "RedSys9 Tech Pvt Ltd": "red9systech.com",
+  "Körber Supply Chain": "koerber-supplychain.com",
+  "Red9SysTech": "red9systech.com",
 };
 
 const getBackgroundColor = (issuer: string) => {
@@ -30,14 +32,16 @@ const CertificateLogo = ({ issuer }: CertificateLogoProps) => {
 
   return (
     <div
-      className="w-8 h-8 mr-2 flex items-center justify-center rounded-full overflow-hidden shadow-sm"
+      className="relative w-8 h-8 mr-2 flex items-center justify-center rounded-full overflow-hidden shadow-sm"
       style={{ backgroundColor }}
     >
       {!imageError && logoUrl ? (
-        <img
+        <Image
           src={logoUrl}
           alt={`${issuer} logo`}
-          className="w-full h-full object-cover rounded-full"
+          fill
+          sizes="32px"
+          className="object-cover rounded-full"
           onError={() => setImageError(true)}
         />
       ) : (

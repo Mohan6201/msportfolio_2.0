@@ -114,7 +114,7 @@ export default function AdminLoginPage() {
                   onChange={e => setEmail(e.target.value)}
                   required
                   placeholder="you@example.com"
-                  className="w-full rounded-lg px-4 py-3 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors"
+                  className="w-full rounded-lg px-4 py-3 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-cyan/60 transition-colors"
                   style={{
                     backgroundColor: "#0A0A0B",
                     border: hasError ? "1.5px solid #EF4444" : "1px solid #26262B",
@@ -147,7 +147,7 @@ export default function AdminLoginPage() {
                     onChange={e => setPassword(e.target.value)}
                     required
                     placeholder="••••••••"
-                    className="w-full rounded-lg px-4 py-3 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none transition-colors pr-12"
+                    className="w-full rounded-lg px-4 py-3 text-[13px] font-mono text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-cyan/60 transition-colors pr-12"
                     style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
                   />
                 </div>

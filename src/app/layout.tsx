@@ -32,6 +32,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Mohana Srinivasan", url: "https://m-s-r-portfolio.vercel.app" }],
   creator: "Mohana Srinivasan",
+  alternates: { canonical: "/" },
   icons: {
     icon: [
       { url: "/icons/Actual_Logo.ico",    type: "image/x-icon", sizes: "any" },

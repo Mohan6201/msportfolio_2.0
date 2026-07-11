@@ -69,7 +69,7 @@ export default function CommandPalette() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Navigate to..."
-                    className="flex-1 bg-transparent text-white placeholder-lightGrey/50 outline-none text-sm font-mono"
+                    className="flex-1 bg-transparent text-white placeholder-lightGrey/50 outline-none focus:ring-2 focus:ring-cyan/60 rounded text-sm font-mono"
                   />
                   <button onClick={() => setOpen(false)} className="text-lightGrey hover:text-white transition-colors">
                     <X className="w-4 h-4" />

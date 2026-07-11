@@ -9,6 +9,7 @@ import { ArrowLeft, TrendingUp, Award, Briefcase, Code2, Star } from "lucide-rea
 export const metadata: Metadata = {
   title: "Career Progress | Mohana Srinivasan",
   description: "Career growth visualisation — experience timeline, skills matrix, certifications, and project history.",
+  alternates: { canonical: "/career-progress" },
 };
 
 function yearFromText(dateStr: string): string {

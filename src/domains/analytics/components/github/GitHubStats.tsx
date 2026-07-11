@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { FiGithub, FiStar, FiGitBranch, FiExternalLink, FiUsers, FiBook } from "react-icons/fi";
 
 const GITHUB_USERNAME = "Mohan6201";
@@ -196,11 +197,15 @@ export default function GitHubStats() {
             className="flex items-center gap-4 group shrink-0"
           >
             {stats?.avatarUrl ? (
-              <img
-                src={stats.avatarUrl}
-                alt={GITHUB_USERNAME}
-                className="w-14 h-14 rounded-full border-2 border-cyan/30 group-hover:border-cyan/60 transition-colors"
-              />
+              <div className="relative w-14 h-14 shrink-0">
+                <Image
+                  src={stats.avatarUrl}
+                  alt={GITHUB_USERNAME}
+                  fill
+                  sizes="56px"
+                  className="rounded-full border-2 border-cyan/30 group-hover:border-cyan/60 transition-colors"
+                />
+              </div>
             ) : (
               <div className="w-14 h-14 rounded-full border-2 border-orange/30 flex items-center justify-center bg-white/5">
                 <FiGithub className="w-7 h-7 text-lightGrey" />

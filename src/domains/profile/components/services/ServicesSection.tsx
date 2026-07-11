@@ -1,4 +1,6 @@
+"use client";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { Cloud, GitBranch, Container, Terminal, Network, ArrowRight } from "lucide-react";
 
 const SERVICES = [
@@ -58,7 +60,13 @@ export default function ServicesSection() {
   return (
     <section id="services" className="py-16 sm:py-24 bg-darkBrown">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 2xl:px-16">
-        <div className="text-center mb-10 sm:mb-14">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10 sm:mb-14"
+        >
           <p className="section-tag mb-3">Available for Hire</p>
           <h2 className="font-special text-2xl sm:text-5xl font-bold text-white mb-4">
             DevOps <span className="gradient-text">Services</span>
@@ -67,15 +75,20 @@ export default function ServicesSection() {
             Freelance and contract DevOps / Cloud Engineering engagements.
             Fixed-scope, fast delivery, production-ready output.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {SERVICES.map((service) => {
+          {SERVICES.map((service, index) => {
             const Icon = service.icon;
             return (
-              <div
+              <motion.div
                 key={service.title}
-                className="glass rounded-2xl border border-white/10 p-5 sm:p-6 hover:border-white/20 transition-all group flex flex-col"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.45, delay: index * 0.07 }}
+                whileHover={{ y: -4 }}
+                className="glass rounded-2xl border border-white/10 p-5 sm:p-6 hover:border-white/20 transition-colors group flex flex-col"
               >
                 {/* Header */}
                 <div className="flex items-start gap-3 mb-4">
@@ -119,12 +132,19 @@ export default function ServicesSection() {
                     Enquire <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
 
           {/* CTA card */}
-          <div className="glass rounded-2xl border border-cyan/20 p-5 sm:p-6 flex flex-col items-center justify-center text-center gap-4 bg-cyan/3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.45, delay: SERVICES.length * 0.07 }}
+            whileHover={{ y: -4 }}
+            className="glass rounded-2xl border border-cyan/20 p-5 sm:p-6 flex flex-col items-center justify-center text-center gap-4 bg-cyan/3"
+          >
             <p className="text-white font-mono font-bold text-sm">Have a custom requirement?</p>
             <p className="text-lightGrey text-xs font-mono leading-relaxed">
               All engagements are tailored to your stack and team. Let&apos;s discuss scope and timeline.
@@ -135,7 +155,7 @@ export default function ServicesSection() {
             >
               Get in Touch <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

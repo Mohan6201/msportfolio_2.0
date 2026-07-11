@@ -1,4 +1,6 @@
+"use client";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { FileText, Briefcase, Mic, TrendingUp, ArrowRight, Lock } from "lucide-react";
 
 const TOOLS = [
@@ -44,7 +46,13 @@ export default function CareerCentreSection() {
   return (
     <section id="career-centre" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 2xl:px-16 border-t border-white/5">
       <div className="max-w-screen-2xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-14">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-14"
+        >
           <div>
             <p className="section-tag mb-4">Exclusive Platform</p>
             <h2 className="font-special text-2xl sm:text-4xl font-bold text-white">
@@ -61,10 +69,10 @@ export default function CareerCentreSection() {
           >
             Get Started Free <ArrowRight className="w-4 h-4" />
           </Link>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {TOOLS.map((tool) => {
+          {TOOLS.map((tool, index) => {
             const Icon = tool.icon;
             const colorMap: Record<string, string> = {
               cyan:   "text-cyan   border-cyan/25   bg-cyan/8   shadow-cyan/10",
@@ -91,50 +99,64 @@ export default function CareerCentreSection() {
               purple: "text-purple",
             };
             return (
-              <Link
+              <motion.div
                 key={tool.title}
-                href={tool.href}
-                className="glass glass-hover rounded-2xl p-5 border border-white/5 flex flex-col gap-4 group relative overflow-hidden"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.45, delay: index * 0.08 }}
+                whileHover={{ y: -4 }}
               >
-                {/* Badge */}
-                {tool.badge && (
-                  <span className={`absolute top-3 right-3 text-[9px] font-mono px-2 py-0.5 rounded-full border ${colorMap[tool.color]}`}>
-                    {tool.badge}
-                  </span>
-                )}
+                <Link
+                  href={tool.href}
+                  className="glass glass-hover rounded-2xl p-5 border border-white/5 flex flex-col gap-4 group relative overflow-hidden h-full"
+                >
+                  {/* Badge */}
+                  {tool.badge && (
+                    <span className={`absolute top-3 right-3 text-[9px] font-mono px-2 py-0.5 rounded-full border ${colorMap[tool.color]}`}>
+                      {tool.badge}
+                    </span>
+                  )}
 
-                <div className={`w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 ${colorMap[tool.color]}`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <h3 className={`font-special font-bold text-base text-white mb-2 ${hoverMap[tool.color]} transition-colors`}>
-                    {tool.title}
-                  </h3>
-                  <p className="text-lightGrey text-xs font-mono leading-relaxed">{tool.desc}</p>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  {tool.tags.map((t) => (
-                    <span key={t} className={`badge ${tagMap[tool.color]} text-[9px]`}>{t}</span>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between pt-3 border-t border-white/5">
-                  <div className="flex items-center gap-1.5 text-[10px] font-mono text-lightGrey/40">
-                    <Lock className="w-3 h-3" /> Login required
+                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 ${colorMap[tool.color]}`}>
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <div className={`flex items-center gap-1 text-[10px] font-mono ${textMap[tool.color]}`}>
-                    Launch <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+
+                  <div className="flex-1 min-w-0">
+                    <h3 className={`font-special font-bold text-base text-white mb-2 ${hoverMap[tool.color]} transition-colors`}>
+                      {tool.title}
+                    </h3>
+                    <p className="text-lightGrey text-xs font-mono leading-relaxed">{tool.desc}</p>
                   </div>
-                </div>
-              </Link>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {tool.tags.map((t) => (
+                      <span key={t} className={`badge ${tagMap[tool.color]} text-[9px]`}>{t}</span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                    <div className="flex items-center gap-1.5 text-[10px] font-mono text-lightGrey/40">
+                      <Lock className="w-3 h-3" /> Login required
+                    </div>
+                    <div className={`flex items-center gap-1 text-[10px] font-mono ${textMap[tool.color]}`}>
+                      Launch <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
             );
           })}
         </div>
 
         {/* Bottom CTA bar */}
-        <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl glass border border-cyan/10">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
+          className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl glass border border-cyan/10"
+        >
           <div>
             <p className="text-white font-mono font-semibold text-sm">Already using these tools?</p>
             <p className="text-lightGrey text-xs font-mono mt-0.5">Sign in to access your saved resumes, job matches, and interview history.</p>
@@ -145,7 +167,7 @@ export default function CareerCentreSection() {
           >
             Sign In <ArrowRight className="w-3.5 h-3.5" />
           </Link>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

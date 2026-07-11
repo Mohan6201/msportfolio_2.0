@@ -1,4 +1,5 @@
 "use client";
+import { usePathname } from "next/navigation";
 import { Link } from "react-scroll";
 import NextLink from "next/link";
 import { FiGithub, FiLinkedin, FiMail, FiHeart } from "react-icons/fi";
@@ -19,6 +20,8 @@ interface FooterMainProps {
 }
 
 export default function FooterMain({ profile }: FooterMainProps) {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
   const SOCIALS = [
     { Icon: FiGithub,   href: profile.githubUrl ?? "#",   label: "GitHub" },
     { Icon: FiLinkedin, href: profile.linkedinUrl ?? "#", label: "LinkedIn" },
@@ -59,13 +62,13 @@ export default function FooterMain({ profile }: FooterMainProps) {
             <ul className="grid grid-cols-2 gap-2">
               {NAV.map((item) => (
                 <li key={item.label}>
-                  {item.type === "scroll" ? (
+                  {isHome ? (
                     <Link to={item.to} smooth duration={500} offset={-80}
                       className="text-lightGrey text-sm font-mono hover:text-cyan transition-colors cursor-pointer">
                       <span className="text-cyan/30 mr-1">›</span>{item.label}
                     </Link>
                   ) : (
-                    <NextLink href={item.to}
+                    <NextLink href={`/#${item.to}`}
                       className="text-lightGrey text-sm font-mono hover:text-cyan transition-colors">
                       <span className="text-cyan/30 mr-1">›</span>{item.label}
                     </NextLink>

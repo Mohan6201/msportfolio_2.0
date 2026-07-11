@@ -1,13 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import type { NextRequest } from "next/server";
+import { requireRole } from "./requireRole";
 
-export async function requireUser(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session) {
-    return {
-      session: null,
-      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
-    };
-  }
-  return { session, error: null };
+/** Call in every account (logged-in user) API route. Returns the session or a 401 response. */
+export function requireUser(req: NextRequest) {
+  return requireRole(req);
 }

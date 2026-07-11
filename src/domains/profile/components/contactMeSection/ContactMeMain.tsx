@@ -4,14 +4,13 @@ import { HiOutlineMail } from "react-icons/hi";
 import { FiPhone, FiGithub, FiLinkedin } from "react-icons/fi";
 import { IoLocationOutline } from "react-icons/io5";
 import ContactForm from "./ContactForm";
-import type { ProfileRow, SocialLinkRow } from "@/domains/profile/services/profile.service";
+import type { ProfileRow } from "@/domains/profile/services/profile.service";
 
 interface ContactMeMainProps {
   profile: ProfileRow;
-  socialLinks: SocialLinkRow[];
 }
 
-export default function ContactMeMain({ profile, socialLinks }: ContactMeMainProps) {
+export default function ContactMeMain({ profile }: ContactMeMainProps) {
   const INFO = [
     { Icon: HiOutlineMail, label: "Email",    value: profile.email,    href: `mailto:${profile.email}` },
     { Icon: FiPhone,       label: "Phone",    value: profile.phone,    href: `tel:${profile.phone.replace(/\s/g, "")}` },
@@ -62,7 +61,7 @@ export default function ContactMeMain({ profile, socialLinks }: ContactMeMainPro
                 <p className="terminal-prompt mb-1">$ ping mohana</p>
                 <p className="terminal-output">PING successful — I reply within 24 hours</p>
                 <p className="terminal-prompt mt-3 mb-1">$ cat contact.json</p>
-                {INFO.map(({ Icon, label, value, href }) => (
+                {INFO.map(({ label, value, href }) => (
                   <div key={label} className="flex items-start gap-2 mt-1">
                     <span className="text-cyan/60 font-mono">&quot;{label}&quot;:</span>
                     <a href={href} className="text-lightGrey hover:text-cyan transition-colors font-mono text-sm">

@@ -41,13 +41,13 @@ function nextValue(prev: number, min: number, max: number, drift: number = 5): n
 }
 
 const LOG_MESSAGES = [
-  (c: number) => ({ l: "INFO" as const, m: `[nginx] ${Math.floor(Math.random() * 50) + 5} req/s — ${200} OK — ${(Math.random() * 5 + 1).toFixed(0)}ms avg latency` }),
-  (c: number) => ({ l: "INFO" as const, m: `[app] healthcheck OK — DB: ${(Math.random() * 3 + 1).toFixed(1)}ms — Redis: ${(Math.random() * 0.5).toFixed(2)}ms` }),
-  (c: number) => ({ l: "INFO" as const, m: `[scheduler] job run_analytics completed in ${(Math.random() * 0.9 + 0.1).toFixed(2)}s` }),
-  (c: number) => ({ l: "WARN" as const, m: `[rds] connection pool at ${Math.floor(Math.random() * 30 + 60)}% capacity` }),
-  (c: number) => ({ l: "INFO" as const, m: `[ecs] task ${Math.floor(Math.random() * 8 + 1)} healthy — memory: ${Math.floor(Math.random() * 40 + 30)}%` }),
-  (c: number) => ({ l: "INFO" as const, m: `[cloudfront] cache hit rate: ${(Math.random() * 10 + 87).toFixed(1)}%` }),
-  (c: number) => ({ l: "INFO" as const, m: `[alb] target group healthy — 4/4 targets passing` }),
+  () => ({ l: "INFO" as const, m: `[nginx] ${Math.floor(Math.random() * 50) + 5} req/s — ${200} OK — ${(Math.random() * 5 + 1).toFixed(0)}ms avg latency` }),
+  () => ({ l: "INFO" as const, m: `[app] healthcheck OK — DB: ${(Math.random() * 3 + 1).toFixed(1)}ms — Redis: ${(Math.random() * 0.5).toFixed(2)}ms` }),
+  () => ({ l: "INFO" as const, m: `[scheduler] job run_analytics completed in ${(Math.random() * 0.9 + 0.1).toFixed(2)}s` }),
+  () => ({ l: "WARN" as const, m: `[rds] connection pool at ${Math.floor(Math.random() * 30 + 60)}% capacity` }),
+  () => ({ l: "INFO" as const, m: `[ecs] task ${Math.floor(Math.random() * 8 + 1)} healthy — memory: ${Math.floor(Math.random() * 40 + 30)}%` }),
+  () => ({ l: "INFO" as const, m: `[cloudfront] cache hit rate: ${(Math.random() * 10 + 87).toFixed(1)}%` }),
+  () => ({ l: "INFO" as const, m: `[alb] target group healthy — 4/4 targets passing` }),
 ];
 
 const INIT_SERVICES: ServiceStatus[] = [
@@ -158,7 +158,7 @@ export default function MonitoringDemo() {
       }))
     );
 
-    const template = LOG_MESSAGES[Math.floor(Math.random() * LOG_MESSAGES.length)](logId.current);
+    const template = LOG_MESSAGES[Math.floor(Math.random() * LOG_MESSAGES.length)]();
     setLogs((prev) => [
       { id: ++logId.current, time: now(), level: template.l, message: template.m },
       ...prev.slice(0, 14),
@@ -170,7 +170,7 @@ export default function MonitoringDemo() {
   useEffect(() => {
     // Generate initial logs
     for (let i = 0; i < 8; i++) {
-      const template = LOG_MESSAGES[Math.floor(Math.random() * LOG_MESSAGES.length)](i);
+      const template = LOG_MESSAGES[Math.floor(Math.random() * LOG_MESSAGES.length)]();
       setLogs((prev) => [
         ...prev,
         { id: logId.current++, time: now(), level: template.l, message: template.m },

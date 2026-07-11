@@ -2,7 +2,7 @@
 // FIX 2: Auto-score all newly ingested jobs against user's resume
 // REPLACE entire file with this version
 
-import { upsertCompany, upsertJob, upsertJobMatch, getMatch } from "@/domains/jobs/services/jobs.service";
+import { upsertCompany, upsertJobMatch, getMatch } from "@/domains/jobs/services/jobs.service";
 import { getLatestVersion, listResumes } from "@/domains/resume/services/resume.service";
 import { scoreJobMatch } from "@/ai/agents/scoreJobMatch";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
@@ -214,7 +214,7 @@ export async function ingestJobPostings(
 
 // ── Internal helper: upsert + return the job id ────────────────────────────────
 import { db } from "@/db/client";
-import { companies, jobs } from "@/db/schema/jobs";
+import { jobs } from "@/db/schema/jobs";
 import { and, eq } from "drizzle-orm";
 
 async function upsertJobReturningId(data: {

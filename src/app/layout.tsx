@@ -5,7 +5,6 @@ import ChatWidget from "@/domains/profile/components/chat/ChatWidget";
 import ScrollProgress from "@/components/ui/ScrollProgress";
 import BackToTop from "@/components/ui/BackToTop";
 import CursorGlow from "@/components/ui/CursorGlow";
-import CommandPalette from "@/components/ui/CommandPalette";
 import { PDFViewerProvider } from "@/components/ui/PDFViewer";
 import PageTracker from "@/components/ui/PageTracker";
 import { Analytics } from "@vercel/analytics/react";

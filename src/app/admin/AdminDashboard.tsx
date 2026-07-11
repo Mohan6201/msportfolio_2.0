@@ -27,7 +27,6 @@ import { UsersTab }            from "./tabs/UsersTab";
 import { JobMatchesTab }       from "./tabs/JobMatchesTab";
 import { JobPreferencesTab }   from "./tabs/JobPreferencesTab";
 import { SiteSettingsTab }     from "./tabs/SiteSettingsTab";
-import { AnalyticsTab as AnalyticsTabNew } from "./tabs/AnalyticsTab";
 import { MediaLibraryTab }    from "./tabs/MediaLibraryTab";
 
 const authClient = createAuthClient();

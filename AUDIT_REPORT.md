@@ -1,15 +1,16 @@
 # MS Portfolio 2.0 — Full Audit Report
 
-**Status:** All 7 phases investigated (read-only). **Phases 5 (Security), 2 (Data Accuracy), and 1 (Responsive & Layout) are now fixed and verified**; Phases 3, 4, 6 are still proposed work awaiting your go-ahead.
+**Status:** All 7 phases investigated (read-only). **Phases 5 (Security), 2 (Data Accuracy), 1 (Responsive & Layout), and 3 (Code Quality) are now fixed and verified**; Phases 4 and 6 are still proposed work awaiting your go-ahead.
 
 ## Executive Summary
 
-- **56 findings** across 7 phases: 1 Critical (live exploit — **fixed**), 2 High/Critical-adjacent, ~20 High, ~25 Medium, ~10 Low.
+- **56+ findings** across 7 phases (a few more turned up mid-fix, see below): 1 Critical (live exploit — **fixed**), 2 High/Critical-adjacent, ~20 High, ~25 Medium, ~10 Low.
 - **Security (Phase 5): all 9 actionable findings fixed and verified live** — the critical role-escalation exploit is closed, plus an IDOR, a cron-auth bypass, an unscoped interview update, five missing rate limits, an SVG-upload XSS risk, and stale docs. See §6.
 - **Data accuracy (Phase 2): fixed and verified live** — title/bio/skills/certifications/experience reconciled against the resume, hardcoded Hero stats (10+ Projects, 3 Certs, fixed 6-item tech badge list) now derive from real DB counts, one dead component deleted, a missing project (CareerOS) added. Two items deliberately left unresolved pending your input: the Körber cert date (DB 2023 vs resume 2025) and the Swirepay start month (DB Sep vs resume Nov). **Production Turso has not been touched** — only local `portfolio.db`; a ready-to-run migration script is provided for production. See §2.
-- **Layout (Phase 1): fixed and verified against a production build** — the `--breakpoint-sm: 350px` override reverted to Tailwind's true default, all 16 homepage sections unified onto one `max-w-screen-2xl` container, 3 grids gained `2xl:` column scaling, missing `sizes` props/viewport export/nav ARIA attributes all added, 2 more dead files discovered and one deleted. Along the way, found that `next dev`'s Turbopack can render responsive breakpoints in the wrong cascade order — **verified this doesn't affect the actual production build**, but worth knowing if local dev ever looks visually wrong. Two findings (removing `overflow-x-hidden` band-aids) deliberately left alone — see §3 for why. See §3.
-- **Quick wins still open:** delete a 213MB unreferenced duplicate asset folder, fix broken lint tooling (`next lint` doesn't run on Next 16; `@typescript-eslint/*` wasn't installed), add the missing `zod`/`sharp` dependencies that currently only resolve by luck. See §4/§7.
-- **`tsc --noEmit` is clean (0 errors)** — TypeScript hygiene is good.
+- **Layout (Phase 1): fixed and verified against a production build** — the `--breakpoint-sm: 350px` override reverted to Tailwind's true default, all 16 homepage sections unified onto one `max-w-screen-2xl` container, 3 grids gained `2xl:` column scaling, missing `sizes` props/viewport export/nav ARIA attributes all added. Along the way, found that `next dev`'s Turbopack can render responsive breakpoints in the wrong cascade order — **verified this doesn't affect the actual production build**. Two findings (removing `overflow-x-hidden` band-aids) deliberately left alone. See §3.
+- **Code quality (Phase 3): mostly fixed.** Lint tooling repaired (`next lint` → `eslint .`, plus the `.claude/worktrees` inflation fix) and now essentially clean (40 problems → 1, an intentional one); `package.json` deps fixed (zod/sharp declared, dedup'd, one genuinely-unused dep removed); the three duplicate auth-check helpers consolidated into one shared `requireRole()` and re-verified live against a production build; **9 more dead files deleted** across this and the earlier phases. **Deliberately not attempted:** adding Zod validation to every API route, unifying inconsistent response envelopes, and a 1046-occurrence hardcoded-hex-color sweep — each is a substantial, behavior-adjacent project in its own right, not a quick code-quality fix. See §4.
+- **Quick wins still open:** delete a 213MB unreferenced duplicate asset folder (Phase 6), and there's 1.86GB of old `.claude/worktrees/` session data from June 17 sitting on disk that's not git-tracked but hasn't been touched — your call on whether to clear it.
+- **`tsc --noEmit` is clean (0 errors)** throughout every phase.
 
 ---
 
@@ -172,50 +173,49 @@ Removing the `overflow-x-hidden` band-aids without being able to reliably test e
 
 ---
 
-## 4. Phase 3 — Code Quality & Architecture
+## 4. Phase 3 — Code Quality & Architecture (FIXED, partial — see deferred items)
 
-### Tooling health
-- **`npx tsc --noEmit`: 0 errors.** Clean.
-- **`next lint` (the `package.json` `"lint"` script) is broken** — errors outright on Next 16 ("Invalid project directory"). `npx eslint .` also failed initially because `@typescript-eslint/parser`/`@typescript-eslint/eslint-plugin` are declared in `package.json` but weren't actually installed in `node_modules`. After `npm install`, scoped `npx eslint src` (unscoped `.` was inflated ~3x by 4 stale `.claude/worktrees/agent-*` copies of `src/`, ~1.86GB, left over from earlier agent sessions — not git-tracked, but skews any repo-wide tool run) gives the real picture: **40 problems, 0 errors, 40 warnings** — 25 `@typescript-eslint/no-unused-vars`, 15 `no-console` (mostly in `api/**/route.ts` handlers).
-- `package.json` has **duplicate `devDependencies` keys**: `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` each listed twice (lines 56-57 and 66-67).
+### Tooling health — fixed
+- **`npx tsc --noEmit`: 0 errors.** Clean throughout.
+- **`npm run lint` now works and is effectively clean.** Fixed in order: (1) `"lint"` script changed from `next lint` (broken on Next 16) to `eslint .`; (2) added `.claude/**` to `eslint.config.mjs` ignores — the 4 stale `.claude/worktrees/agent-*` copies (~1.86GB) were inflating every repo-wide lint run ~3x; (3) tuned `no-console` to `['warn', { allow: ['warn', 'error'] }]` since all 14 flagged console calls turned out to be legitimate — 13 `console.error` in API route handlers (proper server-side error logging) and one intentional `console.log` dev-mode fallback in `src/auth/index.ts` (logs the reset-password email to console when `RESEND_API_KEY` isn't set, instead of failing). **Result: 40 problems → 1** (that one intentional console.log, left as a warning on purpose).
 
-| # | Finding | Severity |
-|---|---|---|
-| Q01 | `"lint"` script (`next lint`) doesn't run on Next 16 — CI/local lint is effectively disabled | High |
-| Q02 | `@typescript-eslint/parser`/`-plugin` in `package.json` but missing from `node_modules` as checked out — lint tooling non-functional until `npm install` | High |
-| Q03 | `zod` used in 6 files (`src/ai/schemas/*`, `src/ai/agents/*`) but never declared in `package.json` — only resolves as a phantom/hoisted transitive dep; a lockfile change upstream could break the build | High |
-| Q04 | `sharp` used in 3 build scripts (`scripts/{process,extract}-icons.mjs`, `extract-ico.mjs`) but undeclared | Medium |
-| Q05 | `package.json` duplicate `devDependencies` keys for `@typescript-eslint/*` | Low |
-| Q06 | `depcheck`: unused deps `@google/generative-ai`, `@tailwindcss/postcss`, `shadcn`, `tw-animate-css` (verify before removing — some may be CLI-only tools) | Low |
+| # | Finding | Severity | Status |
+|---|---|---|---|
+| Q01 | `"lint"` script (`next lint`) doesn't run on Next 16 | High | ✅ Fixed — changed to `eslint .` |
+| Q02 | `@typescript-eslint/parser`/`-plugin` missing from `node_modules` as checked out | High | ✅ Fixed — `npm install` synced it |
+| Q03 | `zod` used but never declared in `package.json` | High | ✅ Fixed — added to `dependencies` at the actually-installed version (`^3.25.76`) |
+| Q04 | `sharp` used in build scripts but undeclared | Medium | ✅ Fixed — added to `devDependencies` (`^0.34.5`; build-script-only, not runtime) |
+| Q05 | `package.json` duplicate `devDependencies` keys for `@typescript-eslint/*` | Low | ✅ Fixed — removed the duplicate pair |
+| Q06 | `depcheck`: unused deps `@google/generative-ai`, `@tailwindcss/postcss`, `shadcn`, `tw-animate-css` | Low | Verified individually: `@tailwindcss/postcss` (used in `postcss.config.mjs`), `shadcn` (CLI-only, `components.json` confirms active use), `tw-animate-css` (imported in `globals.css:2`) are all false positives, kept. **`@google/generative-ai` confirmed genuinely unused** (superseded by `@ai-sdk/google`) — ✅ removed |
 
-### Dead/duplicate code
-| # | Finding | Severity |
-|---|---|---|
-| Q07 | ~~`src/components/ui/CommandPalette.tsx` — imported in `layout.tsx:8` but never rendered anywhere~~ **Correction (found during Phase 1):** the component is rendered, in `NavbarMain.tsx:80`. Only `layout.tsx`'s separate, redundant import is actually dead — remove that one import line only | Medium → Low |
-| Q08 | `src/components/ui/NewsletterSignup.tsx` — defined/exported but imported nowhere | Medium |
-| Q09 | `src/app/admin/AdminDashboard.tsx:23,30` — same `AnalyticsTab` component imported twice under two names (`AnalyticsTab` and unused `AnalyticsTabNew`) | Low |
-| Q10 | `src/domains/profile/components/heroSection/HeroText.tsx` — dead, see DATA-06 in §2 | Medium |
-| Q11 | `src/domains/profile/components/navbar/NavbarToggler.tsx` — dead, see L15 in §3 | Low |
-| Q12 | `HeroPic.tsx`, `HeroImage.tsx`, `AboutMeImage.tsx`, `SkillsCircle.tsx`, `SubSkills.tsx` — dead, see P07 in §5 | Low |
+### Dead/duplicate code — fixed
+| # | Finding | Severity | Status |
+|---|---|---|---|
+| Q07 | ~~`CommandPalette.tsx` never rendered~~ **Correction:** it's rendered in `NavbarMain.tsx:80` — only `layout.tsx`'s separate import was dead | Medium → Low | ✅ Fixed — removed the one dead import line from `layout.tsx` |
+| Q08 | `NewsletterSignup.tsx` — imported nowhere | Medium | ✅ Deleted |
+| Q09 | `AdminDashboard.tsx` — `AnalyticsTab` imported twice under two names | Low | ✅ Fixed — removed the dead `AnalyticsTabNew` alias |
+| Q10 | `HeroText.tsx` — dead | Medium | ✅ Deleted (during Phase 2) |
+| Q11 | `NavbarToggler.tsx` — dead | Low | ✅ Deleted (during Phase 1) |
+| Q12 | `HeroPic.tsx`, `HeroImage.tsx`, `AboutMeImage.tsx`, `SkillsCircle.tsx`, `SubSkills.tsx` | Low | ✅ Deleted (all 5, confirmed only self-referenced) |
+| — | Also found during this pass: `SubHeroMain.tsx`, `ExperienceTop.tsx`+`ExperienceTopLeft.tsx` (flagged during Phase 1, not in original audit) | — | ✅ Deleted |
+| — | Two more unused-var warnings found beyond the original Q-list: `MonitoringDemo.tsx` (7× unused `c` params in `LOG_MESSAGES`), `ingestJobPostings.ts` (`upsertJob`, `companies` unused imports), plus scattered unused imports/vars in `AnalyticsTab.tsx`, `DashboardHome.tsx`, `career-progress/page.tsx`, `ScrollProgress.tsx`, `analytics.service.ts` | — | ✅ All fixed |
 
-### Duplicate logic (candidates for consolidation into `src/lib/`)
-- **Three near-identical auth-check helpers** — `src/lib/adminAuth.ts` `requireAdmin()`, `src/lib/accountAuth.ts` `requireUser()`, `src/lib/recruiterAuth.ts` `requireRecruiter()` — all call `auth.api.getSession()`, do an identical role cast, and return the same `{ session, error }` shape. Collapsible into one `requireRole(req, allowedRoles?)`.
-- **Inline date formatting repeated ad hoc across 15 files** (e.g. `SubscribersTab.tsx:33`, `CommentsTab.tsx:49`, `MessagesTab.tsx:43` all call `new Date(x).toLocaleDateString()`/`.toLocaleString()` independently) — no shared formatter, no guaranteed locale/timezone consistency.
-- **Image upload is already well-consolidated** (positive finding) — `ImageUploader.tsx` → single `upload-image` endpoint, reused across admin tabs. No action needed.
+### Duplicate logic — fixed (auth helpers), partially fixed (date formatting)
+- **Three near-identical auth-check helpers, consolidated.** `requireAdmin`/`requireUser`/`requireRecruiter` (in `adminAuth.ts`/`accountAuth.ts`/`recruiterAuth.ts`) now each delegate to a single shared `requireRole(req, allowedRoles?)` in the new `src/lib/requireRole.ts`. **The three original function names/signatures are unchanged**, so zero call sites needed to change — purely an internal DRY-up. Verified against a production build with real HTTP requests: unauthenticated requests to admin/account routes still 401, a real admin session still gets 200 from an admin route, and the SEC-01 role-injection fix still holds (re-tested, not just assumed).
+- **Inline date formatting — smaller finding than originally described, fixed the real part of it.** On closer inspection, most of the "15 files" doing `new Date(x).toLocaleX()` use *deliberately different* formats for different contexts (blog dates in `en-US` long form, resume version dates in `en-GB` short form, a live clock ticker in `MonitoringDemo.tsx`, an ISO-ish `en-CA` date for a table) — those aren't duplicate logic, just the same built-in API used with different, intentional options. Only `MessagesTab.tsx` and `CommentsTab.tsx` were byte-for-byte identical (`new Date(x).toLocaleString()`, no options) — genuine duplication. **Fixed:** added `src/lib/formatDate.ts` (`formatTimestamp()`) and switched both call sites to it. Left the other ~10 files alone since unifying their formats would be a visible design change, not a code-quality fix.
+- **Image upload is already well-consolidated** (positive finding, no action needed) — `ImageUploader.tsx` → single `upload-image` endpoint, reused across admin tabs.
 
-### Client/server boundaries
-93 files start with `"use client"`. Spot-check found no blatant misuse, but a consistent architectural pattern: Framer Motion is used for purely decorative entrance animations on otherwise-static content (e.g. `CertificateText.tsx` — a static `<h2>Certificates</h2>` dragged into the client bundle just for a fade-in), pulling many subtrees client-side that could be server components if entrance animation moved to CSS. Not a bug, but a real bundle-size lever — ties into P04/P05 in §5.
+### Client/server boundaries — informational, not fixed
+93 files start with `"use client"`. Spot-check found no blatant misuse, but a consistent architectural pattern: Framer Motion is used for purely decorative entrance animations on otherwise-static content (e.g. `CertificateText.tsx` — a static `<h2>Certificates</h2>` dragged into the client bundle just for a fade-in), pulling many subtrees client-side that could be server components if entrance animation moved to CSS. Not a bug — a bundle-size lever, and a bigger project than "code quality fixes" (would mean touching Framer Motion usage across dozens of components). Not attempted in this pass.
 
-### API route hygiene
-| # | Finding | Severity |
-|---|---|---|
-| Q13 | **Zero Zod/schema validation anywhere under `src/app/api/**`** (confirmed via grep) — every route does `req.json()` straight into a Drizzle insert/update. `zod` is already a (phantom) dependency used in `src/ai/schemas/`, so this is a real gap, not a tooling absence | High |
-| Q14 | Inconsistent success-response envelope — some routes return `{ data: ... }`, others return the raw payload directly; no consumer-facing contract | Medium |
-| — | Auth gating and error-response shape (`{ error: string }` + status code) are consistently applied — **pass** | — |
-| — | `upload-image/route.ts` is the most defensive route in the sample (MIME allowlist, size cap, path-traversal sanitization) — good template for the others | — |
+### API route hygiene — deferred, not attempted
+| # | Finding | Severity | Why deferred |
+|---|---|---|---|
+| Q13 | Zero Zod/schema validation anywhere under `src/app/api/**` | High | This is a real gap, but adding validation to every route (dozens of files) is a substantial, behavior-adjacent undertaking — done carelessly it risks rejecting previously-accepted payloads or missing edge cases. Worth a dedicated pass with its own review, not bundled into a general code-quality sweep. |
+| Q14 | Inconsistent success-response envelope (`{ data: ... }` vs raw payload) | Medium | Changing response shapes is a breaking change for anything consuming these routes (the frontend fetches). Needs a coordinated update across every caller, which is realistically its own project. |
 
-### Hardcoded design tokens
-**Q15 — 1046 raw hex-color occurrences across 59 `.tsx` files**, despite the codebase standardizing on a Tailwind theme. Heaviest: `ResumeStudio.tsx` (129), `CertificationsTab.tsx` (56), `KTDocumentsTab.tsx` (55), `MockInterview.tsx` (39), `BlueprintTemplate.tsx` (25). Even the shared `ImageUploader.tsx` inlines hex via `style={{ backgroundColor: ... }}`. **Severity: Medium** (cosmetic/maintainability, not a bug, but large enough to be worth a token-consolidation pass rather than one-off fixes).
+### Hardcoded design tokens — deferred, not attempted
+**Q15 — 1046 raw hex-color occurrences across 59 `.tsx` files.** Heaviest: `ResumeStudio.tsx` (129), `CertificationsTab.tsx` (56), `KTDocumentsTab.tsx` (55), `MockInterview.tsx` (39), `BlueprintTemplate.tsx` (25). Real finding, but far too large to fix safely in this pass — 1046 occurrences across 59 files is its own dedicated design-token-consolidation project, and mechanically swapping hex values for theme tokens without visually verifying each one risks subtle color regressions across the whole site. Flagging for a future focused pass rather than attempting a rushed sweep.
 
 ## 5. Phase 4 — Performance, SEO, Accessibility
 
@@ -299,23 +299,23 @@ The domain-driven restructure described in `Implementation_plan.md` §3/§7 has 
 ### Safe deletions (zero references confirmed via repo-wide grep)
 | Item | Size/Detail | Status |
 |---|---|---|
-| `public/Resource Images/Documents/` | **213MB**, byte-for-byte duplicate of `public/resources/docs` (same filenames/sizes); nothing in `src/` references `Resource Images` at all — highest-leverage single cleanup in this whole audit | Pending |
-| `src/domains/profile/components/heroSection/HeroText.tsx` | Dead, hardcoded, superseded by `HeroMain.tsx` (DATA-06) | ✅ Deleted (during Phase 2) |
-| `src/domains/profile/components/navbar/NavbarToggler.tsx` | Dead, superseded by `NavbarMain.tsx`'s inline toggle (L15) | ✅ Deleted (during Phase 1) |
-| `src/domains/profile/components/subHeroSection/SubHeroMain.tsx` | Dead — never imported anywhere (found during Phase 1, not in the original Phase 3 audit) | Pending |
-| `src/domains/profile/components/experienceSection/ExperienceTop.tsx` + `ExperienceTopLeft.tsx` | Dead pair — `ExperienceTop` (which imports `ExperienceTopLeft`) is never imported by the live app (found during Phase 1, not in the original Phase 3 audit) | Pending |
-| `layout.tsx:8`'s `CommandPalette` import (not the component itself) | Correction to Q07: the component is **not** dead — it's actually rendered in `NavbarMain.tsx:80`. Only `layout.tsx`'s separate, redundant import of it is unused; remove that one import line, don't delete the component | Pending |
-| `src/components/ui/NewsletterSignup.tsx` | Imported nowhere (Q08) | Pending |
-| `HeroPic.tsx`, `HeroImage.tsx`, `AboutMeImage.tsx`, `SkillsCircle.tsx`, `SubSkills.tsx` | Dead, unoptimized `<img>` (Q12/P07) | Pending |
-| `AdminDashboard.tsx` duplicate `AnalyticsTabNew` import | Dead alias (Q09) | Pending |
-| `.claude/worktrees/agent-*` (4 dirs, ~1.86GB) | Not git-tracked, but local disk hygiene — leftover from prior agent sessions, worth clearing manually outside of git | Pending |
+| `public/Resource Images/Documents/` | **213MB**, byte-for-byte duplicate of `public/resources/docs` (same filenames/sizes); nothing in `src/` references `Resource Images` at all — highest-leverage single cleanup in this whole audit, still the biggest open item | Pending |
+| `src/domains/profile/components/heroSection/HeroText.tsx` | Dead, hardcoded, superseded by `HeroMain.tsx` (DATA-06) | ✅ Deleted (Phase 2) |
+| `src/domains/profile/components/navbar/NavbarToggler.tsx` | Dead, superseded by `NavbarMain.tsx`'s inline toggle (L15) | ✅ Deleted (Phase 1) |
+| `src/domains/profile/components/subHeroSection/SubHeroMain.tsx` | Dead — never imported anywhere (found during Phase 1) | ✅ Deleted (Phase 3) |
+| `src/domains/profile/components/experienceSection/ExperienceTop.tsx` + `ExperienceTopLeft.tsx` | Dead pair (found during Phase 1) | ✅ Deleted (Phase 3) |
+| `layout.tsx:8`'s `CommandPalette` import (not the component itself) | Correction to Q07 — only the import line was dead, not the component | ✅ Fixed (Phase 3) |
+| `src/components/ui/NewsletterSignup.tsx` | Imported nowhere (Q08) | ✅ Deleted (Phase 3) |
+| `HeroPic.tsx`, `HeroImage.tsx`, `AboutMeImage.tsx`, `SkillsCircle.tsx`, `SubSkills.tsx` | Dead, unoptimized `<img>` (Q12/P07) | ✅ Deleted, all 5 (Phase 3) |
+| `AdminDashboard.tsx` duplicate `AnalyticsTabNew` import | Dead alias (Q09) | ✅ Fixed (Phase 3) |
+| `.claude/worktrees/agent-*` (4 dirs, ~1.86GB) | Not git-tracked, but local disk hygiene — leftover from prior agent sessions (June 17), predates this session. Left alone — deleting old session data without confirming you don't need it felt like the wrong call to make unilaterally | Pending, needs your OK |
 
 ### Config hygiene
-- Fix `package.json` duplicate `devDependencies` entries (Q05).
-- Add missing `zod` and `sharp` to `dependencies` (Q03/Q04) — currently phantom/hoisted, a supply-chain-adjacent risk if the transitive resolution ever changes.
-- Fix or replace the `"lint"` script — `next lint` doesn't run on Next 16 (Q01).
-- Remove or wire up the stale `ADMIN_SECRET` entry in `.env.example` (SEC-09).
-- Verify the 4 `depcheck`-flagged "unused" deps (`@google/generative-ai`, `@tailwindcss/postcss`, `shadcn`, `tw-animate-css`) before removing — `shadcn` in particular is likely a CLI-only dev tool, not dead code.
+- ~~Fix `package.json` duplicate `devDependencies` entries (Q05).~~ ✅ Fixed (Phase 3)
+- ~~Add missing `zod` and `sharp` to `dependencies` (Q03/Q04).~~ ✅ Fixed (Phase 3)
+- ~~Fix or replace the `"lint"` script (Q01).~~ ✅ Fixed (Phase 3)
+- ~~Remove or wire up the stale `ADMIN_SECRET` entry in `.env.example` (SEC-09).~~ ✅ Fixed (Phase 5)
+- ~~Verify the 4 `depcheck`-flagged "unused" deps.~~ ✅ Done (Phase 3) — 3 were false positives (kept), `@google/generative-ai` was genuinely unused (removed)
 
 ### Naming/structure — already consistent
 No `-old`/`-v2`/`copy`/`temp`/`.bak` files found anywhere (checked repo-wide). Domain folder structure already matches the target shape from `Implementation_plan.md` §3. **No large-scale file-moving restructure is warranted or recommended** — doing one now would be pure churn against an already-correct structure, contrary to the "nothing gets thrown away, everything gets organized" principle the project's own Implementation Plan states, and against your own instruction not to change functionality while restructuring.

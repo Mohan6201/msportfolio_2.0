@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { BarChart2, Eye, Bot, Download, TrendingUp, Loader2 } from "lucide-react";
+import { BarChart2, Eye, Bot, Download, TrendingUp } from "lucide-react";
 
 type TopPage  = { path: string; views: number };
 type AiRow    = { feature: string; calls: number; tokens: number };

@@ -9,6 +9,7 @@ const config = [
   {
     ignores: [
       '.next/**',
+      '.claude/**',
       'node_modules/**',
       'dist/**',
       'out/**',
@@ -48,7 +49,7 @@ const config = [
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
       'no-undef': 'off',
-      'no-console': 'warn',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       'react/display-name': 'warn',

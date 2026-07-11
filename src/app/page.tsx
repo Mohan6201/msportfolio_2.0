@@ -77,7 +77,7 @@ export default async function Home() {
       {show("careerCentre")   && <CareerCentreSection />}
       {show("githubStats")    && <GitHubStats />}
       {show("ktCentre")       && <KnowledgeBase />}
-      {show("contact")        && <ContactMeMain profile={profile} socialLinks={socialLinks} />}
+      {show("contact")        && <ContactMeMain profile={profile} />}
       <FooterMain profile={profile} />
     </main>
   );

@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, XCircle, Trash2, Loader2 } from "lucide-react";
+import { formatTimestamp } from "@/lib/formatDate";
 
 type Comment = { id: number; author: string; post_slug: string; body: string; approved: number | boolean; created_at: string };
 
@@ -46,7 +47,7 @@ export function CommentsTab() {
                 {c.approved ? <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan/10 text-cyan border border-cyan/20">Approved</span> : null}
               </div>
               <p className="text-lightGrey text-sm leading-relaxed">{c.body}</p>
-              <p className="text-grey text-xs mt-2">{new Date(c.created_at).toLocaleString()}</p>
+              <p className="text-grey text-xs mt-2">{formatTimestamp(c.created_at)}</p>
             </div>
             <div className="flex gap-2 flex-shrink-0">
               <button onClick={() => approve(c.id, !c.approved)}

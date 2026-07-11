@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Loader2 } from "lucide-react";
+import { formatTimestamp } from "@/lib/formatDate";
 
 type Contact = { id: number; name: string; email: string; message: string; read: number | boolean; created_at: string };
 
@@ -40,7 +41,7 @@ export function MessagesTab() {
               </div>
               <p className="text-cyan text-xs mb-3">{c.email}</p>
               <p className="text-lightGrey text-sm leading-relaxed">{c.message}</p>
-              <p className="text-grey text-xs mt-3">{new Date(c.created_at).toLocaleString()}</p>
+              <p className="text-grey text-xs mt-3">{formatTimestamp(c.created_at)}</p>
             </div>
             {!c.read && (
               <button onClick={() => markRead(c.id)}

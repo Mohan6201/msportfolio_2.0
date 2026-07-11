@@ -4,9 +4,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
-  FolderOpen, FileText, BookOpen, Mail, TrendingUp, TrendingDown,
-  FolderPlus, Upload, MessageSquare, User, Eye,
-  Edit3, Phone, UploadCloud, Award, Loader2, Activity,
+  FolderOpen, BookOpen, Mail, TrendingUp, TrendingDown,
+  FolderPlus, MessageSquare, User, Eye,
+  UploadCloud, Award, Activity,
 } from "lucide-react";
 
 interface DashboardData {

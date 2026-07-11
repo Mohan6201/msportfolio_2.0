@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText, Trash2, Database, HardDrive, X, AlertTriangle,
-  ExternalLink, Upload, Loader2, CheckCircle2, XCircle, Plus,
+  ExternalLink, Upload, Loader2, CheckCircle2, XCircle,
 } from "lucide-react";
 
 type KTDoc = {

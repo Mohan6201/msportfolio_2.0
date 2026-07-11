@@ -1,4 +1,4 @@
-import { desc, sql, eq, count } from "drizzle-orm";
+import { desc, sql, count } from "drizzle-orm";
 import { db } from "@/db/client";
 import { pageViews, aiUsageLogs, resumeDownloads } from "@/db/schema/analytics";
 

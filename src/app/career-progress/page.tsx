@@ -20,7 +20,7 @@ export default async function CareerProgressPage() {
   const [data, achievements] = await Promise.all([getAllProfileData(), getAchievements()]);
   if (!data) redirect("/");
 
-  const { profile, experiences, skills, certifications, projects } = data;
+  const { experiences, skills, certifications, projects } = data;
 
   // ── Projects per year ──────────────────────────────────────────────────────
   const projectsByYear = projects.reduce<Record<string, number>>((acc, p) => {
@@ -99,7 +99,7 @@ export default async function CareerProgressPage() {
             {/* Vertical line */}
             <div className="absolute left-2 top-0 bottom-0 w-px bg-white/10" />
             <div className="space-y-6">
-              {experiences.map((exp, i) => (
+              {experiences.map((exp) => (
                 <div key={exp.id} className="relative">
                   {/* Dot */}
                   <div className={`absolute -left-[1.35rem] top-1 w-3 h-3 rounded-full border-2 ${exp.isCurrent ? "border-cyan bg-cyan/30" : "border-white/30 bg-darkBrown"}`} />

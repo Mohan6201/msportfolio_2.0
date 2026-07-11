@@ -59,7 +59,7 @@ const OPTIMIZE_BULLETS = [
 
 export default function ResumeStudio() {
   // Resume state
-  const [resumes,        setResumes]        = useState<Resume[]>([]);
+  const [,               setResumes]        = useState<Resume[]>([]);
   const [selected,       setSelected]       = useState<Resume | null>(null);
   const [currentVersion, setCurrentVersion] = useState<ResumeVersion | null>(null);
   const [resumeData,     setResumeData]     = useState<ResumeData | null>(null);

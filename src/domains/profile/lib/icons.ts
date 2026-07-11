@@ -1,7 +1,6 @@
 import type { ComponentType } from "react";
-import { FaAws, FaDocker, FaJenkins, FaReact, FaLinkedinIn, FaInstagram, FaPython, FaFire, FaWindows } from "react-icons/fa";
-import { SiGithubactions, SiKubernetes, SiLinux, SiTerraform, SiGrafana, SiPrometheus, SiHelm, SiVault, SiAnsible, SiDjango, SiGnubash, SiNextdotjs, SiNginx } from "react-icons/si";
-import { GiArtificialIntelligence } from "react-icons/gi";
+import { FaAws, FaDocker, FaJenkins, FaReact, FaLinkedinIn, FaInstagram, FaPython, FaWindows } from "react-icons/fa";
+import { SiGithubactions, SiLinux, SiTerraform, SiGrafana, SiPrometheus, SiAnsible, SiDjango, SiGnubash, SiNginx } from "react-icons/si";
 import { HiOutlineMail } from "react-icons/hi";
 import { FiPhone, FiGithub } from "react-icons/fi";
 import { IoLocationOutline } from "react-icons/io5";
@@ -9,11 +8,10 @@ import { IoLocationOutline } from "react-icons/io5";
 type IconComponent = ComponentType<{ className?: string }>;
 
 export const SKILL_ICONS: Record<string, IconComponent> = {
-  FaAws, FaDocker, FaJenkins, FaReact, FaPython, FaFire, FaWindows,
-  SiGithubactions, SiKubernetes, SiLinux, SiTerraform,
-  SiGrafana, SiPrometheus, SiHelm, SiVault, SiAnsible, SiDjango,
-  SiGnubash, SiNextdotjs, SiNginx,
-  GiArtificialIntelligence,
+  FaAws, FaDocker, FaJenkins, FaReact, FaPython, FaWindows,
+  SiGithubactions, SiLinux, SiTerraform,
+  SiGrafana, SiPrometheus, SiAnsible, SiDjango,
+  SiGnubash, SiNginx,
 };
 
 export const SOCIAL_ICONS: Record<string, IconComponent> = {

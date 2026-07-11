@@ -6,10 +6,10 @@ type Skill = { id: number; name: string; category: string; level: number; iconKe
 type SkillDraft = Omit<Skill, "id">;
 
 const ICON_KEYS = [
-  "FaAws","FaDocker","FaJenkins","FaReact","FaPython","FaFire",
-  "SiGithubactions","SiKubernetes","SiLinux","SiTerraform",
-  "SiGrafana","SiPrometheus","SiHelm","SiVault","SiAnsible","SiDjango",
-  "GiArtificialIntelligence",
+  "FaAws","FaDocker","FaJenkins","FaReact","FaPython","FaWindows",
+  "SiGithubactions","SiLinux","SiTerraform",
+  "SiGrafana","SiPrometheus","SiAnsible","SiDjango",
+  "SiGnubash","SiNginx",
 ];
 const CATEGORIES = ["cloud","devops","backend","monitoring"];
 const BLANK: SkillDraft = { name: "", category: "devops", level: 80, iconKey: "FaAws", sortOrder: 0 };

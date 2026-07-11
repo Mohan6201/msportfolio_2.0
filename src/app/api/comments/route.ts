@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getApprovedComments, insertComment } from "@/db/queries";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 export async function GET(req: NextRequest) {
   const slug = req.nextUrl.searchParams.get("slug");
@@ -10,6 +11,15 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
+  const rl = rateLimit(`comment:${ip}`, 5, 15 * 60_000); // 5 comments per 15 min
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many comments. Please wait before trying again." },
+      { status: 429, headers: { "Retry-After": "900" } }
+    );
+  }
+
   try {
     const { slug, author, email, body } = await req.json();
 

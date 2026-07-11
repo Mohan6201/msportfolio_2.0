@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { embedText, serializeEmbedding } from "@/ai/agents/embedText";
 import { libsqlClient } from "@/db/client";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q")?.trim();
   if (!q) return NextResponse.json({ results: [] });
+
+  const ip = getClientIp(req);
+  const rl = rateLimit(`kt-search:${ip}`, 20, 60_000); // 20 searches/min — each triggers a paid embedding call
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many search requests. Please slow down." },
+      { status: 429, headers: { "Retry-After": "60" } }
+    );
+  }
 
   try {
     const embedding = await embedText(q);

@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { libsqlClient } from "@/db/client";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
+  const rl = rateLimit(`recruiter-signup:${ip}`, 5, 15 * 60_000); // 5 signups per 15 min
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many signup attempts. Please wait before trying again." },
+      { status: 429, headers: { "Retry-After": "900" } }
+    );
+  }
+
   const body = await req.json() as {
     name?: string; email?: string; company?: string; password?: string;
   };

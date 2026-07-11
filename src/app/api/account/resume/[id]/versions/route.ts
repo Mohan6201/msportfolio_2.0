@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/accountAuth";
 import {
   getResume,
+  getVersion,
   listVersions,
   createResumeVersion,
   updateVersionData,
@@ -45,6 +46,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!resume) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const { versionId, structuredData } = await req.json();
+  const version = await getVersion(versionId);
+  if (!version || version.resumeId !== resume.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
   await updateVersionData(versionId, JSON.stringify(structuredData));
   return NextResponse.json({ ok: true });
 }

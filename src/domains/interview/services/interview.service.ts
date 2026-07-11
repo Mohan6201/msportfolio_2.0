@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { db } from "@/db/client";
 import { interviewQuestions, mockInterviews } from "@/db/schema/interview";
 
@@ -35,7 +35,7 @@ export async function updateInterview(
   await db
     .update(mockInterviews)
     .set(data)
-    .where(eq(mockInterviews.id, id));
+    .where(and(eq(mockInterviews.id, id), eq(mockInterviews.userId, userId)));
 }
 
 export async function listInterviews(userId: string) {

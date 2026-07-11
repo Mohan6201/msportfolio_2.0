@@ -1,68 +1,41 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
-import { Download, ExternalLink, FileText, Loader2, Minimize2, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
+import { Download, ExternalLink, FileText, Loader2, Minimize2 } from "lucide-react";
 import { usePDFViewer } from "@/components/ui/PDFViewer";
 
 interface ResumePreviewProps {
   pdfUrl: string;
 }
 
-const PREVIEW_PAGES = [
-  { src: "/resume/preview-1.png", label: "Page 1 — Profile & Experience" },
-  { src: "/resume/preview-2.png", label: "Page 2 — Skills & Projects" },
-];
-
 function MobilePreview({ pdfUrl }: { pdfUrl: string }) {
-  const [page, setPage] = useState(0);
-  const { openPDF } = usePDFViewer();
-
   return (
-    <div className="flex flex-col gap-3">
-      <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#1a1a1a] shadow-xl">
-        <div className="relative w-full" style={{ aspectRatio: "1 / 1.414" }}>
-          <Image
-            src={PREVIEW_PAGES[page].src}
-            alt={PREVIEW_PAGES[page].label}
-            fill
-            className="object-contain"
-            priority
-          />
-        </div>
-
-        {/* Page overlay controls */}
-        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-4 py-3 bg-gradient-to-t from-black/80 to-transparent">
-          <button
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-            disabled={page === 0}
-            className="w-8 h-8 rounded-lg bg-black/60 border border-white/10 flex items-center justify-center text-white disabled:opacity-30 hover:border-cyan/40 transition-all"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <span className="text-xs font-mono text-white/70">
-            {page + 1} / {PREVIEW_PAGES.length}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(PREVIEW_PAGES.length - 1, p + 1))}
-            disabled={page === PREVIEW_PAGES.length - 1}
-            className="w-8 h-8 rounded-lg bg-black/60 border border-white/10 flex items-center justify-center text-white disabled:opacity-30 hover:border-cyan/40 transition-all"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Expand button */}
-        <button
-          onClick={() => openPDF(pdfUrl, "Mohana Srinivasan — Resume")}
-          className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-black/60 border border-white/10 flex items-center justify-center text-white hover:border-cyan/40 transition-all"
-        >
-          <Maximize2 className="w-3.5 h-3.5" />
-        </button>
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-[#1a1a1a] px-6 py-10 text-center shadow-xl">
+      <div className="w-14 h-14 rounded-2xl bg-cyan/10 border border-cyan/20 flex items-center justify-center">
+        <FileText className="w-7 h-7 text-cyan" />
       </div>
-
-      <p className="text-center text-[11px] font-mono text-lightGrey/40">
-        {PREVIEW_PAGES[page].label}
-      </p>
+      <div>
+        <p className="text-sm font-mono text-white font-medium">Mohana_Srinivasan_Resume.pdf</p>
+        <p className="text-xs font-mono text-lightGrey/50 mt-1">Tap below to view — opens in your device's own PDF viewer</p>
+      </div>
+      <div className="flex items-center gap-3 mt-1">
+        <a
+          href={pdfUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-cyan text-black text-sm font-mono font-bold hover:bg-lightCyan transition-colors shadow-cyanShadow"
+        >
+          <ExternalLink className="w-4 h-4" />
+          View Resume
+        </a>
+        <a
+          href={pdfUrl}
+          download="Mohana_Srinivasan_Resume.pdf"
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-white/10 text-lightGrey text-sm font-mono hover:border-cyan/40 hover:text-cyan transition-all"
+        >
+          <Download className="w-4 h-4" />
+          Download
+        </a>
+      </div>
     </div>
   );
 }
@@ -196,8 +169,9 @@ export default function ResumePreview({ pdfUrl }: ResumePreviewProps) {
         <DesktopPreview pdfUrl={pdfUrl} />
       </div>
 
-      {/* Bottom fallback */}
-      <p className="text-center text-xs font-mono text-lightGrey/40 mt-4">
+      {/* Bottom fallback — desktop only; mobile already has direct View/Download buttons above,
+          and the PiP iframe viewer doesn't render PDFs reliably on mobile browsers */}
+      <p className="hidden md:block text-center text-xs font-mono text-lightGrey/40 mt-4">
         PDF not rendering?{" "}
         <button
           onClick={() => openPDF(pdfUrl, "Mohana Srinivasan — Resume")}

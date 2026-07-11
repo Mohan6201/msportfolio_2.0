@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
+import ThemeProvider from "@/providers/ThemeProvider";
 import ChatWidget from "@/domains/profile/components/chat/ChatWidget";
 import ScrollProgress from "@/components/ui/ScrollProgress";
 import BackToTop from "@/components/ui/BackToTop";
@@ -94,16 +95,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="font-body text-white relative overflow-x-hidden bg-darkBrown">
-        <PDFViewerProvider>
-          <CursorGlow />
-          <ScrollProgress />
-          <PageTracker />
-          {children}
-          <BackToTop />
-          <ChatWidget />
-          <Analytics />
-          <SpeedInsights />
-        </PDFViewerProvider>
+        <ThemeProvider>
+          <PDFViewerProvider>
+            <CursorGlow />
+            <ScrollProgress />
+            <PageTracker />
+            {children}
+            <BackToTop />
+            <ChatWidget />
+            <Analytics />
+            <SpeedInsights />
+          </PDFViewerProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

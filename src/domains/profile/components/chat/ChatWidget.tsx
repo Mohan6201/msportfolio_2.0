@@ -120,7 +120,7 @@ export default function ChatWidget() {
             exit={{ opacity: 0, y: 24, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 320, damping: 28 }}
             className="fixed bottom-24 right-6 z-50 w-[360px] flex flex-col rounded-2xl overflow-hidden border border-lightBrown shadow-2xl"
-            style={{ maxHeight: "520px", backgroundColor: "#2c2523" }}
+            style={{ maxHeight: "520px", backgroundColor: "var(--color-black)" }}
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-lightBrown bg-brown">

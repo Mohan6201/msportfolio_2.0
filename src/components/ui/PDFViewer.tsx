@@ -68,7 +68,7 @@ function ViewerModal({ state, onClose, onTogglePip }: {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.85 }}
         style={{ position: "fixed", right: pipPos.x, bottom: pipPos.y, zIndex: 9999, width: 360, height: 480 }}
-        className="rounded-2xl overflow-hidden border border-cyan/20 shadow-2xl shadow-cyan/10 flex flex-col bg-[#0a0f1a]"
+        className="rounded-2xl overflow-hidden border border-cyan/20 shadow-2xl shadow-cyan/10 flex flex-col bg-black"
       >
         {/* PiP header — drag handle */}
         <div
@@ -84,14 +84,14 @@ function ViewerModal({ state, onClose, onTogglePip }: {
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="relative flex-1 bg-[#1a1a1a]">
+        <div className="relative flex-1 bg-black">
           {!loaded && !timedOut && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#0a0f1a] z-10">
+            <div className="absolute inset-0 flex items-center justify-center bg-black z-10">
               <Loader2 className="w-6 h-6 text-cyan animate-spin" />
             </div>
           )}
           {!loaded && timedOut && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#0a0f1a] z-10 px-4 text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black z-10 px-4 text-center">
               <AlertTriangle className="w-5 h-5 text-orange" />
               <p className="text-[11px] font-mono text-lightGrey/60">Preview blocked — try opening directly</p>
               <a href={state.url} target="_blank" rel="noopener noreferrer"
@@ -123,7 +123,7 @@ function ViewerModal({ state, onClose, onTogglePip }: {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 20 }}
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        className="fixed inset-4 sm:inset-8 md:inset-12 z-[9999] rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-cyan/10 flex flex-col bg-[#05080f]"
+        className="fixed inset-4 sm:inset-8 md:inset-12 z-[9999] rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-cyan/10 flex flex-col bg-black"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -157,15 +157,15 @@ function ViewerModal({ state, onClose, onTogglePip }: {
         </div>
 
         {/* PDF iframe */}
-        <div className="relative flex-1 bg-[#1a1a1a]">
+        <div className="relative flex-1 bg-black">
           {!loaded && !timedOut && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#05080f] z-10">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black z-10">
               <Loader2 className="w-8 h-8 text-cyan animate-spin" />
               <p className="text-xs font-mono text-lightGrey/50">Loading document...</p>
             </div>
           )}
           {!loaded && timedOut && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#05080f] z-10 px-6 text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black z-10 px-6 text-center">
               <AlertTriangle className="w-7 h-7 text-orange" />
               <div>
                 <p className="text-sm font-mono text-white font-medium">Preview is taking longer than expected</p>

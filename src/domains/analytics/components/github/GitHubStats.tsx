@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import { FiGithub, FiStar, FiGitBranch, FiExternalLink, FiUsers, FiBook } from "react-icons/fi";
 import ExpandDivider from "@/components/ui/ExpandDivider";
@@ -127,6 +128,8 @@ export default function GitHubStats() {
   const [snakeLoaded, setSnakeLoaded] = useState(false);
   const [snakeError, setSnakeError] = useState(false);
   const snakeImgRef = useRef<HTMLImageElement>(null);
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   // A cached/instant image load can fire the native `load` event before React attaches
   // the onLoad listener, leaving snakeLoaded stuck false even though the image rendered.
@@ -135,6 +138,18 @@ export default function GitHubStats() {
       setSnakeLoaded(true);
     }
   }, []);
+
+  // resolvedTheme is undefined until after mount — default to the dark variant so SSR/first
+  // paint stays deterministic, then swap once next-themes reports the real theme client-side.
+  useEffect(() => setMounted(true), []);
+  const isLight = mounted && resolvedTheme === "light";
+
+  // The dark and light snake SVGs are separately-rendered assets (different bg + cell colors),
+  // not the same image color-shifted — a CSS filter alone can't convert one into the other.
+  useEffect(() => {
+    setSnakeLoaded(false);
+    setSnakeError(false);
+  }, [isLight]);
 
   useEffect(() => {
     async function fetchData() {
@@ -332,13 +347,14 @@ export default function GitHubStats() {
               </div>
             ) : (
               <img
+                key={isLight ? "light" : "dark"}
                 ref={snakeImgRef}
-                src={`https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_USERNAME}/output/github-snake-dark.svg`}
+                src={`https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_USERNAME}/output/${isLight ? "github-snake" : "github-snake-dark"}.svg`}
                 alt={`${GITHUB_USERNAME}'s GitHub contribution snake — a snake animates across the contribution graph, growing longer as it eats each day's commit square`}
                 className="w-full min-w-[600px] rounded-lg transition-opacity duration-500"
                 style={{
                   opacity: snakeLoaded ? 0.95 : 0,
-                  filter: "hue-rotate(58deg) saturate(1.5) brightness(1.2) contrast(1.05)",
+                  filter: isLight ? "none" : "hue-rotate(58deg) saturate(1.5) brightness(1.2) contrast(1.05)",
                 }}
                 onLoad={() => setSnakeLoaded(true)}
                 onError={() => setSnakeError(true)}

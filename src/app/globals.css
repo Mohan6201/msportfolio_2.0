@@ -60,6 +60,94 @@
 }
 
 /* ═══════════════════════════════════════════════
+   LIGHT THEME — overrides the @theme color tokens above.
+   Everything built with these tokens (bg-darkBrown, text-white,
+   text-cyan, border-lightBrown, etc.) re-themes automatically since
+   Tailwind v4 utilities reference the custom property, not a literal
+   value. Only things that bypass the token system (raw rgba() in
+   .glass/.terminal/.neon-*, the separate shadcn oklch tokens) need an
+   explicit override below. Terminal blocks (.terminal*) are left dark
+   in both themes on purpose — a real terminal keeps its own palette
+   regardless of the OS/app theme around it. */
+html.light {
+  --color-darkBrown: #f4f6fb;
+  --color-black: #ffffff;
+  --color-brown: #eef1f7;
+  --color-lightBrown: #dbe1ec;
+  --color-darkGrey: #e2e7f0;
+  --color-grey: #64748b;
+  --color-lightGrey: #4b5768;
+  --color-white: #0b1220;
+
+  --color-cyan: #0092b8;
+  --color-lightCyan: #00b8dd;
+  --color-darkCyan: #007a95;
+  --color-green: #00a355;
+  --color-lightGreen: #00c46f;
+  --color-darkGreen: #008f4c;
+  --color-orange: #e2551f;
+  --color-lightOrange: #ff7a3d;
+  --color-darkOrange: #b33a00;
+  --color-purple: #9333ea;
+  --color-red: #dc2f3f;
+
+  color-scheme: light;
+}
+
+html.light .glass {
+  background: rgba(255,255,255,0.72);
+  border-color: rgba(15,23,42,0.08);
+}
+html.light .glass-hover:hover {
+  background: rgba(255,255,255,0.92);
+  border-color: rgba(0,146,184,0.25);
+  box-shadow: 0 8px 32px rgba(0,146,184,0.08), 0 0 0 1px rgba(0,146,184,0.1);
+}
+
+html.light .neon-cyan,
+html.light .neon-green,
+html.light .neon-orange {
+  text-shadow: none;
+}
+
+html.light ::selection {
+  background: rgba(0,146,184,0.18);
+}
+
+html.light ::-webkit-scrollbar-track { background: #eef1f7; }
+html.light ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+html.light ::-webkit-scrollbar-thumb:hover { background: var(--color-cyan); }
+
+html.light .grid-bg {
+  background-image:
+    linear-gradient(rgba(0,146,184,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,146,184,0.05) 1px, transparent 1px);
+}
+
+html.light {
+  --background: oklch(0.98 0.005 240);
+  --foreground: oklch(0.15 0.02 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.02 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.02 240);
+  --primary: oklch(0.55 0.15 200);
+  --primary-foreground: oklch(0.98 0.005 240);
+  --secondary: oklch(0.94 0.01 240);
+  --secondary-foreground: oklch(0.15 0.02 240);
+  --muted: oklch(0.94 0.01 240);
+  --muted-foreground: oklch(0.45 0.02 240);
+  --accent: oklch(0.94 0.01 240);
+  --accent-foreground: oklch(0.15 0.02 240);
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0 0 0 / 8%);
+  --input: oklch(0 0 0 / 10%);
+  --ring: oklch(0.55 0.15 200);
+}
+
+body { transition: background-color 0.25s ease, color 0.25s ease; }
+
+/* ═══════════════════════════════════════════════
    KEYFRAMES
 ═══════════════════════════════════════════════ */
 

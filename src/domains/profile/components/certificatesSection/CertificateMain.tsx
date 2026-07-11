@@ -51,7 +51,7 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
         className="glass glass-hover rounded-2xl p-5 border border-white/5 flex flex-col gap-4"
       >
         {/* Badge image */}
-        <div className="relative h-24 rounded-xl overflow-hidden border border-white/5" style={{ backgroundColor: "#0d0d14" }}>
+        <div className="relative h-24 rounded-xl overflow-hidden border border-white/5 bg-black">
           {src ? (
             <Image
               src={src}
@@ -116,8 +116,7 @@ function CertCard({ cert, index }: { cert: CertificationRow; index: number }) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.88, y: 24 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="relative max-w-2xl w-full rounded-2xl overflow-hidden border border-white/10"
-              style={{ backgroundColor: "#0d0d10" }}
+              className="relative max-w-2xl w-full rounded-2xl overflow-hidden border border-white/10 bg-black"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">

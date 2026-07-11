@@ -7,6 +7,7 @@ import { Link } from "react-scroll";
 import NextLink from "next/link";
 import { Menu, X } from "lucide-react";
 import CommandPalette from "@/components/ui/CommandPalette";
+import ThemeToggle from "@/domains/profile/components/navbar/ThemeToggle";
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 
 const NAV_LINKS = [
@@ -105,14 +106,19 @@ export default function NavbarMain() {
             )}
           </div>
 
-          {/* Mobile toggle */}
-          <button onClick={() => setMenuOpen((v) => !v)}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-menu"
-            className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-lightBrown/40 text-lightGrey hover:text-white hover:border-cyan/30 transition-all">
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          {/* Theme toggle — always visible, both mobile and desktop */}
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+
+            {/* Mobile toggle */}
+            <button onClick={() => setMenuOpen((v) => !v)}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
+              className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-lightBrown/40 text-lightGrey hover:text-white hover:border-cyan/30 transition-all">
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </div>
 

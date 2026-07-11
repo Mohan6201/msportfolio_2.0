@@ -9,7 +9,7 @@ interface ResumePreviewProps {
 
 function MobilePreview({ pdfUrl }: { pdfUrl: string }) {
   return (
-    <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-[#1a1a1a] px-6 py-10 text-center shadow-xl">
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-black px-6 py-10 text-center shadow-xl">
       <div className="w-14 h-14 rounded-2xl bg-cyan/10 border border-cyan/20 flex items-center justify-center">
         <FileText className="w-7 h-7 text-cyan" />
       </div>
@@ -85,18 +85,18 @@ function DesktopPreview({ pdfUrl }: { pdfUrl: string }) {
 
       {/* PDF iframe */}
       <div
-        className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-cyan/5 bg-[#1a1a1a]"
+        className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-cyan/5 bg-black"
         style={{ height: "900px" }}
       >
         {!loaded && !timedOut && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-[#1a1a1a]">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-black">
             <Loader2 className="w-7 h-7 text-cyan animate-spin" />
             <p className="text-xs font-mono text-lightGrey/60">Loading resume...</p>
           </div>
         )}
 
         {!loaded && timedOut && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-[#1a1a1a] px-6 text-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-black px-6 text-center">
             <AlertTriangle className="w-7 h-7 text-orange" />
             <div>
               <p className="text-sm font-mono text-white font-medium">Preview is taking longer than expected</p>

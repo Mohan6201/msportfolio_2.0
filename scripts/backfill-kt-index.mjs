@@ -44,6 +44,27 @@ console.log(`${docs.rows.length} total documents, ${indexedIds.size} already ind
 
 const MAX_INLINE_FILE_BYTES = 15 * 1024 * 1024;
 
+// Fetching a document's bytes from the site's own static file server hits the same
+// undici/IPv6-resolution flakiness as the Turso connection does on this network (seen
+// repeatedly this session — a bare TypeError: fetch failed that succeeds on a bare
+// retry). Retry a few times with backoff before giving up, instead of a single
+// transient blip permanently skipping a perfectly fine document until the next run.
+async function fetchDocBytes(url) {
+  const MAX_ATTEMPTS = 3;
+  let lastErr;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`fetch ${res.status}`);
+      return await res.arrayBuffer();
+    } catch (e) {
+      lastErr = e;
+      if (attempt < MAX_ATTEMPTS) await new Promise((r) => setTimeout(r, attempt * 3000));
+    }
+  }
+  throw lastErr;
+}
+
 let succeeded = 0;
 let skippedNoBytes = 0;
 let skippedTooLarge = 0;
@@ -59,11 +80,9 @@ for (const doc of todo) {
     bytes = doc.file_data instanceof ArrayBuffer ? doc.file_data : doc.file_data.buffer.slice(doc.file_data.byteOffset, doc.file_data.byteOffset + doc.file_data.byteLength);
   } else if (doc.storage_url) {
     try {
-      const res = await fetch(doc.storage_url);
-      if (!res.ok) throw new Error(`fetch ${res.status}`);
-      bytes = await res.arrayBuffer();
+      bytes = await fetchDocBytes(doc.storage_url);
     } catch (e) {
-      console.log(`⏭  ${label} — could not fetch storage_url: ${e.message}`);
+      console.log(`⏭  ${label} — could not fetch storage_url after retries: ${e.message}`);
       skippedNoBytes++;
       continue;
     }

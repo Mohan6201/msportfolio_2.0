@@ -11,6 +11,24 @@ export const maxDuration = 60;
 
 const BATCH_SIZE = 5;
 
+// Mirrors the retry added to scripts/backfill-kt-index.mjs after seeing the same
+// TypeError: fetch failed / connect-timeout flakiness there — a bare fetch failure
+// shouldn't permanently skip a document that's actually fine. Kept short (2 attempts,
+// 1.5s backoff) since maxDuration is only 60s and there's still AI work to do per doc.
+async function fetchDocBytes(url: string): Promise<ArrayBuffer | null> {
+  const MAX_ATTEMPTS = 2;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return await res.arrayBuffer();
+      return null; // real HTTP error, not a transient network failure — don't retry
+    } catch {
+      if (attempt < MAX_ATTEMPTS) await new Promise((r) => setTimeout(r, 1500));
+    }
+  }
+  return null;
+}
+
 export async function GET(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization");
@@ -43,12 +61,7 @@ export async function GET(req: NextRequest) {
     if (hasRealFileData) {
       bytes = fileData;
     } else if (doc.storage_url) {
-      try {
-        const res = await fetch(doc.storage_url as string);
-        if (res.ok) bytes = await res.arrayBuffer();
-      } catch {
-        // fall through to skip below
-      }
+      bytes = await fetchDocBytes(doc.storage_url as string);
     }
 
     if (!bytes) {

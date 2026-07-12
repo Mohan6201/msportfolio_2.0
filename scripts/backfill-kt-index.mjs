@@ -6,13 +6,21 @@
 // so as of this script, zero documents on either DB have ever been successfully
 // indexed, despite AI Search existing in the UI since early in the project.
 //
-// Sequential by design (not Promise.all) to respect the free-tier RPM limit — each
-// document costs 1 generateText (extraction) + N embed calls (one per ~400-char chunk).
+// Sequential by design (not Promise.all) to respect the free-tier request quota — each
+// document costs 1 generateText (extraction) + 1-2 batched embedMany calls (indexing
+// now batches embeddings instead of one call per chunk; see indexKnowledgeDocument.ts).
 // Stops cleanly and reports progress-so-far on a real rate-limit/quota error instead of
 // looping into more failures; safe to re-run afterward (already-indexed docs are skipped).
 //
+// This calls indexKnowledgeDocument(), which routes through GOOGLE_GENERATIVE_AI_API_KEY_
+// BACKGROUND if it's set (see src/ai/providers/gateway.ts) — pass it alongside DATABASE_URL/
+// TURSO_AUTH_TOKEN below so a manual run of this script also uses the isolated quota
+// pool rather than the primary key real-time features depend on. The daily cron
+// (/api/cron/index-kt-documents) covers ongoing catch-up automatically; this script is
+// for a manual push (e.g. right after adding a bunch of new documents at once).
+//
 // Local (default):  node scripts/backfill-kt-index.mjs
-// Production:        DATABASE_URL=libsql://... TURSO_AUTH_TOKEN=... node scripts/backfill-kt-index.mjs
+// Production:        DATABASE_URL=libsql://... TURSO_AUTH_TOKEN=... GOOGLE_GENERATIVE_AI_API_KEY_BACKGROUND=... node scripts/backfill-kt-index.mjs
 
 import { createClient } from "@libsql/client";
 

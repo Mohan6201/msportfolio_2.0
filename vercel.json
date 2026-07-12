@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/ingest-jobs",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/index-kt-documents",
+      "schedule": "0 7 * * *"
     }
   ]
 }

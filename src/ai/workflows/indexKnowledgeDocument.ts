@@ -1,5 +1,5 @@
 import { generateText, embedMany } from "ai";
-import { EXTRACT_MODEL, EMBED_MODEL, EMBED_PROVIDER_OPTIONS } from "@/ai/providers/gateway";
+import { BACKGROUND_EXTRACT_MODEL, BACKGROUND_EMBED_MODEL, EMBED_PROVIDER_OPTIONS } from "@/ai/providers/gateway";
 import { serializeEmbedding } from "@/ai/agents/embedText";
 import { libsqlClient } from "@/db/client";
 
@@ -25,7 +25,7 @@ export async function indexKnowledgeDocument(
 ): Promise<{ chunks: number }> {
   // Extract text from the PDF using Gemini
   const { text } = await generateText({
-    model: EXTRACT_MODEL,
+    model: BACKGROUND_EXTRACT_MODEL,
     messages: [
       {
         role: "user",
@@ -56,7 +56,7 @@ export async function indexKnowledgeDocument(
   for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
     const batch = chunks.slice(i, i + BATCH_SIZE);
     const { embeddings: batchEmbeddings } = await embedMany({
-      model: EMBED_MODEL,
+      model: BACKGROUND_EMBED_MODEL,
       values: batch,
       providerOptions: EMBED_PROVIDER_OPTIONS,
     });

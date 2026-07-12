@@ -18,7 +18,8 @@ function evalBorderStyle(score: number): React.CSSProperties {
   return { backgroundColor: "#16161A", border: "1px solid rgba(239,68,68,0.2)" };
 }
 
-export default function MockInterview({ category, onBack }: { category: string; onBack: () => void }) {
+export default function MockInterview({ category, available, onBack }: { category: string; available: number; onBack: () => void }) {
+  const questionCount = Math.min(5, available);
   const [state, setState]               = useState<SessionState>("idle");
   const [sessionId, setSessionId]       = useState<number | null>(null);
   const [questions, setQuestions]       = useState<Question[]>([]);
@@ -27,37 +28,52 @@ export default function MockInterview({ category, onBack }: { category: string; 
   const [transcript, setTranscript]     = useState<TranscriptEntry[]>([]);
   const [lastEval, setLastEval]         = useState<AnswerEval | null>(null);
   const [sessionFeedback, setSessionFeedback] = useState<SessionFeedback | null>(null);
+  const [error, setError]               = useState<string | null>(null);
 
   async function start() {
     setState("evaluating");
-    const res = await fetch("/api/account/interview/sessions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ category }),
-    });
-    const { interview, questions: qs } = await res.json() as { interview: { id: number }; questions: Question[] };
-    setSessionId(interview.id);
-    setQuestions(qs);
-    setCurrentIndex(0);
-    setTranscript([]);
-    setLastEval(null);
-    setState("active");
+    setError(null);
+    try {
+      const res = await fetch("/api/account/interview/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category }),
+      });
+      if (!res.ok) throw new Error("Failed to start interview session.");
+      const { interview, questions: qs } = await res.json() as { interview: { id: number }; questions: Question[] };
+      setSessionId(interview.id);
+      setQuestions(qs);
+      setCurrentIndex(0);
+      setTranscript([]);
+      setLastEval(null);
+      setState("active");
+    } catch {
+      setError("Couldn't start the interview. This can happen if the AI service is briefly unavailable — please try again.");
+      setState("idle");
+    }
   }
 
   async function submitAnswer() {
     if (!answer.trim() || sessionId === null) return;
     setState("evaluating");
+    setError(null);
     const q = questions[currentIndex];
-    const res = await fetch(`/api/account/interview/sessions/${sessionId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "answer", question: q.question, expectedAnswer: q.answer, userAnswer: answer.trim() }),
-    });
-    const { evaluation } = await res.json() as { evaluation: AnswerEval };
-    setLastEval(evaluation);
-    setTranscript((prev) => [...prev, { question: q.question, userAnswer: answer.trim(), evaluation }]);
-    setAnswer("");
-    setState("active");
+    try {
+      const res = await fetch(`/api/account/interview/sessions/${sessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "answer", question: q.question, expectedAnswer: q.answer, userAnswer: answer.trim() }),
+      });
+      if (!res.ok) throw new Error("Failed to evaluate answer.");
+      const { evaluation } = await res.json() as { evaluation: AnswerEval };
+      setLastEval(evaluation);
+      setTranscript((prev) => [...prev, { question: q.question, userAnswer: answer.trim(), evaluation }]);
+      setAnswer("");
+      setState("active");
+    } catch {
+      setError("Couldn't evaluate your answer. This can happen if the AI service is briefly unavailable — please try again.");
+      setState("active");
+    }
   }
 
   async function next() {
@@ -68,14 +84,21 @@ export default function MockInterview({ category, onBack }: { category: string; 
   async function complete() {
     if (sessionId === null) return;
     setState("evaluating");
-    const res = await fetch(`/api/account/interview/sessions/${sessionId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "complete" }),
-    });
-    const { sessionFeedback: fb } = await res.json() as { sessionFeedback: SessionFeedback };
-    setSessionFeedback(fb);
-    setState("complete");
+    setError(null);
+    try {
+      const res = await fetch(`/api/account/interview/sessions/${sessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "complete" }),
+      });
+      if (!res.ok) throw new Error("Failed to complete interview.");
+      const { sessionFeedback: fb } = await res.json() as { sessionFeedback: SessionFeedback };
+      setSessionFeedback(fb);
+      setState("complete");
+    } catch {
+      setError("Couldn't generate your results. This can happen if the AI service is briefly unavailable — please try again.");
+      setState("active");
+    }
   }
 
   const currentQ = questions[currentIndex];
@@ -92,8 +115,13 @@ export default function MockInterview({ category, onBack }: { category: string; 
         <div className="text-4xl mb-4">🎯</div>
         <h3 className="text-white font-mono font-bold text-base mb-2">{category} Mock Interview</h3>
         <p className="text-xs font-mono mb-6 max-w-xs mx-auto" style={{ color: "#6B7280" }}>
-          5 questions picked from the {category} question bank. Type your answers; AI scores each one and gives feedback.
+          {questionCount} question{questionCount === 1 ? "" : "s"} picked from the {category} question bank. Type your answers; AI scores each one and gives feedback.
         </p>
+        {error && (
+          <div className="rounded-lg px-4 py-2 mb-4 max-w-xs mx-auto" style={{ backgroundColor: "#16161A", border: "1px solid rgba(239,68,68,0.3)" }}>
+            <p className="text-xs font-mono" style={{ color: "#ef4444" }}>{error}</p>
+          </div>
+        )}
         <div className="flex gap-3 justify-center">
           <button
             onClick={onBack}
@@ -180,6 +208,12 @@ export default function MockInterview({ category, onBack }: { category: string; 
 
   return (
     <div className="space-y-5">
+      {error && (
+        <div className="rounded-xl p-3" style={{ backgroundColor: "#16161A", border: "1px solid rgba(239,68,68,0.3)" }}>
+          <p className="text-xs font-mono" style={{ color: "#ef4444" }}>{error}</p>
+        </div>
+      )}
+
       {/* Progress bar */}
       <div className="flex items-center gap-3">
         <div className="flex-1 rounded-full h-1.5" style={{ backgroundColor: "#26262B" }}>

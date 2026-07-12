@@ -8,6 +8,8 @@ import type { Resume, ResumeVersion } from "@/domains/resume/services/resume.ser
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
 import type { AtsScore } from "@/ai/schemas/atsScore";
 import { TEMPLATES, type TemplateKey } from "./templates";
+import JDMatcher from "./JDMatcher";
+import VersionList from "./VersionList";
 
 // Template display config — friendly names + colored header bars for thumbnails
 const TEMPLATE_DISPLAY: { key: TemplateKey; label: string; color: string }[] = [
@@ -40,22 +42,15 @@ function ScoreIcon({ pct }: { pct: number }) {
   return <XCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#EF4444" }} />;
 }
 
-type RightTab = "ats" | "cover" | "optimize";
+type RightTab = "ats" | "cover" | "optimize" | "jdmatch" | "versions";
 
-const OPTIMIZE_BULLETS = [
-  {
-    original:  "Helped configure CI/CD pipelines using Jenkins and GitLab",
-    suggested: "Designed and implemented CI/CD pipelines using Jenkins and GitLab, reducing deployment time by 35%",
-  },
-  {
-    original:  "Worked on Kubernetes cluster setup and maintenance",
-    suggested: "Architected and maintained Kubernetes cluster serving 50+ microservices across 3 environments",
-  },
-  {
-    original:  "Assisted with monitoring setup using Prometheus",
-    suggested: "Implemented observability stack with Prometheus and Grafana, achieving 99.9% uptime visibility",
-  },
-];
+type BulletPair = { original: string; suggested: string };
+type ExperienceOptimization = {
+  jobTitle: string;
+  company: string;
+  pairs: BulletPair[];
+  extraSuggested: string[];
+};
 
 export default function ResumeStudio() {
   // Resume state
@@ -93,14 +88,30 @@ export default function ResumeStudio() {
   const [atsError,        setAtsError]        = useState("");
 
   // Optimize
-  const [optimizeItems, setOptimizeItems] = useState(
-    OPTIMIZE_BULLETS.map(b => ({ ...b, applied: false }))
-  );
+  const [tailoring,      setTailoring]      = useState(false);
+  const [tailoredData,   setTailoredData]   = useState<ResumeData | null>(null);
+  const [tailorError,    setTailorError]    = useState("");
+  const [applyingTailor, setApplyingTailor] = useState(false);
+  const [tailorApplied,  setTailorApplied]  = useState(false);
+
+  // Versions
+  const [versions, setVersions] = useState<ResumeVersion[]>([]);
 
   const loadResumes = useCallback(async () => {
     const res = await fetch("/api/account/resume");
     const data = await res.json();
     return Array.isArray(data) ? data : ([] as Resume[]);
+  }, []);
+
+  const loadVersions = useCallback(async (resumeId: number) => {
+    try {
+      const res = await fetch(`/api/account/resume/${resumeId}/versions`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setVersions(Array.isArray(data) ? data : []);
+    } catch {
+      setVersions([]);
+    }
   }, []);
 
   async function selectResume(resume: Resume) {
@@ -109,6 +120,9 @@ export default function ResumeStudio() {
     setUploadError("");
     setAtsResult(null);
     setSuggestions([]);
+    setTailoredData(null);
+    setTailorError("");
+    setTailorApplied(false);
     try {
       const rRes = await fetch(`/api/account/resume/${resume.id}`);
       const rData = await rRes.json();
@@ -118,8 +132,18 @@ export default function ResumeStudio() {
       } else {
         setResumeData(null);
       }
+      await loadVersions(resume.id);
     } finally {
       setLoading(false);
+    }
+  }
+
+  function handleSelectVersion(v: ResumeVersion) {
+    setCurrentVersion(v);
+    try {
+      setResumeData(JSON.parse(v.structuredData));
+    } catch {
+      setResumeData(null);
     }
   }
 
@@ -245,6 +269,54 @@ export default function ResumeStudio() {
     URL.revokeObjectURL(url);
   }
 
+  async function runOptimize(jd?: string) {
+    if (!selected) return;
+    setTailoring(true);
+    setTailorError("");
+    setTailorApplied(false);
+    try {
+      const res = await fetch(`/api/account/resume/${selected.id}/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "tailor", jdText: jd || undefined }),
+      });
+      if (!res.ok) {
+        let msg = "Optimization failed";
+        try { const d = await res.json(); msg = d.error ?? msg; } catch { /* ignore */ }
+        throw new Error(msg);
+      }
+      const { result } = await res.json();
+      setTailoredData(result as ResumeData);
+    } catch (err) {
+      setTailorError(err instanceof Error ? err.message : "Optimization failed. Please try again.");
+    } finally {
+      setTailoring(false);
+    }
+  }
+
+  async function applyOptimization() {
+    if (!selected || !tailoredData) return;
+    setApplyingTailor(true);
+    setTailorError("");
+    try {
+      const res = await fetch(`/api/account/resume/${selected.id}/versions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ structuredData: tailoredData }),
+      });
+      if (!res.ok) throw new Error("Failed to save new version");
+      const newVersion: ResumeVersion = await res.json();
+      setCurrentVersion(newVersion);
+      setResumeData(tailoredData);
+      setTailorApplied(true);
+      await loadVersions(selected.id);
+    } catch (err) {
+      setTailorError(err instanceof Error ? err.message : "Failed to apply optimization.");
+    } finally {
+      setApplyingTailor(false);
+    }
+  }
+
   const hasResume = !!resumeData;
   const lastAnalyzedStr = lastAnalyzed
     ? lastAnalyzed.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) +
@@ -259,6 +331,33 @@ export default function ResumeStudio() {
       }))
     : [];
   const TemplateComponent = TEMPLATES.find(t => t.key === selectedTemplate)?.component;
+
+  // Zip original vs. tailored bullet points per work-experience entry, index-aligned,
+  // defensively handling any length mismatch (tailorResume is prompted to preserve structure,
+  // but never guaranteed).
+  const experienceOptimizations: ExperienceOptimization[] = (() => {
+    if (!resumeData || !tailoredData) return [];
+    const origExp = resumeData.experiences ?? [];
+    const tailExp = tailoredData.experiences ?? [];
+    const expCount = Math.min(origExp.length, tailExp.length);
+    const out: ExperienceOptimization[] = [];
+    for (let i = 0; i < expCount; i++) {
+      const orig = origExp[i];
+      const tail = tailExp[i];
+      const origResp = orig.responsibilities ?? [];
+      const tailResp = tail.responsibilities ?? [];
+      const pairCount = Math.min(origResp.length, tailResp.length);
+      const pairs: BulletPair[] = [];
+      for (let j = 0; j < pairCount; j++) {
+        pairs.push({ original: origResp[j], suggested: tailResp[j] });
+      }
+      const extraSuggested = tailResp.slice(pairCount);
+      if (pairs.length > 0 || extraSuggested.length > 0) {
+        out.push({ jobTitle: orig.jobTitle, company: orig.company, pairs, extraSuggested });
+      }
+    }
+    return out;
+  })();
 
   return (
     <>
@@ -442,8 +541,8 @@ export default function ResumeStudio() {
 
           {/* Tab bar */}
           <div className="flex items-end gap-4 sm:gap-6 border-b mb-6 overflow-x-auto" style={{ borderColor: "#26262B" }}>
-            {(["ats", "cover", "optimize"] as const).map(tab => {
-              const labels = { ats: "ATS Score", cover: "Cover Letter", optimize: "Optimize" };
+            {(["ats", "cover", "optimize", "jdmatch", "versions"] as const).map(tab => {
+              const labels = { ats: "ATS Score", cover: "Cover Letter", optimize: "Optimize", jdmatch: "JD Match", versions: "Versions" };
               const isActive = activeTab === tab;
               return (
                 <button
@@ -816,69 +915,177 @@ export default function ResumeStudio() {
               </div>
             </div>
 
+          ) : activeTab === "jdmatch" ? (
+            /* ── JD Match tab ──────────────────────────────────────────── */
+            <div className="rounded-lg p-5" style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}>
+              {selected && (
+                <JDMatcher
+                  resumeId={selected.id}
+                  onTailor={(jd) => { setActiveTab("optimize"); runOptimize(jd); }}
+                />
+              )}
+            </div>
+
+          ) : activeTab === "versions" ? (
+            /* ── Versions tab ──────────────────────────────────────────── */
+            <div className="rounded-lg p-5" style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}>
+              <p className="text-white font-mono font-bold text-sm mb-1">Version History</p>
+              <p className="text-[12px] font-mono mb-4" style={{ color: "#6B7280" }}>
+                Select a previous version to preview and switch to it
+              </p>
+              <VersionList
+                versions={versions}
+                currentVersionId={currentVersion?.id ?? 0}
+                onSelect={handleSelectVersion}
+              />
+            </div>
+
           ) : (
             /* ── Optimize tab ──────────────────────────────────────────── */
             <div className="space-y-4">
-              <div className="rounded-lg overflow-hidden" style={{ border: "1px solid #26262B" }}>
-                {/* Header */}
+              {tailoring ? (
+                /* Loading card */
                 <div
-                  className="hidden sm:grid grid-cols-2 gap-4 px-5 py-3 border-b"
-                  style={{ backgroundColor: "#16161A", borderColor: "#26262B" }}
+                  className="rounded-lg p-8 flex flex-col items-center justify-center text-center"
+                  style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
                 >
-                  <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: "#6B7280" }}>Original</span>
-                  <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: "#6B7280" }}>AI Suggested</span>
+                  <Loader2 className="w-9 h-9 animate-spin mb-4" style={{ color: "#00D964" }} />
+                  <p className="text-white text-base font-bold mb-1">Optimizing your resume...</p>
+                  <p className="text-[12px] font-mono" style={{ color: "#00D964" }}>
+                    Strengthening language, tightening bullet points
+                  </p>
                 </div>
-
-                {/* Bullet pairs */}
-                {optimizeItems.map((item, i) => (
-                  <div
-                    key={i}
-                    className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 px-4 sm:px-5 py-4"
-                    style={{
-                      backgroundColor: i % 2 === 0 ? "#0d0d10" : "#16161A",
-                      borderBottom: i < optimizeItems.length - 1 ? "1px solid #1e1e24" : "none",
-                    }}
-                  >
-                    <span
-                      className="text-[13px] font-mono leading-relaxed"
-                      style={{
-                        color:          item.applied ? "#374151" : "#9CA3AF",
-                        textDecoration: item.applied ? "line-through" : "none",
-                      }}
-                    >
-                      {item.original}
-                    </span>
-                    <div className="flex flex-col gap-2">
-                      <span className="text-[13px] font-mono leading-relaxed" style={{ color: item.applied ? "#00D964" : "#FFFFFF" }}>
-                        {item.applied && (
-                          <CheckCircle2 className="w-3.5 h-3.5 inline mr-1.5" style={{ color: "#00D964" }} />
-                        )}
-                        {item.suggested}
-                      </span>
-                      {item.applied ? (
-                        <button
-                          onClick={() => setOptimizeItems(prev => prev.map((it, j) => j === i ? { ...it, applied: false } : it))}
-                          className="self-start text-[11px] font-mono transition-colors"
-                          style={{ color: "#6B7280" }}
-                        >
-                          Applied ✓ · Revert
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => setOptimizeItems(prev => prev.map((it, j) => j === i ? { ...it, applied: true } : it))}
-                          className="self-start text-[11px] font-mono px-2.5 py-1 rounded-md transition-colors"
-                          style={{ backgroundColor: "#16161A", border: "1px solid #26262B", color: "#9CA3AF" }}
-                        >
-                          Apply
-                        </button>
-                      )}
+              ) : !tailoredData ? (
+                /* Run button state */
+                <div className="space-y-3">
+                  {tailorError && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                      <XCircle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#EF4444" }} />
+                      <p className="text-[12px] font-mono" style={{ color: "#EF4444" }}>{tailorError}</p>
                     </div>
+                  )}
+                  <div
+                    className="rounded-lg p-10 flex flex-col items-center justify-center text-center"
+                    style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
+                  >
+                    <p className="text-white font-bold mb-2">Optimize My Resume</p>
+                    <p className="text-[12px] font-mono mb-5 max-w-sm" style={{ color: "#6B7280" }}>
+                      AI rewrites your bullet points with stronger language and quantified impact — review before applying
+                    </p>
+                    <button
+                      onClick={() => runOptimize()}
+                      className="px-5 py-2.5 rounded-lg font-bold text-[13px] font-mono transition-opacity hover:opacity-90"
+                      style={{ backgroundColor: "#00D964", color: "#0A0A0B" }}
+                    >
+                      Optimize My Resume
+                    </button>
                   </div>
-                ))}
-              </div>
-              <p className="text-[11px] font-mono text-center" style={{ color: "#374151" }}>
-                AI-suggested rewrites based on DevOps &amp; Cloud role standards
-              </p>
+                </div>
+              ) : (
+                /* Results */
+                <>
+                  {/* Toolbar */}
+                  <div
+                    className="flex flex-wrap items-center gap-2 sm:gap-3 px-4 py-2.5 rounded-lg"
+                    style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
+                  >
+                    <button
+                      onClick={() => runOptimize()}
+                      disabled={tailoring}
+                      className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded-md transition-colors"
+                      style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B", color: "#6B7280" }}
+                    >
+                      <RotateCcw className="w-3 h-3" /> Re-optimize
+                    </button>
+                    <button
+                      onClick={applyOptimization}
+                      disabled={applyingTailor || tailorApplied}
+                      className="flex items-center gap-1.5 text-[12px] font-mono font-bold px-3 py-1.5 rounded-md transition-opacity disabled:opacity-50 hover:opacity-90"
+                      style={{ backgroundColor: "#00D964", color: "#0A0A0B" }}
+                    >
+                      {applyingTailor
+                        ? <Loader2 className="w-3 h-3 animate-spin" />
+                        : <CheckCircle2 className="w-3 h-3" />
+                      }
+                      {tailorApplied ? "Applied ✓" : "Apply as New Version"}
+                    </button>
+                    {tailorApplied && currentVersion && (
+                      <span className="text-[11px] font-mono" style={{ color: "#00D964" }}>
+                        Saved as v{currentVersion.versionNumber}
+                      </span>
+                    )}
+                  </div>
+
+                  {tailorError && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                      <XCircle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#EF4444" }} />
+                      <p className="text-[12px] font-mono" style={{ color: "#EF4444" }}>{tailorError}</p>
+                    </div>
+                  )}
+
+                  {experienceOptimizations.length === 0 ? (
+                    <div className="rounded-lg p-8 text-center" style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}>
+                      <p className="text-[13px] font-mono" style={{ color: "#6B7280" }}>
+                        No bullet-level changes to review — your resume already reads strong.
+                      </p>
+                    </div>
+                  ) : (
+                    experienceOptimizations.map((exp, ei) => (
+                      <div key={ei} className="rounded-lg overflow-hidden" style={{ border: "1px solid #26262B" }}>
+                        {/* Experience header */}
+                        <div className="px-5 py-3 border-b" style={{ backgroundColor: "#16161A", borderColor: "#26262B" }}>
+                          <p className="text-white text-[13px] font-mono font-bold">{exp.jobTitle}</p>
+                          <p className="text-[11px] font-mono" style={{ color: "#6B7280" }}>{exp.company}</p>
+                        </div>
+                        {/* Column labels */}
+                        <div
+                          className="hidden sm:grid grid-cols-2 gap-4 px-5 py-2 border-b"
+                          style={{ backgroundColor: "#0d0d10", borderColor: "#26262B" }}
+                        >
+                          <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: "#6B7280" }}>Original</span>
+                          <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: "#6B7280" }}>AI Suggested</span>
+                        </div>
+                        {/* Bullet pairs */}
+                        {exp.pairs.map((pair, i) => (
+                          <div
+                            key={i}
+                            className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 px-4 sm:px-5 py-4"
+                            style={{
+                              backgroundColor: i % 2 === 0 ? "#0d0d10" : "#16161A",
+                              borderBottom: i < exp.pairs.length - 1 || exp.extraSuggested.length > 0 ? "1px solid #1e1e24" : "none",
+                            }}
+                          >
+                            <span className="text-[13px] font-mono leading-relaxed" style={{ color: "#9CA3AF" }}>
+                              {pair.original}
+                            </span>
+                            <span className="text-[13px] font-mono leading-relaxed" style={{ color: "#FFFFFF" }}>
+                              {pair.suggested}
+                            </span>
+                          </div>
+                        ))}
+                        {/* Extra suggested bullets (tailored resume has more than original) */}
+                        {exp.extraSuggested.length > 0 && (
+                          <div className="px-4 sm:px-5 py-4" style={{ backgroundColor: "#16161A" }}>
+                            <p className="text-[10px] font-mono uppercase tracking-widest mb-2" style={{ color: "#6B7280" }}>
+                              Additional suggested bullets
+                            </p>
+                            <ul className="space-y-1">
+                              {exp.extraSuggested.map((b, i) => (
+                                <li key={i} className="text-[13px] font-mono leading-relaxed" style={{ color: "#FFFFFF" }}>
+                                  {b}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                  <p className="text-[11px] font-mono text-center" style={{ color: "#374151" }}>
+                    AI-suggested rewrites based on your resume — apply to save as a new version
+                  </p>
+                </>
+              )}
             </div>
           )}
         </div>

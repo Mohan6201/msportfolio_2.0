@@ -67,7 +67,7 @@ export default function JDMatcher({
         )}
       </div>
 
-      {error && <p className="text-red-400 text-xs font-mono mb-4">{error}</p>}
+      {error && <p className="text-red text-xs font-mono mb-4">{error}</p>}
 
       {result && (
         <div className="space-y-4">
@@ -150,5 +150,5 @@ export default function JDMatcher({
 }
 
 function matchColor(score: number) {
-  return score >= 75 ? "text-green" : score >= 50 ? "text-orange" : "text-red-400";
+  return score >= 75 ? "text-green" : score >= 50 ? "text-orange" : "text-red";
 }

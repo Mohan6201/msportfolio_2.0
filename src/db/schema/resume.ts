@@ -20,8 +20,8 @@ export const resumeAnalyses = sqliteTable("resume_analyses", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   resumeVersionId: integer("resume_version_id").notNull().references(() => resumeVersions.id, { onDelete: "cascade" }),
   jdText: text("jd_text"),
-  analysisType: text("analysis_type", { enum: ["ats", "jd_match"] }).notNull(),
-  result: text("result").notNull().default("{}"), // JSON AtsScore | JdMatchResult
+  analysisType: text("analysis_type", { enum: ["ats", "jd_match", "tailor"] }).notNull(),
+  result: text("result").notNull().default("{}"), // JSON AtsScore | JdMatchResult | ResumeData
   createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
 });
 

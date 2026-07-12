@@ -44,7 +44,7 @@ function QuestionCard({ q }: { q: Question }) {
   );
 }
 
-export default function QuestionBank({ onStartPractice }: { onStartPractice: (category: string) => void }) {
+export default function QuestionBank({ onStartPractice }: { onStartPractice: (category: string, available: number) => void }) {
   const [questions, setQuestions]         = useState<Question[]>([]);
   const [activeCategory, setActiveCategory] = useState("AWS");
   const [loading, setLoading]             = useState(false);
@@ -83,7 +83,7 @@ export default function QuestionBank({ onStartPractice }: { onStartPractice: (ca
       <div className="flex items-center justify-between mb-4">
         <p className="text-xs font-mono" style={{ color: "#6B7280" }}>{questions.length} questions in {activeCategory}</p>
         <button
-          onClick={() => onStartPractice(activeCategory)}
+          onClick={() => onStartPractice(activeCategory, questions.length)}
           disabled={questions.length === 0}
           className="text-xs font-mono font-bold px-4 py-1.5 rounded-lg transition-colors disabled:opacity-40"
           style={{ backgroundColor: "#00D964", color: "#0a0a0b" }}

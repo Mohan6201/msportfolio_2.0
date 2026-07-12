@@ -107,7 +107,7 @@ export async function updateVersionData(versionId: number, structuredData: strin
 
 export async function saveAnalysis(
   resumeVersionId: number,
-  analysisType: "ats" | "jd_match",
+  analysisType: "ats" | "jd_match" | "tailor",
   result: object,
   jdText?: string
 ): Promise<ResumeAnalysis> {

@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import type { CareerRoadmap } from "@/ai/schemas/careerRoadmap";
 
 type Priority = "critical" | "high" | "medium" | "low";
@@ -28,8 +29,26 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export default function CareerAdvisor() {
   const [roadmap, setRoadmap]   = useState<CareerRoadmap | null>(null);
+  const [loading, setLoading]   = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError]       = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/account/career");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled && data) setRoadmap(data as CareerRoadmap);
+      } catch {
+        // Ignore — falls back to the empty "Generate Roadmap" state.
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   async function runAnalysis() {
     setAnalyzing(true); setError(null);
@@ -41,6 +60,27 @@ export default function CareerAdvisor() {
     } finally { setAnalyzing(false); }
   }
 
+  if (loading) {
+    return (
+      <>
+        {/* Page header */}
+        <div className="mb-7">
+          <nav className="flex items-center gap-1.5 text-[11px] font-mono mb-3" style={{ color: "#6B7280" }}>
+            <span>Career Centre</span>
+            <span className="opacity-40">/</span>
+            <span className="text-white">Career Advisor</span>
+          </nav>
+          <h1 className="text-white text-[28px] font-bold mb-1">Career Advisor</h1>
+          <p className="text-sm font-mono" style={{ color: "#6B7280" }}>
+            AI-generated roadmap based on your resume, preferences, and job matches
+          </p>
+        </div>
+        <div className="flex items-center justify-center py-14">
+          <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#00D964" }} />
+        </div>
+      </>
+    );
+  }
 
   if (!roadmap) {
     return (

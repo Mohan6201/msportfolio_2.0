@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/accountAuth";
 import { getResume, getLatestVersion, saveAnalysis } from "@/domains/resume/services/resume.service";
 import { scoreATS } from "@/ai/agents/scoreATS";
 import { matchJD } from "@/ai/agents/matchJD";
+import { tailorResume } from "@/ai/agents/tailorResume";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
 
 export const maxDuration = 60;
@@ -36,6 +37,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!jdText) return NextResponse.json({ error: "jdText required" }, { status: 400 });
     const result = await matchJD(resumeData, jdText);
     const analysis = await saveAnalysis(version.id, "jd_match", result, jdText);
+    return NextResponse.json({ analysis, result });
+  }
+
+  if (type === "tailor") {
+    const result = await tailorResume(resumeData, jdText || undefined);
+    const analysis = await saveAnalysis(version.id, "tailor", result, jdText || undefined);
     return NextResponse.json({ analysis, result });
   }
 

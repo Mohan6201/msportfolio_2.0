@@ -8,9 +8,11 @@ type View = "bank" | "practice";
 export default function InterviewLab() {
   const [view, setView] = useState<View>("bank");
   const [practiceCategory, setPracticeCategory] = useState("AWS");
+  const [practiceAvailable, setPracticeAvailable] = useState(5);
 
-  function startPractice(category: string) {
+  function startPractice(category: string, available: number) {
     setPracticeCategory(category);
+    setPracticeAvailable(available);
     setView("practice");
   }
 
@@ -49,7 +51,7 @@ export default function InterviewLab() {
 
       {view === "bank" && <QuestionBank onStartPractice={startPractice} />}
       {view === "practice" && (
-        <MockInterview category={practiceCategory} onBack={() => setView("bank")} />
+        <MockInterview category={practiceCategory} available={practiceAvailable} onBack={() => setView("bank")} />
       )}
     </div>
   );

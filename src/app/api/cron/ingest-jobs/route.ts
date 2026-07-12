@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   for (const prefs of allPrefs) {
     const targetRoles: string[] = safeArr(prefs.targetRoles);
     const locations: string[] = safeArr(prefs.preferredLocations);
-    const result = await ingestJobPostings(targetRoles, locations);
+    const result = await ingestJobPostings(targetRoles, locations, prefs.userId);
     totalInserted += result.inserted;
     totalSkipped += result.skipped;
     totalErrors += result.errors;

@@ -35,7 +35,7 @@ export default function JobSearch() {
   }, []);
 
   const loadCatalog = useCallback(async () => {
-    const res = await fetch("/api/account/jobs?view=catalog");
+    const res = await fetch("/api/account/jobs?view=all");
     const data = await res.json();
     setJobTotal(data.total ?? 0);
   }, []);

@@ -12,10 +12,10 @@ const COMPONENT_OPTIONS: { id: InfraComponent; label: string; desc: string; tier
   { id: "ec2",        label: "EC2 Server",          desc: "Application server instance",        tier: "Compute",    color: "text-orange" },
   { id: "asg",        label: "Auto Scaling Group",  desc: "EC2 fleet with auto-scaling",        tier: "Compute",    color: "text-orange" },
   { id: "alb",        label: "App Load Balancer",   desc: "HTTP/HTTPS traffic routing",         tier: "Compute",    color: "text-orange" },
-  { id: "waf",        label: "WAF",                 desc: "Web Application Firewall",           tier: "Security",   color: "text-red-400" },
+  { id: "waf",        label: "WAF",                 desc: "Web Application Firewall",           tier: "Security",   color: "text-red" },
   { id: "rds",        label: "RDS PostgreSQL",      desc: "Managed relational database",        tier: "Data",       color: "text-[#a78bfa]" },
   { id: "redis",      label: "ElastiCache Redis",   desc: "In-memory cache layer",              tier: "Data",       color: "text-[#a78bfa]" },
-  { id: "s3",         label: "S3 Bucket",           desc: "Object storage",                     tier: "Storage",    color: "text-yellow-400" },
+  { id: "s3",         label: "S3 Bucket",           desc: "Object storage",                     tier: "Storage",    color: "text-orange" },
   { id: "cloudfront", label: "CloudFront CDN",      desc: "Edge cache and CDN",                 tier: "Edge",       color: "text-cyan" },
   { id: "route53",    label: "Route53 DNS",         desc: "Hosted zone and DNS records",        tier: "Edge",       color: "text-cyan" },
 ];

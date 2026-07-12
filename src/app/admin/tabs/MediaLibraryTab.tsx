@@ -150,12 +150,12 @@ export function MediaLibraryTab() {
                   <ExternalLink className="w-4 h-4 text-white" />
                 </a>
                 <button onClick={() => deleteBlob(blob.url)} disabled={deletingUrl === blob.url}
-                  className="p-2 rounded-lg border border-red-500/30 transition-colors disabled:opacity-50"
+                  className="p-2 rounded-lg border border-red/30 transition-colors disabled:opacity-50"
                   style={{ backgroundColor: "rgba(239,68,68,0.1)" }}
                   title="Delete">
                   {deletingUrl === blob.url
-                    ? <Loader2 className="w-4 h-4 text-red-400 animate-spin" />
-                    : <Trash2 className="w-4 h-4 text-red-400" />}
+                    ? <Loader2 className="w-4 h-4 text-red animate-spin" />
+                    : <Trash2 className="w-4 h-4 text-red" />}
                 </button>
               </div>
               {/* Footer */}

@@ -32,7 +32,7 @@ function StatCard({ label, value, delta, deltaPositive, icon: Icon, loading }: {
       ) : (
         <p className="text-white text-5xl font-bold font-mono leading-none mb-3">{value}</p>
       )}
-      <div className={`flex items-center gap-1 text-[11px] font-mono ${deltaPositive ? "text-[#00D964]" : "text-red-400"}`}>
+      <div className={`flex items-center gap-1 text-[11px] font-mono ${deltaPositive ? "text-[#00D964]" : "text-red"}`}>
         {deltaPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
         {delta}
       </div>
@@ -156,7 +156,7 @@ export function DashboardHome({ onNavigate }: { onNavigate?: (s: string) => void
                 <div key={`${row.type}-${row.id}`} className="flex items-center gap-3 px-5 py-3.5 hover:bg-white/[0.02] transition-colors">
                   <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}>
                     {row.type === "Project"
-                      ? <FolderOpen className="w-3.5 h-3.5 text-blue-400" />
+                      ? <FolderOpen className="w-3.5 h-3.5 text-cyan" />
                       : <BookOpen className="w-3.5 h-3.5 text-[#00D964]" />
                     }
                   </div>

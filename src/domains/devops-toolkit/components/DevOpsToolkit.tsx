@@ -41,7 +41,7 @@ const TOOLS = [
     icon: Calculator,
     description: "On-Demand vs Reserved pricing comparison",
     badge: "Calculator",
-    badgeColor: "text-yellow-400 border-yellow-400/30 bg-yellow-400/5",
+    badgeColor: "text-orange border-orange/30 bg-orange/5",
   },
   {
     id: "aws-arch",
@@ -73,7 +73,7 @@ const TOOLS = [
     icon: BookOpen,
     description: "Step-by-step deployment blueprints with architecture + commands",
     badge: "Guide",
-    badgeColor: "text-yellow-400 border-yellow-400/30 bg-yellow-400/5",
+    badgeColor: "text-orange border-orange/30 bg-orange/5",
   },
 ] as const;
 

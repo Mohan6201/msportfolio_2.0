@@ -204,7 +204,7 @@ export function ExperienceTab() {
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={() => remove(exp.id)} disabled={deletingId === exp.id}
-                      className="p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50" title="Delete">
+                      className="p-1.5 rounded-lg border border-red/30 text-red hover:bg-red/10 transition-colors disabled:opacity-50" title="Delete">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>

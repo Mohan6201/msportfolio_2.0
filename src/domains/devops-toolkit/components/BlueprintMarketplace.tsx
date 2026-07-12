@@ -24,8 +24,8 @@ interface BlueprintDef {
 
 const COMPLEXITY_COLOR: Record<string, string> = {
   Beginner: "text-green border-green/30 bg-green/10",
-  Intermediate: "text-yellow-400 border-yellow-400/30 bg-yellow-400/10",
-  Advanced: "text-red-400 border-red-400/30 bg-red-400/10",
+  Intermediate: "text-orange border-orange/30 bg-orange/10",
+  Advanced: "text-red border-red/30 bg-red/10",
 };
 
 const BLUEPRINTS: BlueprintDef[] = [

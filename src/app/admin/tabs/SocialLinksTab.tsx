@@ -108,7 +108,7 @@ export function SocialLinksTab() {
               </div>
               <div className="flex gap-1 flex-shrink-0">
                 <button onClick={() => startEdit(l)} className="p-1.5 rounded-lg border border-lightBrown text-lightGrey hover:text-cyan hover:border-cyan/40 transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
-                <button onClick={() => remove(l.id)} className="p-1.5 rounded-lg border border-lightBrown text-lightGrey hover:text-red-400 hover:border-red-500/30 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                <button onClick={() => remove(l.id)} className="p-1.5 rounded-lg border border-lightBrown text-lightGrey hover:text-red hover:border-red/30 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             </div>
           )

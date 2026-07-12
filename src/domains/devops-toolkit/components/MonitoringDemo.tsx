@@ -117,8 +117,8 @@ function Gauge({ value, color }: { value: number; color: string }) {
 function StatusBadge({ status }: { status: ServiceStatus["status"] }) {
   const styles: Record<typeof status, string> = {
     healthy:  "text-green border-green/30 bg-green/10",
-    degraded: "text-yellow-400 border-yellow-400/30 bg-yellow-400/10",
-    down:     "text-red-400 border-red-400/30 bg-red-400/10",
+    degraded: "text-orange border-orange/30 bg-orange/10",
+    down:     "text-red border-red/30 bg-red/10",
   };
   return (
     <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border ${styles[status]}`}>
@@ -200,9 +200,9 @@ export default function MonitoringDemo() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {services.map((svc) => (
           <div key={svc.name} className={`glass rounded-xl border p-3 text-center transition-colors ${
-            svc.status === "healthy" ? "border-green/20" : "border-yellow-400/30"
+            svc.status === "healthy" ? "border-green/20" : "border-orange/30"
           }`}>
-            <div className={`w-2 h-2 rounded-full mx-auto mb-2 ${svc.status === "healthy" ? "bg-green animate-pulse" : "bg-yellow-400"}`} />
+            <div className={`w-2 h-2 rounded-full mx-auto mb-2 ${svc.status === "healthy" ? "bg-green animate-pulse" : "bg-orange"}`} />
             <p className="text-white text-[10px] font-mono font-bold">{svc.name}</p>
             <p className="text-lightGrey/40 text-[9px] font-mono mt-0.5">{svc.latency.toFixed(1)}ms</p>
           </div>
@@ -300,7 +300,7 @@ export default function MonitoringDemo() {
             <div key={log.id} className="flex gap-3">
               <span className="text-lightGrey/30 flex-shrink-0">{log.time}</span>
               <span className={`flex-shrink-0 ${
-                log.level === "ERROR" ? "text-red-400" : log.level === "WARN" ? "text-yellow-400" : "text-green/70"
+                log.level === "ERROR" ? "text-red" : log.level === "WARN" ? "text-orange" : "text-green/70"
               }`}>{log.level}</span>
               <span className="text-lightGrey/60">{log.message}</span>
             </div>

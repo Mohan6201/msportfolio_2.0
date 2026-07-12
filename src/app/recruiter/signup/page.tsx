@@ -100,7 +100,7 @@ export default function RecruiterSignupPage() {
             />
           </div>
 
-          {error && <p className="text-red-400 text-xs font-mono">{error}</p>}
+          {error && <p className="text-red text-xs font-mono">{error}</p>}
 
           <button
             type="submit"

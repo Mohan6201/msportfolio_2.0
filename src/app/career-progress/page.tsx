@@ -53,7 +53,7 @@ export default async function CareerProgressPage() {
 
   // ── Level colours ───────────────────────────────────────────────────────────
   const avgColor = (avg: number) =>
-    avg >= 4.5 ? "bg-orange/80" : avg >= 3.5 ? "bg-green/70" : avg >= 2.5 ? "bg-cyan/70" : "bg-blue-500/60";
+    avg >= 4.5 ? "bg-orange/80" : avg >= 3.5 ? "bg-green/70" : avg >= 2.5 ? "bg-cyan/70" : "bg-lightCyan/60";
 
   return (
     <main className="min-h-screen bg-darkBrown">
@@ -81,7 +81,7 @@ export default async function CareerProgressPage() {
             { label: "Experience",     value: achievements.yearsExperience,       color: "text-cyan",      icon: <TrendingUp className="w-4 h-4" /> },
             { label: "Roles Held",     value: experiences.length,                 color: "text-orange",    icon: <Briefcase className="w-4 h-4" /> },
             { label: "Skills",         value: skills.length,                      color: "text-[#a78bfa]", icon: <Code2 className="w-4 h-4" /> },
-            { label: "Certifications", value: achievements.certificationsEarned,  color: "text-yellow-400",icon: <Award className="w-4 h-4" /> },
+            { label: "Certifications", value: achievements.certificationsEarned,  color: "text-orange",icon: <Award className="w-4 h-4" /> },
           ].map(({ label, value, color, icon }) => (
             <div key={label} className="glass rounded-xl border border-white/10 p-5 text-center">
               <div className={`flex items-center justify-center gap-1.5 mb-1 ${color}`}>{icon}</div>
@@ -199,7 +199,7 @@ export default async function CareerProgressPage() {
         {certYears.length > 0 && (
           <div className="glass rounded-2xl border border-white/10 p-6">
             <h2 className="text-white font-special text-lg font-bold mb-6 flex items-center gap-2">
-              <Award className="w-5 h-5 text-yellow-400" /> Certifications Timeline
+              <Award className="w-5 h-5 text-orange" /> Certifications Timeline
             </h2>
             <div className="space-y-6">
               {certYears.map(([year, certs]) => (
@@ -227,7 +227,7 @@ export default async function CareerProgressPage() {
         {certYears.length === 0 && (
           <div className="glass rounded-2xl border border-white/10 p-6">
             <h2 className="text-white font-special text-lg font-bold mb-4 flex items-center gap-2">
-              <Award className="w-5 h-5 text-yellow-400" /> Certifications Timeline
+              <Award className="w-5 h-5 text-orange" /> Certifications Timeline
             </h2>
             <p className="text-lightGrey/40 text-xs font-mono">No certifications seeded yet. Run: <code className="text-cyan">npm run db:seed</code></p>
           </div>

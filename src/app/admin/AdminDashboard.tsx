@@ -183,7 +183,7 @@ export default function AdminDashboard() {
         <div className="px-4 py-3 border-t border-[#1e1e1e] flex items-center justify-between flex-shrink-0">
           <span className="text-[#333] text-[10px] font-mono">v2.4.1 · production</span>
           <button onClick={logout} title="Sign out"
-            className="text-[#444] hover:text-red-400 transition-colors p-1">
+            className="text-[#444] hover:text-red transition-colors p-1">
             <LogOut className="w-3.5 h-3.5" />
           </button>
         </div>

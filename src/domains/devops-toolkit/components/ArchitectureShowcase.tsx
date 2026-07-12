@@ -25,11 +25,11 @@ interface DiagramDef {
 const TIER_STYLES: Record<NodeDef["tier"], string> = {
   internet:   "border-white/30 bg-white/5 text-white",
   edge:       "border-cyan/40 bg-cyan/10 text-cyan",
-  security:   "border-red-400/40 bg-red-400/10 text-red-400",
+  security:   "border-red/40 bg-red/10 text-red",
   compute:    "border-orange/40 bg-orange/10 text-orange",
   data:       "border-[#a78bfa]/40 bg-[#a78bfa]/10 text-[#a78bfa]",
   monitoring: "border-green/40 bg-green/10 text-green",
-  devtools:   "border-yellow-400/40 bg-yellow-400/10 text-yellow-400",
+  devtools:   "border-orange/40 bg-orange/10 text-orange",
 };
 
 const DIAGRAMS: DiagramDef[] = [

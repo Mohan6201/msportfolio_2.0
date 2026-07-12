@@ -46,7 +46,7 @@ export function AnalyticsTab() {
     );
   }
 
-  if (!data) return <p className="text-red-400 font-mono text-sm py-8 text-center">Failed to load analytics.</p>;
+  if (!data) return <p className="text-red font-mono text-sm py-8 text-center">Failed to load analytics.</p>;
 
   const totalAiCalls = data.aiUsage.reduce((s, r) => s + r.calls, 0);
   const maxViews = data.topPages[0]?.views || 1;

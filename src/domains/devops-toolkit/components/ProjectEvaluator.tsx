@@ -10,7 +10,7 @@ const EXAMPLES = [
 ];
 
 const SCORE_COLOR = (s: number) =>
-  s >= 80 ? "text-green" : s >= 60 ? "text-cyan" : s >= 40 ? "text-yellow-400" : "text-red-400";
+  s >= 80 ? "text-green" : s >= 60 ? "text-cyan" : s >= 40 ? "text-orange" : "text-red";
 
 const SCORE_LABEL = (s: number) =>
   s >= 80 ? "Strong" : s >= 60 ? "Good" : s >= 40 ? "Developing" : "Needs Work";
@@ -74,7 +74,7 @@ export default function ProjectEvaluator() {
         {loading ? "Evaluating with AI…" : "Evaluate Project"}
       </button>
 
-      {error && <p className="text-red-400 text-xs font-mono">{error}</p>}
+      {error && <p className="text-red text-xs font-mono">{error}</p>}
 
       {result && (
         <div className="space-y-4 mt-2">
@@ -98,7 +98,7 @@ export default function ProjectEvaluator() {
             <div className="mt-4 h-2 bg-white/10 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-1000 ${
-                  result.overallScore >= 80 ? "bg-green" : result.overallScore >= 60 ? "bg-cyan" : result.overallScore >= 40 ? "bg-yellow-400" : "bg-red-400"
+                  result.overallScore >= 80 ? "bg-green" : result.overallScore >= 60 ? "bg-cyan" : result.overallScore >= 40 ? "bg-orange" : "bg-red"
                 }`}
                 style={{ width: `${result.overallScore}%` }}
               />
@@ -134,12 +134,12 @@ export default function ProjectEvaluator() {
                 ))}
               </ul>
             </div>
-            <div className="glass rounded-xl border border-red-400/10 p-4">
-              <p className="text-[10px] font-mono text-red-400 uppercase tracking-wider font-bold mb-3">Weaknesses</p>
+            <div className="glass rounded-xl border border-red/10 p-4">
+              <p className="text-[10px] font-mono text-red uppercase tracking-wider font-bold mb-3">Weaknesses</p>
               <ul className="space-y-2">
                 {result.weaknesses.map((w, i) => (
                   <li key={i} className="text-lightGrey text-[11px] font-mono flex gap-2">
-                    <span className="text-red-400 flex-shrink-0">✗</span>{w}
+                    <span className="text-red flex-shrink-0">✗</span>{w}
                   </li>
                 ))}
               </ul>

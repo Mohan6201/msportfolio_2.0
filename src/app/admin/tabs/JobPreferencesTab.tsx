@@ -43,7 +43,7 @@ function Chips({ items, empty }: { items: string[]; empty: string }) {
 
 const REMOTE_STYLES: Record<string, string> = {
   remote: "bg-[#00D964]/15 text-[#00D964] border-[#00D964]/30",
-  hybrid: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+  hybrid: "bg-cyan/15 text-cyan border-cyan/30",
   onsite: "bg-orange-500/15 text-orange-300 border-orange-500/30",
   any:    "bg-[#26262B] text-[#9CA3AF] border-[#33333A]",
 };

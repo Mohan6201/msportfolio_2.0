@@ -6,7 +6,7 @@ import type { AchievementsData } from "@/domains/analytics/services/achievements
 const STATS = [
   { key: "yearsExperience",      label: "Years Experience",   Icon: Zap,           color: "text-cyan",       border: "border-cyan/20",       bg: "bg-cyan/5" },
   { key: "projectsDelivered",    label: "Projects Delivered", Icon: Rocket,         color: "text-orange",     border: "border-orange/20",     bg: "bg-orange/5" },
-  { key: "certificationsEarned", label: "Certifications",     Icon: Award,          color: "text-yellow-400", border: "border-yellow-400/20", bg: "bg-yellow-400/5" },
+  { key: "certificationsEarned", label: "Certifications",     Icon: Award,          color: "text-orange", border: "border-orange/20", bg: "bg-orange/5" },
   { key: "ktDocuments",          label: "KT Documents",       Icon: BookOpen,       color: "text-green",      border: "border-green/20",      bg: "bg-green/5" },
   { key: "interviewQuestions",   label: "Interview Q&A",      Icon: MessageSquare,  color: "text-[#a78bfa]",  border: "border-[#a78bfa]/20",  bg: "bg-[#a78bfa]/5" },
 ] as const;

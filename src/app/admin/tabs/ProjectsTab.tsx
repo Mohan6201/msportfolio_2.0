@@ -174,7 +174,7 @@ export function ProjectsTab() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(59,130,246,0.1)" }}>
-            <FolderOpen className="w-4 h-4 text-blue-400" />
+            <FolderOpen className="w-4 h-4 text-cyan" />
           </div>
           <div>
             <p className="text-white font-bold text-sm">{items.length} Projects</p>
@@ -247,7 +247,7 @@ export function ProjectsTab() {
                 <button onClick={() => startEdit(p)} className="p-1.5 rounded-lg border transition-colors" style={{ borderColor: "#26262B", color: "#6B7280" }} title="Edit">
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => remove(p.id)} disabled={deletingId === p.id} className="p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50" title="Delete">
+                <button onClick={() => remove(p.id)} disabled={deletingId === p.id} className="p-1.5 rounded-lg border border-red/30 text-red hover:bg-red/10 transition-colors disabled:opacity-50" title="Delete">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>

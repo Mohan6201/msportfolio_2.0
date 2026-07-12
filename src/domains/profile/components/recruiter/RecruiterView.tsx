@@ -31,7 +31,7 @@ const LEVEL_WIDTHS: Record<number, string> = {
 
 const LEVEL_COLORS: Record<number, string> = {
   1: "bg-white/30",
-  2: "bg-blue-500/70",
+  2: "bg-lightCyan/70",
   3: "bg-cyan/70",
   4: "bg-green/70",
   5: "bg-orange/70",

@@ -14,14 +14,14 @@ export const metadata: Metadata = {
 const LEVEL_LABELS: Record<number, string> = { 1: "Familiar", 2: "Basic", 3: "Intermediate", 4: "Advanced", 5: "Expert" };
 const LEVEL_COLORS: Record<number, string> = {
   1: "bg-white/20",
-  2: "bg-blue-500/60",
+  2: "bg-lightCyan/60",
   3: "bg-cyan/60",
   4: "bg-green/60",
   5: "bg-orange/80",
 };
 const LEVEL_TEXT: Record<number, string> = {
   1: "text-white/40",
-  2: "text-blue-400",
+  2: "text-lightCyan",
   3: "text-cyan",
   4: "text-green",
   5: "text-orange",

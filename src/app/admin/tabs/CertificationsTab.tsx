@@ -453,7 +453,7 @@ export function CertificationsTab() {
                 <button onClick={() => startEdit(c)} className="p-1.5 rounded-lg border transition-colors" style={{ borderColor: "#26262B", color: "#6B7280" }} title="Edit">
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => remove(c.id)} disabled={deletingId === c.id} className="p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50" title="Delete">
+                <button onClick={() => remove(c.id)} disabled={deletingId === c.id} className="p-1.5 rounded-lg border border-red/30 text-red hover:bg-red/10 transition-colors disabled:opacity-50" title="Delete">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>

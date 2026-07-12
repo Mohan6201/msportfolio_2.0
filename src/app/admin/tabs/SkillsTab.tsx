@@ -217,7 +217,7 @@ export function SkillsTab() {
                         <Pencil className="w-3 h-3" />
                       </button>
                       <button onClick={() => remove(skill.id)} disabled={deletingId === skill.id}
-                        className="p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors">
+                        className="p-1.5 rounded-lg border border-red/30 text-red hover:bg-red/10 transition-colors">
                         <Trash2 className="w-3 h-3" />
                       </button>
                     </div>

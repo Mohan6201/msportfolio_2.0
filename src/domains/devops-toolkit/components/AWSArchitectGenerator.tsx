@@ -65,7 +65,7 @@ export default function AWSArchitectGenerator() {
         {loading ? "Generating Architecture…" : "Generate AWS Architecture"}
       </button>
 
-      {error && <p className="text-red-400 text-xs font-mono">{error}</p>}
+      {error && <p className="text-red text-xs font-mono">{error}</p>}
 
       {result && (
         <div className="space-y-4 mt-2">
@@ -100,7 +100,7 @@ export default function AWSArchitectGenerator() {
           <div className="grid sm:grid-cols-3 gap-4">
             {[
               { title: "Data Flow", items: result.dataFlow, color: "text-cyan" },
-              { title: "Security", items: result.security, color: "text-red-400" },
+              { title: "Security", items: result.security, color: "text-red" },
               { title: "Scaling", items: result.scaling, color: "text-green" },
             ].map((s) => (
               <div key={s.title} className="glass rounded-xl border border-white/10 p-4">

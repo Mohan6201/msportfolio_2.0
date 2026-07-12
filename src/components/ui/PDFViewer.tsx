@@ -80,7 +80,7 @@ function ViewerModal({ state, onClose, onTogglePip }: {
           <button onClick={onTogglePip} className="w-5 h-5 flex items-center justify-center text-lightGrey hover:text-cyan transition-colors">
             <Maximize2 className="w-3.5 h-3.5" />
           </button>
-          <button onClick={onClose} className="w-5 h-5 flex items-center justify-center text-lightGrey hover:text-red-400 transition-colors">
+          <button onClick={onClose} className="w-5 h-5 flex items-center justify-center text-lightGrey hover:text-red transition-colors">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -150,7 +150,7 @@ function ViewerModal({ state, onClose, onTogglePip }: {
               <Minimize2 className="w-3.5 h-3.5" />
             </button>
             <button onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all">
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-red/10 border border-red/20 text-red hover:bg-red/20 transition-all">
               <X className="w-3.5 h-3.5" />
             </button>
           </div>

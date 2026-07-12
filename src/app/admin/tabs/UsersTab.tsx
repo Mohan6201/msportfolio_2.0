@@ -17,8 +17,8 @@ type AdminUser = {
 const ASSIGNABLE: Role[] = ["admin", "user", "recruiter"];
 
 const ROLE_STYLES: Record<Role, string> = {
-  owner:     "bg-purple-500/15 text-purple-300 border-purple-500/30",
-  admin:     "bg-blue-500/15 text-blue-300 border-blue-500/30",
+  owner:     "bg-purple/15 text-purple border-purple/30",
+  admin:     "bg-cyan/15 text-cyan border-cyan/30",
   user:      "bg-[#26262B] text-[#9CA3AF] border-[#33333A]",
   recruiter: "bg-orange-500/15 text-orange-300 border-orange-500/30",
 };
@@ -183,7 +183,7 @@ export function UsersTab() {
                     <button
                       disabled={!editable || busy === u.id}
                       onClick={() => remove(u)}
-                      className="p-1.5 rounded-lg border border-red-500/25 text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="p-1.5 rounded-lg border border-red/25 text-red/80 hover:bg-red/10 hover:text-red transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                       title={editable ? "Delete user" : "Owner cannot be deleted"}
                     >
                       {busy === u.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}

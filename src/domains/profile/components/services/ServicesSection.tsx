@@ -51,7 +51,7 @@ const SERVICES = [
       "Design scalable, cost-optimised cloud architectures aligned with the AWS Well-Architected Framework. Delivered as architecture diagrams, ADRs, and Terraform templates.",
     deliverables: ["Architecture diagram (draw.io/C4)", "AWS Well-Architected review", "Terraform IaC templates", "Cost estimate + optimisation"],
     timeline: "1–2 weeks",
-    color: "text-yellow-400 border-yellow-400/30 bg-yellow-400/5",
+    color: "text-orange border-orange/30 bg-orange/5",
     badge: "Architecture",
   },
 ] as const;

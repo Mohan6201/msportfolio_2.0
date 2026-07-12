@@ -1,6 +1,6 @@
-import { generateText } from "ai";
-import { EXTRACT_MODEL } from "@/ai/providers/gateway";
-import { embedText, serializeEmbedding } from "@/ai/agents/embedText";
+import { generateText, embedMany } from "ai";
+import { EXTRACT_MODEL, EMBED_MODEL, EMBED_PROVIDER_OPTIONS } from "@/ai/providers/gateway";
+import { serializeEmbedding } from "@/ai/agents/embedText";
 import { libsqlClient } from "@/db/client";
 
 const CHUNK_SIZE = 400;
@@ -45,10 +45,26 @@ export async function indexKnowledgeDocument(
     args: [documentId],
   });
 
-  // Embed and insert each chunk
+  // Batch-embed chunks instead of one call per chunk — Google's batchEmbedContents
+  // endpoint actually caps at 100 texts per request (its own error message says so;
+  // the SDK's maxEmbeddingsPerCall of 2048 is misleading and doesn't reflect the real
+  // API limit), so split into groups of 100. The free tier's request-count quota is
+  // tight enough that per-chunk embed() calls could exhaust an entire document's worth
+  // of quota (or more) on one document alone, so batching still matters even capped.
+  const BATCH_SIZE = 100;
+  const embeddings: number[][] = [];
+  for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
+    const batch = chunks.slice(i, i + BATCH_SIZE);
+    const { embeddings: batchEmbeddings } = await embedMany({
+      model: EMBED_MODEL,
+      values: batch,
+      providerOptions: EMBED_PROVIDER_OPTIONS,
+    });
+    embeddings.push(...batchEmbeddings);
+  }
+
   for (let i = 0; i < chunks.length; i++) {
-    const embedding = await embedText(chunks[i]);
-    const vecJson = serializeEmbedding(embedding);
+    const vecJson = serializeEmbedding(embeddings[i]);
     await libsqlClient.execute({
       sql: "INSERT INTO kt_chunks (document_id, chunk_index, content, embedding) VALUES (?, ?, ?, vector32(?))",
       args: [documentId, i, chunks[i], vecJson],

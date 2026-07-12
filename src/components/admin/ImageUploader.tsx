@@ -94,7 +94,7 @@ export function ImageUploader({ value, onChange, folder = "uploads", label = "Im
             </div>
           )}
           <p className="text-[10px] font-mono mt-1" style={{ color: "#374151" }}>
-            JPEG · PNG · WebP · SVG · max 5 MB
+            JPEG · PNG · WebP · GIF · max 5 MB
           </p>
         </div>
 
@@ -103,7 +103,7 @@ export function ImageUploader({ value, onChange, folder = "uploads", label = "Im
           <button
             type="button"
             onClick={() => onChange("")}
-            className="p-1.5 rounded-lg border border-[#26262B] text-[#6B7280] hover:text-red-400 hover:border-red-500/30 transition-colors flex-shrink-0"
+            className="p-1.5 rounded-lg border border-[#26262B] text-[#6B7280] hover:text-red hover:border-red/30 transition-colors flex-shrink-0"
             title="Remove image"
           >
             <X className="w-3.5 h-3.5" />
@@ -121,12 +121,12 @@ export function ImageUploader({ value, onChange, folder = "uploads", label = "Im
         style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}
       />
 
-      {error && <p className="text-[11px] font-mono text-red-400">{error}</p>}
+      {error && <p className="text-[11px] font-mono text-red">{error}</p>}
 
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/svg+xml,image/gif"
+        accept="image/jpeg,image/png,image/webp,image/gif"
         className="hidden"
         onChange={onFileChange}
       />

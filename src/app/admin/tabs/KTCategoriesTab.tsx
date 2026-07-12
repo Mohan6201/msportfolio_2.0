@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tag, FileText, ExternalLink, ChevronDown } from "lucide-react";
+import { KT_CATEGORIES } from "@/domains/knowledge/lib/categories";
 
 type KTDoc = {
   id: number;
@@ -14,16 +15,16 @@ type KTDoc = {
   uploadedAt: string;
 };
 
-const CATEGORIES = ["DevOps", "Cloud", "Security", "Development", "Architecture", "General"];
+const CATEGORIES = KT_CATEGORIES;
 
 const CATEGORY_COLOR: Record<string, string> = {
-  DevOps: "#00D964",
-  Cloud: "#38bdf8",
-  Security: "#f87171",
-  Development: "#a78bfa",
-  Architecture: "#fbbf24",
-  General: "#6B7280",
+  AWS: "#f97316", Docker: "#38bdf8", Kubernetes: "#60a5fa",
+  Linux: "#a3e635", Terraform: "#818cf8", DevOps: "#00D964", "CI/CD": "#34d399",
+  Ansible: "#fb7185", Networking: "#fbbf24", Azure: "#38bdf8",
+  Systems: "#9ca3af", Cloud: "#22d3ee", "AI/ML": "#c084fc",
 };
+/** Fallback for any legacy/unknown category value still present in the DB. */
+const FALLBACK_COLOR = "#6B7280";
 
 function formatSize(bytes: number): string {
   if (!bytes || bytes <= 0) return "0 KB";
@@ -52,19 +53,24 @@ export function KTCategoriesTab() {
   useEffect(() => { load(); }, [load]);
 
   const groups = useMemo(() => {
+    // Seed every canonical category (even with 0 docs) so the chart always shows
+    // the full list, then fold in any legacy category values still in the DB
+    // that predate the shared KT_CATEGORIES list (rather than silently lumping
+    // them into a generic bucket).
     const map = new Map<string, { count: number; size: number }>();
     for (const c of CATEGORIES) map.set(c, { count: 0, size: 0 });
     for (const d of docs) {
-      const cat = CATEGORIES.includes(d.category) ? d.category : "General";
+      const cat = d.category || "DevOps";
+      if (!map.has(cat)) map.set(cat, { count: 0, size: 0 });
       const g = map.get(cat)!;
       g.count += 1;
       g.size += d.fileSize || 0;
     }
-    return CATEGORIES.map((c) => ({ category: c, ...map.get(c)! }));
+    return Array.from(map.entries()).map(([category, v]) => ({ category, ...v }));
   }, [docs]);
 
   const maxCount = Math.max(1, ...groups.map((g) => g.count));
-  const filtered = active ? docs.filter((d) => (CATEGORIES.includes(d.category) ? d.category : "General") === active) : [];
+  const filtered = active ? docs.filter((d) => (d.category || "DevOps") === active) : [];
 
   if (loading) {
     return (
@@ -90,7 +96,7 @@ export function KTCategoriesTab() {
       {/* Bar chart */}
       <div className="bg-[#16161A] border border-[#26262B] rounded-xl p-5 flex flex-col gap-4">
         {groups.map((g) => {
-          const color = CATEGORY_COLOR[g.category];
+          const color = CATEGORY_COLOR[g.category] ?? FALLBACK_COLOR;
           const pct = (g.count / maxCount) * 100;
           const isActive = active === g.category;
           return (
@@ -133,7 +139,7 @@ export function KTCategoriesTab() {
             className="overflow-hidden"
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-mono font-semibold" style={{ color: CATEGORY_COLOR[active] }}>
+              <span className="text-xs font-mono font-semibold" style={{ color: CATEGORY_COLOR[active] ?? FALLBACK_COLOR }}>
                 {active} documents
               </span>
               <button
@@ -155,7 +161,7 @@ export function KTCategoriesTab() {
                     key={d.id}
                     className="bg-[#16161A] border border-[#26262B] rounded-lg px-4 py-3 flex items-center gap-3"
                   >
-                    <FileText className="w-4 h-4 flex-shrink-0" style={{ color: CATEGORY_COLOR[active] }} />
+                    <FileText className="w-4 h-4 flex-shrink-0" style={{ color: CATEGORY_COLOR[active] ?? FALLBACK_COLOR }} />
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-xs font-mono truncate">{d.title}</p>
                       <p className="text-[#6B7280] text-[10px] font-mono truncate mt-0.5">{d.filename}</p>

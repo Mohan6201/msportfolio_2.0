@@ -3,8 +3,8 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { ktDocuments } from "@/db/schema/legacy";
 import { requireAdmin } from "@/lib/adminAuth";
+import { KT_CATEGORIES } from "@/domains/knowledge/lib/categories";
 
-const CATEGORIES = ["DevOps", "Cloud", "Security", "Development", "Architecture", "General"];
 const LEVELS = ["Beginner", "Intermediate", "Advanced", "Reference"];
 
 /** DELETE — remove a KT document by id. */
@@ -46,7 +46,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       updates.title = body.title.trim();
     }
     if (typeof body.category === "string") {
-      if (!CATEGORIES.includes(body.category)) {
+      if (!(KT_CATEGORIES as readonly string[]).includes(body.category)) {
         return NextResponse.json({ error: "Invalid category" }, { status: 400 });
       }
       updates.category = body.category;

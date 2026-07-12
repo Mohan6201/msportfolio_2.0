@@ -4,19 +4,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   BookOpen, Download, ExternalLink, Server, Container, TerminalSquare,
   GitBranch, Layers, Shield, Network, Cloud, Database, Cpu, Settings2,
-  Upload, X, CheckCircle, AlertCircle, Loader2, Plus, Search,
+  Upload, X, CheckCircle, AlertCircle, Loader2, Plus, Search, BrainCircuit,
 } from "lucide-react";
 import { usePDFViewer } from "@/components/ui/PDFViewer";
 import ExpandDivider from "@/components/ui/ExpandDivider";
 import { STATIC_DOCS, type Doc } from "@/domains/knowledge/lib/staticDocs";
+import { KT_CATEGORIES } from "@/domains/knowledge/lib/categories";
+import { uploadKtDocument, describeUploadError } from "@/domains/knowledge/lib/uploadKtDocument";
 
 const COLLAPSED_DOC_COUNT = 8;
 
 const BASE = "/resources/docs";
 const u = (f: string) => encodeURI(`${BASE}/${f}`);
 
-const CATEGORIES = ["All", "AWS", "Docker", "Kubernetes", "Linux", "Terraform", "DevOps", "CI/CD", "Ansible", "Networking", "Azure", "Systems", "Cloud"];
-const UPLOAD_CATEGORIES = CATEGORIES.filter((c) => c !== "All");
+const CATEGORIES = ["All", ...KT_CATEGORIES];
+const UPLOAD_CATEGORIES = KT_CATEGORIES;
 const LEVELS = ["Beginner", "Intermediate", "Advanced", "Reference"];
 
 const CAT_META: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
@@ -32,6 +34,7 @@ const CAT_META: Record<string, { icon: React.ElementType; color: string; bg: str
   Azure:      { icon: Cloud,          color: "text-[#0089d6]", bg: "bg-[#0089d6]/10 border-[#0089d6]/20" },
   Systems:    { icon: Cpu,            color: "text-lightGrey", bg: "bg-white/5 border-white/10" },
   Cloud:      { icon: Shield,         color: "text-green",     bg: "bg-green/5 border-green/10" },
+  "AI/ML":    { icon: BrainCircuit,   color: "text-[#c084fc]", bg: "bg-[#c084fc]/10 border-[#c084fc]/20" },
 };
 
 const LEVEL_STYLE: Record<string, string> = {
@@ -114,6 +117,7 @@ function UploadModal({ onClose, onUploaded }: { onClose: () => void; onUploaded:
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [progress, setProgress] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,24 +132,20 @@ function UploadModal({ onClose, onUploaded }: { onClose: () => void; onUploaded:
     if (!file || !title.trim()) return;
     setStatus("uploading");
     setErrorMsg("");
+    setProgress(0);
 
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("title", title.trim());
-      fd.append("category", category);
-      fd.append("level", level);
-
-      const res = await fetch("/api/kt-upload", { method: "POST", body: fd });
-      const data = await res.json();
-
-      if (!res.ok) { setStatus("error"); setErrorMsg(data.error ?? "Upload failed"); return; }
+      await uploadKtDocument(
+        file,
+        { title: title.trim(), category, level },
+        (pct) => setProgress(pct)
+      );
 
       setStatus("success");
       setTimeout(() => { onUploaded(); onClose(); }, 1200);
-    } catch {
+    } catch (err) {
       setStatus("error");
-      setErrorMsg("Network error — please try again.");
+      setErrorMsg(describeUploadError(err));
     }
   };
 
@@ -220,9 +220,19 @@ function UploadModal({ onClose, onUploaded }: { onClose: () => void; onUploaded:
             </select>
           </div>
 
+          {/* Upload progress */}
+          {status === "uploading" && progress > 0 && (
+            <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-cyan transition-all duration-200"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          )}
+
           {/* Error */}
           {status === "error" && (
-            <div className="flex items-center gap-2 text-red-400 text-xs font-mono">
+            <div className="flex items-center gap-2 text-red text-xs font-mono">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               {errorMsg}
             </div>
@@ -234,7 +244,7 @@ function UploadModal({ onClose, onUploaded }: { onClose: () => void; onUploaded:
             disabled={!file || !title.trim() || status === "uploading" || status === "success"}
             className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-cyan text-black font-mono font-bold text-sm hover:bg-lightCyan disabled:opacity-50 transition-all"
           >
-            {status === "uploading" ? <><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</> :
+            {status === "uploading" ? <><Loader2 className="w-4 h-4 animate-spin" /> Uploading{progress > 0 ? ` ${Math.round(progress)}%` : "…"}</> :
              status === "success"   ? <><CheckCircle className="w-4 h-4" /> Uploaded!</> :
              <><Upload className="w-4 h-4" /> Upload to KT Centre</>}
           </button>

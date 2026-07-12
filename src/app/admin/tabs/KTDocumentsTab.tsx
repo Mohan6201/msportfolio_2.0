@@ -5,6 +5,8 @@ import {
   FileText, Trash2, Database, HardDrive, X, AlertTriangle,
   ExternalLink, Upload, Loader2, CheckCircle2, XCircle,
 } from "lucide-react";
+import { KT_CATEGORIES } from "@/domains/knowledge/lib/categories";
+import { uploadKtDocument, describeUploadError } from "@/domains/knowledge/lib/uploadKtDocument";
 
 type KTDoc = {
   id: number; title: string; filename: string; category: string;
@@ -16,15 +18,14 @@ type UploadItem = {
   status: "pending" | "uploading" | "done" | "error"; error?: string;
 };
 
-const CATEGORIES = ["DevOps","Cloud","Security","Development","Architecture","General","AWS","Docker","Kubernetes","Linux","Terraform","CI/CD","Ansible","Networking","Azure"];
+const CATEGORIES = KT_CATEGORIES;
 const LEVELS     = ["Beginner","Intermediate","Advanced","Reference"];
 
 const CATEGORY_COLOR: Record<string, string> = {
-  DevOps:"#00D964", Cloud:"#38bdf8", Security:"#f87171",
-  Development:"#a78bfa", Architecture:"#fbbf24", General:"#6B7280",
   AWS:"#f97316", Docker:"#38bdf8", Kubernetes:"#60a5fa",
-  Linux:"#a3e635", Terraform:"#818cf8", "CI/CD":"#34d399",
+  Linux:"#a3e635", Terraform:"#818cf8", DevOps:"#00D964", "CI/CD":"#34d399",
   Ansible:"#fb7185", Networking:"#fbbf24", Azure:"#38bdf8",
+  Systems:"#9ca3af", Cloud:"#22d3ee", "AI/ML":"#c084fc",
 };
 
 function formatSize(bytes: number) {
@@ -50,8 +51,9 @@ function guessCategory(filename: string): string {
   if (f.includes("azure")) return "Azure";
   if (f.includes("devops")) return "DevOps";
   if (f.includes("cloud")) return "Cloud";
-  if (f.includes("security")) return "Security";
-  return "General";
+  if (f.includes("ai") || f.includes("ml") || f.includes("llm") || f.includes("gpt") || f.includes("machine-learning")) return "AI/ML";
+  if (f.includes("security") || f.includes("os") || f.includes("system")) return "Systems";
+  return "DevOps";
 }
 
 export function KTDocumentsTab() {
@@ -98,20 +100,10 @@ export function KTDocumentsTab() {
     for (const item of pending) {
       setUploads(prev => prev.map(u => u.id === item.id ? { ...u, status: "uploading" } : u));
       try {
-        const fd = new FormData();
-        fd.append("file", item.file);
-        fd.append("title", item.title);
-        fd.append("category", item.category);
-        fd.append("level", item.level);
-        const r = await fetch("/api/kt-upload", { method: "POST", body: fd });
-        if (!r.ok) {
-          const e = await r.json().catch(() => ({}));
-          setUploads(prev => prev.map(u => u.id === item.id ? { ...u, status: "error", error: e.error ?? "Upload failed" } : u));
-        } else {
-          setUploads(prev => prev.map(u => u.id === item.id ? { ...u, status: "done" } : u));
-        }
+        await uploadKtDocument(item.file, { title: item.title, category: item.category, level: item.level });
+        setUploads(prev => prev.map(u => u.id === item.id ? { ...u, status: "done" } : u));
       } catch (e) {
-        setUploads(prev => prev.map(u => u.id === item.id ? { ...u, status: "error", error: String(e) } : u));
+        setUploads(prev => prev.map(u => u.id === item.id ? { ...u, status: "error", error: describeUploadError(e) } : u));
       }
     }
     await load();
@@ -214,7 +206,7 @@ export function KTDocumentsTab() {
                   <div className="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}>
                     {item.status === "uploading" && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00D964]" />}
                     {item.status === "done"      && <CheckCircle2 className="w-3.5 h-3.5 text-[#00D964]" />}
-                    {item.status === "error"     && <XCircle className="w-3.5 h-3.5 text-red-400" />}
+                    {item.status === "error"     && <XCircle className="w-3.5 h-3.5 text-red" />}
                     {item.status === "pending"   && <FileText className="w-3.5 h-3.5 text-[#6B7280]" />}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -224,7 +216,7 @@ export function KTDocumentsTab() {
                       onChange={e => setUploads(prev => prev.map(u => u.id === item.id ? { ...u, title: e.target.value } : u))}
                       disabled={item.status !== "pending"}
                     />
-                    {item.error && <p className="text-red-400 text-[10px] font-mono mt-0.5">{item.error}</p>}
+                    {item.error && <p className="text-red text-[10px] font-mono mt-0.5">{item.error}</p>}
                   </div>
                   <select
                     value={item.category}
@@ -244,7 +236,7 @@ export function KTDocumentsTab() {
                   </select>
                   {item.status === "pending" && (
                     <button onClick={() => setUploads(prev => prev.filter(u => u.id !== item.id))}
-                      className="text-[#6B7280] hover:text-red-400 transition-colors">
+                      className="text-[#6B7280] hover:text-red transition-colors">
                       <X className="w-3.5 h-3.5" />
                     </button>
                   )}
@@ -334,7 +326,7 @@ export function KTDocumentsTab() {
                   <p className="text-[#6B7280] text-[10px] font-mono mt-0.5">{formatDate(d.uploadedAt)}</p>
                 </div>
                 <button onClick={() => setConfirmDoc(d)} disabled={busyId === d.id}
-                  className="p-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors flex-shrink-0 disabled:opacity-50">
+                  className="p-2 rounded-lg border border-red/30 text-red hover:bg-red/10 transition-colors flex-shrink-0 disabled:opacity-50">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -359,7 +351,7 @@ export function KTDocumentsTab() {
               </button>
               <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
                 style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
-                <AlertTriangle className="w-5 h-5 text-red-400" />
+                <AlertTriangle className="w-5 h-5 text-red" />
               </div>
               <h3 className="text-white font-semibold text-sm font-mono">Delete document?</h3>
               <p className="text-[#6B7280] text-xs font-mono mt-2 leading-relaxed">

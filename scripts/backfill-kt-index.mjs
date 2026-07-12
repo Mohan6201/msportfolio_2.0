@@ -42,8 +42,11 @@ const docs = await client.execute(
 const todo = docs.rows.filter((d) => !indexedIds.has(Number(d.id)));
 console.log(`${docs.rows.length} total documents, ${indexedIds.size} already indexed, ${todo.length} to backfill.\n`);
 
+const MAX_INLINE_FILE_BYTES = 15 * 1024 * 1024;
+
 let succeeded = 0;
 let skippedNoBytes = 0;
+let skippedTooLarge = 0;
 let failed = 0;
 
 for (const doc of todo) {
@@ -70,6 +73,12 @@ for (const doc of todo) {
     continue;
   }
 
+  if (bytes.byteLength > MAX_INLINE_FILE_BYTES) {
+    console.log(`⏭  ${label} — ${(bytes.byteLength / 1024 / 1024).toFixed(1)}MB exceeds the ${MAX_INLINE_FILE_BYTES / 1024 / 1024}MB inline-file limit, skipping (needs Files API support to index)`);
+    skippedTooLarge++;
+    continue;
+  }
+
   try {
     const result = await indexKnowledgeDocument(id, bytes, "application/pdf");
     console.log(`✅ ${label} — ${result.chunks} chunks`);
@@ -81,7 +90,7 @@ for (const doc of todo) {
     failed++;
     if (isRateLimit) {
       console.log(`\n⚠️  Hit a rate limit / quota error — stopping here rather than continuing to fail.`);
-      console.log(`Progress so far: ${succeeded} succeeded, ${failed} failed, ${skippedNoBytes} skipped (no bytes), ${todo.length - succeeded - failed - skippedNoBytes} not yet attempted.`);
+      console.log(`Progress so far: ${succeeded} succeeded, ${failed} failed, ${skippedNoBytes} skipped (no bytes), ${skippedTooLarge} skipped (too large), ${todo.length - succeeded - failed - skippedNoBytes - skippedTooLarge} not yet attempted.`);
       console.log(`Safe to re-run this script later — already-indexed documents will be skipped.`);
       process.exit(1);
     }

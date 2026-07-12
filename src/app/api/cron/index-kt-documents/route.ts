@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
   let succeeded = 0;
   let failed = 0;
   let skippedNoBytes = 0;
+  let skippedTooLarge = 0;
   let stoppedOnQuota = false;
   const errors: string[] = [];
 
@@ -60,6 +61,10 @@ export async function GET(req: NextRequest) {
       succeeded++;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
+      if (msg.startsWith("FILE_TOO_LARGE_FOR_INLINE")) {
+        skippedTooLarge++;
+        continue; // permanent, non-retryable — don't count as a failure or trip the quota check
+      }
       failed++;
       errors.push(`[${id}] ${msg.slice(0, 150)}`);
       if (/quota|rate.?limit|429|RESOURCE_EXHAUSTED/i.test(msg)) {
@@ -75,6 +80,7 @@ export async function GET(req: NextRequest) {
     succeeded,
     failed,
     skippedNoBytes,
+    skippedTooLarge,
     stoppedOnQuota,
     errors,
   });

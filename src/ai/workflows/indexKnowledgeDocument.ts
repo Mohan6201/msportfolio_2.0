@@ -6,6 +6,15 @@ import { libsqlClient } from "@/db/client";
 const CHUNK_SIZE = 400;
 const CHUNK_OVERLAP = 80;
 
+// Gemini's inline-file request body caps at 20MB total (base64 encoding inflates raw
+// bytes by ~33%, plus JSON wrapping overhead) — anything larger needs the separate
+// Files API (upload once, reference by URI), which this doesn't implement. Guard at a
+// conservative 15MB so oversized documents fail fast with a clear, permanent reason
+// instead of burning a real API call on a 400 "Request contains an invalid argument"
+// that gives no hint it was actually a size problem. At least 3 of the 46 KT documents
+// (up to 65MB) exceed this — they're skipped until Files API support is added.
+const MAX_INLINE_FILE_BYTES = 15 * 1024 * 1024;
+
 function chunkText(text: string): string[] {
   const chunks: string[] = [];
   let start = 0;
@@ -23,6 +32,12 @@ export async function indexKnowledgeDocument(
   fileBytes: ArrayBuffer,
   mimeType: string
 ): Promise<{ chunks: number }> {
+  if (fileBytes.byteLength > MAX_INLINE_FILE_BYTES) {
+    throw new Error(
+      `FILE_TOO_LARGE_FOR_INLINE: ${(fileBytes.byteLength / 1024 / 1024).toFixed(1)}MB exceeds the ${MAX_INLINE_FILE_BYTES / 1024 / 1024}MB inline-file limit — needs Files API support (not implemented) to index.`
+    );
+  }
+
   // Extract text from the PDF using Gemini
   const { text } = await generateText({
     model: BACKGROUND_EXTRACT_MODEL,

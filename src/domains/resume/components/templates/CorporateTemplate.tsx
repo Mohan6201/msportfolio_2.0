@@ -7,13 +7,13 @@ export default function CorporateTemplate({ data }: { data: ResumeData }) {
   return (
     <div
       id="resume-print-area"
-      className="bg-white text-gray-900 font-sans text-[11px] leading-relaxed max-w-[900px] mx-auto flex"
+      className="bg-[#fff] text-gray-900 font-sans text-[11px] leading-relaxed max-w-[900px] mx-auto flex"
       style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
     >
       {/* Left Sidebar */}
-      <div className="w-[240px] bg-[#1e3a5f] text-white flex-shrink-0 p-6 flex flex-col gap-5">
+      <div className="w-[240px] bg-[#1e3a5f] text-[#fff] flex-shrink-0 p-6 flex flex-col gap-5">
         <div>
-          <h1 className="text-[16px] font-bold text-white leading-tight">{contact.fullName?.toUpperCase()}</h1>
+          <h1 className="text-[16px] font-bold text-[#fff] leading-tight">{contact.fullName?.toUpperCase()}</h1>
           <p className="text-[#7ec8e3] text-[10px] mt-1">{experiences[0]?.jobTitle ?? "Professional"}</p>
         </div>
 
@@ -38,7 +38,7 @@ export default function CorporateTemplate({ data }: { data: ResumeData }) {
             </p>
             {certifications.map((c, i) => (
               <div key={i} className="mb-2">
-                <p className="text-white font-bold text-[10px] leading-tight">{c.title}</p>
+                <p className="text-[#fff] font-bold text-[10px] leading-tight">{c.title}</p>
                 <p className="text-[#7ec8e3] text-[9px]">{c.issuer}</p>
                 {c.date && <p className="text-gray-400 text-[9px]">{c.date}</p>}
               </div>
@@ -53,7 +53,7 @@ export default function CorporateTemplate({ data }: { data: ResumeData }) {
             </p>
             {education.map((e, i) => (
               <div key={i} className="mb-2">
-                <p className="text-white font-bold text-[10px] leading-tight">{e.degree}</p>
+                <p className="text-[#fff] font-bold text-[10px] leading-tight">{e.degree}</p>
                 <p className="text-[#7ec8e3] text-[9px]">{e.institution}</p>
                 {e.endDate && <p className="text-gray-400 text-[9px]">{e.startDate ? `${e.startDate} – ` : ""}{e.endDate}</p>}
               </div>

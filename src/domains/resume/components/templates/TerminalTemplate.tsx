@@ -23,7 +23,7 @@ export default function TerminalTemplate({ data }: { data: ResumeData }) {
       <div className="p-7">
         {/* Header */}
         <div className="mb-5 border-b border-[#30363d] pb-5">
-          <h1 className="text-[22px] font-bold text-white tracking-tight">{contact.fullName}</h1>
+          <h1 className="text-[22px] font-bold text-[#fff] tracking-tight">{contact.fullName}</h1>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-[#3fb950]">$</span>
             <span className="text-gray-400">./role --title "{experiences[0]?.jobTitle ?? "Professional"}"</span>

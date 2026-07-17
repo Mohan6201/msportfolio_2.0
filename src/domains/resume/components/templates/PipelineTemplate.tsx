@@ -13,7 +13,7 @@ export default function PipelineTemplate({ data }: { data: ResumeData }) {
         {/* Left Sidebar */}
         <div className="w-[220px] bg-[#050810] border-r border-[#1a2540] flex-shrink-0 p-6 flex flex-col gap-5">
           <div>
-            <h1 className="text-[15px] font-bold text-white tracking-tight leading-tight">{contact.fullName}</h1>
+            <h1 className="text-[15px] font-bold text-[#fff] tracking-tight leading-tight">{contact.fullName}</h1>
             <p className="text-[#3b82f6] text-[10px] mt-1 leading-snug">
               {data.experiences[0]?.jobTitle ?? "Professional"}
             </p>
@@ -78,7 +78,7 @@ export default function PipelineTemplate({ data }: { data: ResumeData }) {
             {experiences.map((exp, i) => (
               <div key={i} className="mb-5">
                 <div className="flex items-baseline justify-between mb-0.5">
-                  <span className="text-white font-bold text-[12px]">{exp.jobTitle}</span>
+                  <span className="text-[#fff] font-bold text-[12px]">{exp.jobTitle}</span>
                   <span className="text-gray-500 text-[9px]">
                     {exp.startDate} – {exp.isCurrent ? "Present" : (exp.endDate ?? "")}
                   </span>

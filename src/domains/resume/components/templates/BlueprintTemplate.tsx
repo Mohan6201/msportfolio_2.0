@@ -19,7 +19,7 @@ export default function BlueprintTemplate({ data }: { data: ResumeData }) {
       }}
     >
       {/* Blueprint header strip */}
-      <div className="bg-[#1a2a4a] text-white px-6 py-3 flex justify-between items-center">
+      <div className="bg-[#1a2a4a] text-[#fff] px-6 py-3 flex justify-between items-center">
         <div>
           <span className="text-[10px] text-[#7ec8e3] font-bold">{contact.fullName?.toUpperCase()}</span>
           <span className="text-gray-400 mx-2">·</span>
@@ -80,7 +80,7 @@ export default function BlueprintTemplate({ data }: { data: ResumeData }) {
           <div className="flex items-center justify-center gap-2 flex-wrap py-3">
             {["CODE", "BUILD", "TEST", "SCAN", "DEPLOY", "MONITOR"].map((stage, i, arr) => (
               <div key={i} className="flex items-center gap-2">
-                <div className="bg-[#1a2a4a] text-white text-[9px] font-bold px-3 py-1.5 rounded">
+                <div className="bg-[#1a2a4a] text-[#fff] text-[9px] font-bold px-3 py-1.5 rounded">
                   {stage}
                 </div>
                 {i < arr.length - 1 && <span className="text-[#1a2a4a]/40">→</span>}
@@ -129,7 +129,7 @@ export default function BlueprintTemplate({ data }: { data: ResumeData }) {
       </div>
 
       {/* Footer */}
-      <div className="bg-[#1a2a4a] text-white px-6 py-2 flex justify-between text-[8px] text-gray-400">
+      <div className="bg-[#1a2a4a] text-[#fff] px-6 py-2 flex justify-between text-[8px] text-gray-400">
         <span>SHEET 1 OF 2</span>
         <span>{contact.fullName?.toUpperCase()} · {experiences[0]?.jobTitle?.toUpperCase()}</span>
       </div>

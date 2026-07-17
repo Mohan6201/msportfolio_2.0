@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   FileText, Upload, Download, Loader2, Eye, RotateCcw,
   Copy, Check, ChevronDown, ChevronRight, CheckCircle2, XCircle, AlertCircle,
@@ -53,6 +54,9 @@ type ExperienceOptimization = {
 };
 
 export default function ResumeStudio() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   // Resume state
   const [,               setResumes]        = useState<Resume[]>([]);
   const [selected,       setSelected]       = useState<Resume | null>(null);
@@ -1094,16 +1098,27 @@ export default function ResumeStudio() {
         </div>
       </div>
 
-      {/* Print-only template area */}
-      <div id="resume-print-root" style={{ display: "none" }}>
-        {TemplateComponent && resumeData && <TemplateComponent data={resumeData} />}
-      </div>
-      <style>{`
-        @media print {
-          body > *:not(#resume-print-root) { display: none !important; }
-          #resume-print-root { display: block !important; }
-        }
-      `}</style>
+      {/* Print-only template area — portaled straight onto <body>. The print CSS below hides
+          every OTHER direct child of body; #resume-print-root has to actually be one for that
+          to keep it visible. Rendered in place (nested many levels inside the app layout), an
+          ancestor several levels up is what's actually the direct body child, so hiding "every
+          body child that isn't #resume-print-root" hid that ancestor -- taking the print root
+          down with it as a descendant, regardless of its own display value. That's what was
+          producing a blank export: real content, hidden behind a hidden ancestor. */}
+      {mounted && createPortal(
+        <>
+          <div id="resume-print-root" style={{ display: "none" }}>
+            {TemplateComponent && resumeData && <TemplateComponent data={resumeData} />}
+          </div>
+          <style>{`
+            @media print {
+              body > *:not(#resume-print-root) { display: none !important; }
+              #resume-print-root { display: block !important; }
+            }
+          `}</style>
+        </>,
+        document.body
+      )}
     </>
   );
 }

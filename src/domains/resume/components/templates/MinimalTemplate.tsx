@@ -6,7 +6,7 @@ export default function MinimalTemplate({ data }: { data: ResumeData }) {
   return (
     <div
       id="resume-print-area"
-      className="bg-white text-gray-900 text-[11px] leading-relaxed max-w-[800px] mx-auto p-10"
+      className="bg-[#fff] text-gray-900 text-[11px] leading-relaxed max-w-[800px] mx-auto p-10"
       style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
     >
       {/* Header */}

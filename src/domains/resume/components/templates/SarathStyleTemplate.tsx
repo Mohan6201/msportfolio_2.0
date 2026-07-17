@@ -8,11 +8,11 @@ export default function SarathStyleTemplate({ data }: { data: ResumeData }) {
   return (
     <div
       id="resume-print-area"
-      className="bg-white text-gray-900 font-sans text-[11px] leading-relaxed max-w-[900px] mx-auto"
+      className="bg-[#fff] text-gray-900 font-sans text-[11px] leading-relaxed max-w-[900px] mx-auto"
       style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
     >
       {/* Bold header */}
-      <div className="bg-[#1a1a2e] text-white px-8 py-6">
+      <div className="bg-[#1a1a2e] text-[#fff] px-8 py-6">
         <h1 className="text-[26px] font-bold tracking-tight">{contact.fullName}</h1>
         <p className="text-[#7ec8e3] text-[11px] mt-1">
           {currentExp?.jobTitle ?? "Professional"}

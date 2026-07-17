@@ -14,7 +14,7 @@ export default function DashboardTemplate({ data }: { data: ResumeData }) {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[#3b82f6] font-mono text-[10px] font-bold">M</span>
-              <h1 className="text-[20px] font-bold text-white tracking-tight">{contact.fullName?.toUpperCase()}</h1>
+              <h1 className="text-[20px] font-bold text-[#fff] tracking-tight">{contact.fullName?.toUpperCase()}</h1>
             </div>
             <p className="text-gray-400 text-[11px]">{experiences[0]?.jobTitle ?? "Professional"}</p>
           </div>
@@ -63,7 +63,7 @@ export default function DashboardTemplate({ data }: { data: ResumeData }) {
                 </div>
                 <div className="flex-1 pb-4">
                   <div className="flex items-baseline justify-between">
-                    <span className="text-white font-bold">{exp.jobTitle}</span>
+                    <span className="text-[#fff] font-bold">{exp.jobTitle}</span>
                     <span className="text-gray-500 text-[9px]">
                       {exp.startDate} – {exp.isCurrent ? "Present" : (exp.endDate ?? "")}
                     </span>

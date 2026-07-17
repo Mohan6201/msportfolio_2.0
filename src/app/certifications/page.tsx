@@ -4,6 +4,7 @@ import { getAllProfileData } from "@/domains/profile/services/profile.service";
 import NavbarMain from "@/domains/profile/components/navbar/NavbarMain";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Award } from "lucide-react";
+import { formatCertDate, isCertInProgress } from "@/lib/certDate";
 
 export const metadata: Metadata = {
   title: "Certifications | Mohana Srinivasan",
@@ -69,7 +70,12 @@ export default async function CertificationsPage() {
                       {cert.title}
                     </h3>
                     <p className="text-cyan text-[11px] font-mono mb-1">{cert.issuer}</p>
-                    <p className="text-lightGrey/40 text-[10px] font-mono mb-3">Issued {cert.date}</p>
+                    <div className="flex items-center gap-2 mb-3">
+                      <p className="text-lightGrey/40 text-[10px] font-mono">Issued {formatCertDate(cert.date)}</p>
+                      {isCertInProgress(cert.date) && (
+                        <span className="badge badge-orange text-[9px]">In Progress</span>
+                      )}
+                    </div>
 
                     {cert.description && (
                       <p className="text-lightGrey text-[11px] font-mono leading-relaxed mb-3 flex-1">{cert.description}</p>

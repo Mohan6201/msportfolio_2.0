@@ -9,9 +9,18 @@
 // reliable TEXT_MODEL chain sidesteps the vision-model gap entirely instead of working around it.
 export async function extractDocumentText(fileBytes: ArrayBuffer, mimeType: string): Promise<string> {
   if (mimeType === "application/pdf") {
-    // Legacy build is required outside a browser DOM — the standard build assumes
-    // browser-only globals (matches the same pdfjs Node-vs-browser split that caused the
-    // DOMMatrix SSR crash on the homepage resume preview).
+    // Even the "legacy" Node build pulls in pdfjs's canvas module, which references
+    // `new DOMMatrix()` at module-evaluation time — the same root cause as the earlier
+    // DOMMatrix SSR crash on the homepage resume preview. That reference is only ever
+    // exercised during actual page rendering, which text-only extraction never triggers, so a
+    // minimal no-op stub is enough to satisfy the module load without needing real matrix math.
+    // This only surfaced on Vercel's actual serverless runtime, not locally under `next dev`
+    // or `next build && next start` — the bundling/runtime difference is unclear, but the fix
+    // is safe either way since it's a no-op unless DOMMatrix is genuinely missing.
+    if (typeof globalThis.DOMMatrix === "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (globalThis as any).DOMMatrix = class DOMMatrix {};
+    }
     const { getDocument, GlobalWorkerOptions } = await import("pdfjs-dist/legacy/build/pdf.mjs");
     // pdfjs auto-disables the real Worker thread on Node and falls back to an in-process "fake
     // worker" — but that fallback still does `await import(GlobalWorkerOptions.workerSrc)`,

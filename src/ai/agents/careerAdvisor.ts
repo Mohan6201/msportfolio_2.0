@@ -1,5 +1,5 @@
 import { generateObject } from "ai";
-import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
+import { TEXT_MODEL, TEXT_MODEL_FALLBACK_1, GROQ_BEST_EFFORT_OPTIONS, TEXT_MODEL_FALLBACK_2 } from "@/ai/providers/gateway";
 import { careerRoadmapSchema, type CareerRoadmap } from "@/ai/schemas/careerRoadmap";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
 import { withFallback } from "@/ai/lib/withFallback";
@@ -41,11 +41,25 @@ Target:
 Recent Job Match Analysis (${recentMatches.length} jobs scored):
 ${recentMatches.slice(0, 5).map((m) => `- "${m.jobTitle}": ${m.matchScore}/100, gaps: ${m.skillGaps.join(", ")}`).join("\n") || "No matches yet"}
 
-Build a realistic, actionable career roadmap. Be specific about skill gaps and timeline. The keyMessage should be a one-line positioning statement the candidate can use in interviews and their LinkedIn headline.`;
+Build a realistic, actionable career roadmap. Be specific about skill gaps and timeline. The keyMessage should be a one-line positioning statement the candidate can use in interviews and their LinkedIn headline.
+
+Return the result as this exact JSON shape:
+{
+  "targetRole": string,
+  "currentLevel": string,
+  "keyMessage": string,
+  "strengths": string[],
+  "skillGaps": [{ "skill": string, "priority": "high" | "medium" | "low", "resources": string[] }],
+  "roadmap": [{ "timeframe": string, "milestone": string, "actions": string[] }],
+  "salaryRange": { "min": number, "max": number, "currency": string },
+  "topCompanies": string[],
+  "certificationRecommendations": string[]
+}`;
 
   const { object } = await withFallback([
-    () => generateObject({ model: EXTRACT_MODEL, schema: careerRoadmapSchema, prompt }),
-    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: careerRoadmapSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL, schema: careerRoadmapSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_1, schema: careerRoadmapSchema, prompt, providerOptions: GROQ_BEST_EFFORT_OPTIONS }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_2, schema: careerRoadmapSchema, prompt }),
   ]);
 
   return object;

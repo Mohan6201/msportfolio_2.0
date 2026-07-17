@@ -1,41 +1,49 @@
 import { google, createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGroq } from "@ai-sdk/groq";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 
-// gemini-2.0-flash's free tier was reduced to 0 RPM/TPM/RPD at some point after this
-// was first wired up (confirmed via https://aistudio.google.com/rate-limit) — every
-// AI feature site-wide was silently failing with a Gemini quota error. gemini-2.5-flash
-// and text-embedding-004 are both fully retired now too ("no longer available to new
-// users" / 404). gemini-flash-latest itself then started returning a raw 503
-// "This model is currently experiencing high demand" — confirmed via a direct REST call
-// against the primary key, the background key, AND plain generateText (no schema, no
-// file), so it's a genuine Google-side outage of that alias, not a quota issue on either
-// key. gemini-flash-lite-latest is a separate self-updating alias that was responding
-// 200 (verified with both generateText and a generateObject schema call) when
-// gemini-flash-latest was down — still avoids the "dated model retires" problem, and the
-// lite tier tends to have more available capacity than the full flash model during a
-// demand spike like this one.
+// Real-time, visitor-facing traffic (chat widget, resume ATS/tailor/cover-letter, career
+// advisor, interview grading, job match scoring) runs on a free, open-weight model stack —
+// no billing, no API key cost. Two independent providers/infra so a full outage of one
+// doesn't take down every AI feature at once (this replaced a Gemini-only setup after a
+// gemini-flash-latest outage broke resume upload site-wide). Groq: free tier, no card,
+// fast LPU inference. OpenRouter: free ":free"-suffixed models, no card, genuinely
+// separate infrastructure/company for real cross-provider resilience.
+const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
+
+// Text/JSON tasks. gpt-oss is OpenAI's open-weight release — of everything on Groq's free
+// tier, only gpt-oss-120b/20b guarantee schema-valid structured output (confirmed against
+// Groq's own structured-outputs docs). Every model here was individually verified against
+// the live free-tier APIs before being picked, not just checked against docs/catalogs —
+// several plausible-looking candidates (qwen3-next-80b:free, both Gemma variants,
+// openrouter's gpt-oss-20b:free mirror) turned out to time out, hit balance errors, or return
+// unparseable output in practice despite looking fine on paper.
+export const TEXT_MODEL = groq("openai/gpt-oss-120b");
+export const TEXT_MODEL_FALLBACK_1 = groq("openai/gpt-oss-20b");
+// Groq's strict/guaranteed structured-output mode rejects any schema with a genuinely optional
+// field (OpenAI-style strict JSON Schema requires every property to be listed in `required`,
+// which this codebase's idiomatic Zod `.optional()` fields don't satisfy) — confirmed this
+// isn't specific to gpt-oss-20b, gpt-oss-120b rejects the same schemas the same way. Pass this
+// at every Groq call site (both TEXT_MODEL and TEXT_MODEL_FALLBACK_1) to force best-effort mode.
+// Best-effort mode doesn't enforce the schema at the decoding level, so the prompt itself needs
+// to spell out the exact expected JSON shape for anything beyond a trivially flat schema —
+// confirmed by direct testing: the same model produced a plausible but wrong-shaped JSON object
+// (invented its own field names) when the prompt only said "extract into structured JSON",
+// and produced a correctly-shaped one once the prompt listed the exact keys.
+export const GROQ_BEST_EFFORT_OPTIONS = { groq: { structuredOutputs: false } };
+// Different lab AND different infra (OpenRouter, not Groq) for genuine resilience against a
+// Groq-wide outage, not just a Groq model-level one.
+export const TEXT_MODEL_FALLBACK_2 = openrouter.chat("nvidia/nemotron-3-nano-30b-a3b:free");
+
+// --- KT Centre document embeddings + indexing (unchanged, still Gemini) ---
+// Separate concern from the real-time agents above: different quota-isolation setup
+// (dedicated background API key), not implicated in the outage that prompted this
+// migration, so left as-is rather than folded into the open-weight stack.
 const MODEL_ID = "gemini-flash-lite-latest";
-// A genuinely different self-updating alias, not just a different name for the same
-// underlying model -- used by withFallback() as a second attempt when the primary alias
-// itself is the thing that's down (as gemini-flash-latest was today), not a quota issue
-// shared by both. Kept in gateway.ts, not withFallback.ts, since it's a model choice, not
-// retry-orchestration logic.
-const FALLBACK_MODEL_ID = "gemini-flash-latest";
 const EMBED_MODEL_ID = "gemini-embedding-001";
-
-// Real-time, visitor-facing traffic: chat widget, resume ATS/tailor/cover-letter,
-// career advisor, interview grading, job match scoring. Uses the primary API key.
-export const CHAT_MODEL = google(MODEL_ID);
-export const CHAT_MODEL_FALLBACK = google(FALLBACK_MODEL_ID);
-export const EXTRACT_MODEL = google(MODEL_ID);
-export const EXTRACT_MODEL_FALLBACK = google(FALLBACK_MODEL_ID);
 export const EMBED_MODEL = google.textEmbeddingModel(EMBED_MODEL_ID);
 
-// Background/batch work: KT document indexing (upload-triggered and the catch-up
-// cron). Deliberately routed through a SEPARATE Google AI Studio project/API key so a
-// bulk operation can never exhaust the quota real-time visitor features depend on —
-// each free-tier project gets its own independent daily quota. Falls back to the
-// primary key if a dedicated one isn't configured, so nothing breaks if it's unset;
-// it just loses the isolation until GOOGLE_GENERATIVE_AI_API_KEY_BACKGROUND is added.
 const backgroundProvider = process.env.GOOGLE_GENERATIVE_AI_API_KEY_BACKGROUND
   ? createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY_BACKGROUND })
   : google;

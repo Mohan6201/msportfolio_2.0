@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
+import { TEXT_MODEL, TEXT_MODEL_FALLBACK_1, TEXT_MODEL_FALLBACK_2 } from "@/ai/providers/gateway";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
 import { withFallback } from "@/ai/lib/withFallback";
 
@@ -30,8 +30,9 @@ Guidelines:
 - Output only the letter body (no subject line, no date, no address blocks)`;
 
   const { text } = await withFallback([
-    () => generateText({ model: EXTRACT_MODEL, prompt }),
-    () => generateText({ model: EXTRACT_MODEL_FALLBACK, prompt }),
+    () => generateText({ model: TEXT_MODEL, prompt }),
+    () => generateText({ model: TEXT_MODEL_FALLBACK_1, prompt }),
+    () => generateText({ model: TEXT_MODEL_FALLBACK_2, prompt }),
   ]);
 
   return text;

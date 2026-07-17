@@ -1,5 +1,5 @@
 import { generateObject } from "ai";
-import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
+import { TEXT_MODEL, TEXT_MODEL_FALLBACK_1, GROQ_BEST_EFFORT_OPTIONS, TEXT_MODEL_FALLBACK_2 } from "@/ai/providers/gateway";
 import { jobMatchScoreSchema, type JobMatchScore } from "@/ai/schemas/careerRoadmap";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
 import { withFallback } from "@/ai/lib/withFallback";
@@ -31,11 +31,15 @@ Job Posting:
 - Description: ${job.description.slice(0, 1000)}
 - Requirements: ${job.requirements.join(", ")}
 
-Produce a realistic matchScore (0-100), list matched and missing skills, a one-line verdict, and 2-3 actionable suggestions for the candidate to improve their fit.`;
+Produce a realistic matchScore (0-100), list matched and missing skills, a one-line verdict, and 2-3 actionable suggestions for the candidate to improve their fit.
+
+Return the result as this exact JSON shape:
+{ "matchScore": number (0-100), "matchedSkills": string[], "skillGaps": string[], "verdict": string, "suggestions": string[] }`;
 
   const { object } = await withFallback([
-    () => generateObject({ model: EXTRACT_MODEL, schema: jobMatchScoreSchema, prompt }),
-    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: jobMatchScoreSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL, schema: jobMatchScoreSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_1, schema: jobMatchScoreSchema, prompt, providerOptions: GROQ_BEST_EFFORT_OPTIONS }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_2, schema: jobMatchScoreSchema, prompt }),
   ]);
 
   return object;

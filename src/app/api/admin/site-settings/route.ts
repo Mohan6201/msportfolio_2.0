@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/adminAuth";
-import { CHAT_MODEL, EXTRACT_MODEL, EMBED_MODEL } from "@/ai/providers/gateway";
+import { TEXT_MODEL, EMBED_MODEL } from "@/ai/providers/gateway";
 
 /**
  * Read-only site configuration snapshot for the admin dashboard.
@@ -31,18 +31,19 @@ export async function GET(req: NextRequest) {
       region: process.env.VERCEL_REGION ?? null,
     },
     models: {
-      chat: modelId(CHAT_MODEL),
-      extract: modelId(EXTRACT_MODEL),
+      text: modelId(TEXT_MODEL),
       embedding: modelId(EMBED_MODEL),
     },
     features: {
       googleOAuth: isSet(process.env.GOOGLE_CLIENT_ID),
       ktCentre: true,
       jobBoard: isSet(process.env.ADZUNA_APP_ID) || isSet(process.env.JSEARCH_API_KEY),
-      aiResume: isSet(process.env.GOOGLE_GENERATIVE_AI_API_KEY),
-      interview: isSet(process.env.GOOGLE_GENERATIVE_AI_API_KEY),
+      aiResume: isSet(process.env.GROQ_API_KEY),
+      interview: isSet(process.env.GROQ_API_KEY),
     },
     connectedServices: {
+      GROQ_API_KEY: isSet(process.env.GROQ_API_KEY),
+      OPENROUTER_API_KEY: isSet(process.env.OPENROUTER_API_KEY),
       GOOGLE_GENERATIVE_AI_API_KEY: isSet(process.env.GOOGLE_GENERATIVE_AI_API_KEY),
       ADZUNA_APP_ID: isSet(process.env.ADZUNA_APP_ID),
       JSEARCH_API_KEY: isSet(process.env.JSEARCH_API_KEY),

@@ -1,6 +1,6 @@
 import { generateObject } from "ai";
 import { z } from "zod";
-import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
+import { TEXT_MODEL, TEXT_MODEL_FALLBACK_1, GROQ_BEST_EFFORT_OPTIONS, TEXT_MODEL_FALLBACK_2 } from "@/ai/providers/gateway";
 import { withFallback } from "@/ai/lib/withFallback";
 
 const answerEvalSchema = z.object({
@@ -31,11 +31,15 @@ Evaluate the candidate's answer:
 - Give concise, constructive feedback (2-3 sentences)
 - List key points that were missing or incorrect (max 4)
 - List specific strengths shown in the answer (max 3)
-Be direct and honest. Don't inflate scores.`;
+Be direct and honest. Don't inflate scores.
+
+Return the result as this exact JSON shape:
+{ "score": number (0-10), "feedback": string, "keyMissing": string[], "strengths": string[] }`;
 
   const { object } = await withFallback([
-    () => generateObject({ model: EXTRACT_MODEL, schema: answerEvalSchema, prompt }),
-    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: answerEvalSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL, schema: answerEvalSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_1, schema: answerEvalSchema, prompt, providerOptions: GROQ_BEST_EFFORT_OPTIONS }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_2, schema: answerEvalSchema, prompt }),
   ]);
   return object;
 }
@@ -71,11 +75,15 @@ Generate an overall session feedback report:
 - summary: 2 sentences on overall performance
 - strongAreas: topics/areas they performed well in
 - improvementAreas: topics they need to study more
-- recommendation: one concrete next step`;
+- recommendation: one concrete next step
+
+Return the result as this exact JSON shape:
+{ "overallScore": number (0-100), "grade": "A"|"B"|"C"|"D"|"F", "summary": string, "strongAreas": string[], "improvementAreas": string[], "recommendation": string }`;
 
   const { object } = await withFallback([
-    () => generateObject({ model: EXTRACT_MODEL, schema: sessionFeedbackSchema, prompt }),
-    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: sessionFeedbackSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL, schema: sessionFeedbackSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_1, schema: sessionFeedbackSchema, prompt, providerOptions: GROQ_BEST_EFFORT_OPTIONS }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_2, schema: sessionFeedbackSchema, prompt }),
   ]);
   return object;
 }

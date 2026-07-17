@@ -1,6 +1,6 @@
 import { generateObject } from "ai";
 import { z } from "zod";
-import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
+import { TEXT_MODEL, TEXT_MODEL_FALLBACK_1, GROQ_BEST_EFFORT_OPTIONS, TEXT_MODEL_FALLBACK_2 } from "@/ai/providers/gateway";
 import { withFallback } from "@/ai/lib/withFallback";
 
 const architectureSchema = z.object({
@@ -36,11 +36,24 @@ Design a practical, cost-effective AWS architecture. Be specific about which exa
 - security: key security practices (IAM roles, security groups, WAF, secrets manager, etc.)
 - scaling: scaling strategy (Auto Scaling Groups, ECS task scaling, RDS read replicas, etc.)
 - estimatedMonthlyCost: rough total monthly cost estimate (e.g. "$120-180/month on t3.small instances")
-- diagramAscii: a simple ASCII diagram of the architecture (use arrows →, boxes with [Service], max 15 lines)`;
+- diagramAscii: a simple ASCII diagram of the architecture (use arrows →, boxes with [Service], max 15 lines)
+
+Return the result as this exact JSON shape:
+{
+  "title": string,
+  "overview": string,
+  "components": [{ "name": string, "awsService": string, "description": string }],
+  "dataFlow": string[],
+  "security": string[],
+  "scaling": string[],
+  "estimatedMonthlyCost": string,
+  "diagramAscii": string
+}`;
 
   const { object } = await withFallback([
-    () => generateObject({ model: EXTRACT_MODEL, schema: architectureSchema, prompt }),
-    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: architectureSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL, schema: architectureSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_1, schema: architectureSchema, prompt, providerOptions: GROQ_BEST_EFFORT_OPTIONS }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_2, schema: architectureSchema, prompt }),
   ]);
   return object;
 }

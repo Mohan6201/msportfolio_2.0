@@ -1,6 +1,6 @@
 import { generateObject } from "ai";
 import { z } from "zod";
-import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
+import { TEXT_MODEL, TEXT_MODEL_FALLBACK_1, GROQ_BEST_EFFORT_OPTIONS, TEXT_MODEL_FALLBACK_2 } from "@/ai/providers/gateway";
 import { withFallback } from "@/ai/lib/withFallback";
 
 const evaluationSchema = z.object({
@@ -38,11 +38,26 @@ Provide a thorough technical assessment:
 - matchingRoles: 3–5 specific job titles this person could realistically target (e.g. "DevOps Engineer", "AWS Solutions Architect", "SRE")
 - estimatedSalaryRange: market salary range this profile could realistically command (e.g. "£45,000–£60,000 / $60,000–$85,000")
 
-Be specific and honest. Don't pad with generic compliments — give actionable, expert-level feedback.`;
+Be specific and honest. Don't pad with generic compliments — give actionable, expert-level feedback.
+
+Return the result as this exact JSON shape:
+{
+  "projectName": string,
+  "techStack": string[],
+  "overallScore": number (0-100),
+  "marketValue": string,
+  "strengths": string[],
+  "weaknesses": string[],
+  "improvements": string[],
+  "hirabilityNote": string,
+  "matchingRoles": string[],
+  "estimatedSalaryRange": string
+}`;
 
   const { object } = await withFallback([
-    () => generateObject({ model: EXTRACT_MODEL, schema: evaluationSchema, prompt }),
-    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: evaluationSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL, schema: evaluationSchema, prompt }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_1, schema: evaluationSchema, prompt, providerOptions: GROQ_BEST_EFFORT_OPTIONS }),
+    () => generateObject({ model: TEXT_MODEL_FALLBACK_2, schema: evaluationSchema, prompt }),
   ]);
 
   return object;

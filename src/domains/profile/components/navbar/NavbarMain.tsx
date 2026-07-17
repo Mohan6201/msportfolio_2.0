@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { label: "Experience", to: "experience",   type: "scroll" },
   { label: "Skills",     to: "skills",       type: "scroll" },
   { label: "Projects",   to: "projects",     type: "scroll" },
+  { label: "Resume",     to: "resume",       type: "scroll" },
   { label: "Contact",    to: "contact",      type: "scroll" },
 ];
 

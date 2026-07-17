@@ -1,159 +1,51 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
 import { AlertTriangle, Download, ExternalLink, FileText, Loader2, Minimize2 } from "lucide-react";
 import { usePDFViewer } from "@/components/ui/PDFViewer";
+
+// Self-hosted worker (copied from node_modules on every install by scripts/copy-pdf-worker.mjs)
+// so the version always matches the installed pdfjs-dist exactly — a mismatch throws at runtime.
+pdfjs.GlobalWorkerOptions.workerSrc = "/pdf-worker/pdf.worker.min.mjs";
 
 interface ResumePreviewProps {
   pdfUrl: string;
 }
 
-function MobilePreview({ pdfUrl }: { pdfUrl: string }) {
-  return (
-    <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-black px-6 py-10 text-center shadow-xl">
-      <div className="w-14 h-14 rounded-2xl bg-cyan/10 border border-cyan/20 flex items-center justify-center">
-        <FileText className="w-7 h-7 text-cyan" />
-      </div>
-      <div>
-        <p className="text-sm font-mono text-white font-medium">Mohana_Srinivasan_Resume.pdf</p>
-        <p className="text-xs font-mono text-lightGrey/50 mt-1">Tap below to view — opens in your device's own PDF viewer</p>
-      </div>
-      <div className="flex items-center gap-3 mt-1">
-        <a
-          href={pdfUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-cyan text-black text-sm font-mono font-bold hover:bg-lightCyan transition-colors shadow-cyanShadow"
-        >
-          <ExternalLink className="w-4 h-4" />
-          View Resume
-        </a>
-        <a
-          href={pdfUrl}
-          download="Mohana_Srinivasan_Resume.pdf"
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-white/10 text-lightGrey text-sm font-mono hover:border-cyan/40 hover:text-cyan transition-all"
-        >
-          <Download className="w-4 h-4" />
-          Download
-        </a>
-      </div>
-    </div>
-  );
-}
-
-function DesktopPreview({ pdfUrl }: { pdfUrl: string }) {
-  const [loaded, setLoaded] = useState(false);
-  const [timedOut, setTimedOut] = useState(false);
-  const [zoom, setZoom] = useState(100);
-  const { openPDF } = usePDFViewer();
-
-  const zoomLevels = [75, 100, 125, 150];
-
-  // Browser download managers (IDM etc.) and some ad/content blockers silently intercept
-  // embedded PDF requests and return an empty response — the iframe's onLoad never fires
-  // and the spinner would otherwise spin forever. Fall back to a direct-access prompt.
-  useEffect(() => {
-    if (loaded) return;
-    const t = setTimeout(() => setTimedOut(true), 6000);
-    return () => clearTimeout(t);
-  }, [loaded]);
-
-  return (
-    <div className="flex flex-col gap-2">
-      {/* Zoom controls */}
-      <div className="flex items-center justify-end gap-1">
-        {zoomLevels.map((z) => (
-          <button
-            key={z}
-            onClick={() => setZoom(z)}
-            className={`px-2 py-1 text-[10px] font-mono rounded transition-all ${
-              zoom === z
-                ? "bg-cyan text-black font-bold"
-                : "text-lightGrey/60 hover:text-cyan hover:bg-cyan/5 border border-white/5"
-            }`}
-          >
-            {z}%
-          </button>
-        ))}
-        <span className="w-px h-4 bg-white/10 mx-1" />
-        <button
-          onClick={() => openPDF(pdfUrl, "Mohana Srinivasan — Resume")}
-          className="px-2 py-1 text-[10px] font-mono text-orange hover:text-orange/80 border border-orange/20 hover:bg-orange/5 rounded transition-all flex items-center gap-1"
-        >
-          <Minimize2 className="w-2.5 h-2.5" /> PiP
-        </button>
-      </div>
-
-      {/* PDF iframe */}
-      <div
-        className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-cyan/5 bg-black"
-        style={{ height: "900px" }}
-      >
-        {!loaded && !timedOut && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-black">
-            <Loader2 className="w-7 h-7 text-cyan animate-spin" />
-            <p className="text-xs font-mono text-lightGrey/60">Loading resume...</p>
-          </div>
-        )}
-
-        {!loaded && timedOut && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-black px-6 text-center">
-            <AlertTriangle className="w-7 h-7 text-orange" />
-            <div>
-              <p className="text-sm font-mono text-white font-medium">Preview is taking longer than expected</p>
-              <p className="text-xs font-mono text-lightGrey/50 mt-1.5 max-w-xs">
-                A browser extension or download manager may be blocking the embedded preview.
-                Open the PDF directly instead:
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <a
-                href={pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan text-black text-xs font-mono font-bold hover:bg-lightCyan transition-colors"
-              >
-                <ExternalLink className="w-3.5 h-3.5" /> Open in New Tab
-              </a>
-              <a
-                href={pdfUrl}
-                download="Mohana_Srinivasan_Resume.pdf"
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/10 text-lightGrey text-xs font-mono hover:border-cyan/40 hover:text-cyan transition-all"
-              >
-                <Download className="w-3.5 h-3.5" /> Download
-              </a>
-            </div>
-          </div>
-        )}
-
-        <div
-          className="w-full h-full overflow-auto"
-          style={{ padding: zoom > 100 ? "8px" : 0 }}
-        >
-          {/* src intentionally excludes the zoom level — changing it on every zoom click
-              forced the browser to fully reload the embedded PDF viewer from scratch each
-              time. Visual zoom is handled below via the CSS `zoom` property instead, which
-              rescales the already-loaded content without re-fetching anything. */}
-          <iframe
-            src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1`}
-            title="Mohana Srinivasan Resume"
-            className="border-0 block"
-            loading="lazy"
-            style={{
-              width: "100%",
-              height: "100%",
-              minHeight: "880px",
-              zoom: `${zoom}%`,
-            }}
-            onLoad={() => setLoaded(true)}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
+const ZOOM_LEVELS = [75, 100, 125, 150];
 
 export default function ResumePreview({ pdfUrl }: ResumePreviewProps) {
   const { openPDF } = usePDFViewer();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [zoom, setZoom] = useState(100);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+
+  // Renders via PDF.js canvas instead of an <iframe> — the embedded-PDF approach used previously
+  // rendered inconsistently (or not at all) on mobile browsers, so mobile got a "tap to view
+  // externally" card instead of an actual preview. Canvas rendering doesn't depend on the
+  // device's native PDF viewer, so this works the same way on every screen size.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width;
+      if (w) setContainerWidth(w);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Browser download managers (IDM etc.) and some content blockers silently intercept the PDF
+  // request — guard against that hanging the loading state forever.
+  useEffect(() => {
+    if (status !== "loading") return;
+    const t = setTimeout(() => setStatus((s) => (s === "loading" ? "error" : s)), 8000);
+    return () => clearTimeout(t);
+  }, [status, pdfUrl]);
+
+  const pageWidth = containerWidth ? (containerWidth * zoom) / 100 : undefined;
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -167,14 +59,29 @@ export default function ResumePreview({ pdfUrl }: ResumePreviewProps) {
             <p className="text-sm font-mono text-white font-medium leading-none truncate">
               Mohana_Srinivasan_Resume.pdf
             </p>
-            <p className="text-xs font-mono text-lightGrey/50 mt-0.5">AWS DevOps Engineer · 2 pages</p>
+            <p className="text-xs font-mono text-lightGrey/50 mt-0.5">
+              AWS DevOps Engineer{numPages ? ` · ${numPages} page${numPages > 1 ? "s" : ""}` : ""}
+            </p>
           </div>
           <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green/10 border border-green/20 text-green text-xs font-mono flex-shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
             Live
           </span>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+          {ZOOM_LEVELS.map((z) => (
+            <button
+              key={z}
+              onClick={() => setZoom(z)}
+              className={`px-2 py-1 text-[10px] font-mono rounded transition-all ${
+                zoom === z
+                  ? "bg-cyan text-black font-bold"
+                  : "text-lightGrey/60 hover:text-cyan hover:bg-cyan/5 border border-white/5"
+              }`}
+            >
+              {z}%
+            </button>
+          ))}
           <button
             onClick={() => openPDF(pdfUrl, "Mohana Srinivasan — Resume")}
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-orange/30 text-orange text-xs font-mono hover:bg-orange/10 transition-all duration-200"
@@ -203,19 +110,75 @@ export default function ResumePreview({ pdfUrl }: ResumePreviewProps) {
         </div>
       </div>
 
-      {/* Mobile: image pages */}
-      <div className="block md:hidden">
-        <MobilePreview pdfUrl={pdfUrl} />
+      {/* Preview pane — same canvas renderer on every screen size */}
+      <div
+        ref={containerRef}
+        className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-cyan/5 bg-black"
+      >
+        {status === "loading" && (
+          <div className="flex flex-col items-center justify-center gap-3 py-24">
+            <Loader2 className="w-7 h-7 text-cyan animate-spin" />
+            <p className="text-xs font-mono text-lightGrey/60">Loading resume...</p>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="flex flex-col items-center justify-center gap-4 py-20 px-6 text-center">
+            <AlertTriangle className="w-7 h-7 text-orange" />
+            <div>
+              <p className="text-sm font-mono text-white font-medium">Preview is taking longer than expected</p>
+              <p className="text-xs font-mono text-lightGrey/50 mt-1.5 max-w-xs">
+                A browser extension or download manager may be blocking the preview.
+                Open the PDF directly instead:
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <a
+                href={pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan text-black text-xs font-mono font-bold hover:bg-lightCyan transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> Open in New Tab
+              </a>
+              <a
+                href={pdfUrl}
+                download="Mohana_Srinivasan_Resume.pdf"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/10 text-lightGrey text-xs font-mono hover:border-cyan/40 hover:text-cyan transition-all"
+              >
+                <Download className="w-3.5 h-3.5" /> Download
+              </a>
+            </div>
+          </div>
+        )}
+
+        <div
+          className="overflow-auto"
+          style={{ maxHeight: "80vh", display: status === "ready" ? "block" : "none" }}
+        >
+          <Document
+            file={pdfUrl}
+            onLoadSuccess={({ numPages: n }) => { setNumPages(n); setStatus("ready"); }}
+            onLoadError={() => setStatus("error")}
+            loading={null}
+            error={null}
+          >
+            {containerWidth > 0 &&
+              Array.from({ length: numPages ?? 0 }, (_, i) => (
+                <Page
+                  key={i}
+                  pageNumber={i + 1}
+                  width={pageWidth}
+                  renderAnnotationLayer={false}
+                  renderTextLayer={false}
+                  className="mx-auto [&:not(:last-child)]:mb-2"
+                />
+              ))}
+          </Document>
+        </div>
       </div>
 
-      {/* Desktop: iframe */}
-      <div className="hidden md:block">
-        <DesktopPreview pdfUrl={pdfUrl} />
-      </div>
-
-      {/* Bottom fallback — desktop only; mobile already has direct View/Download buttons above,
-          and the PiP iframe viewer doesn't render PDFs reliably on mobile browsers */}
-      <p className="hidden md:block text-center text-xs font-mono text-lightGrey/40 mt-4">
+      <p className="text-center text-xs font-mono text-lightGrey/40 mt-4">
         PDF not rendering?{" "}
         <button
           onClick={() => openPDF(pdfUrl, "Mohana Srinivasan — Resume")}

@@ -13,17 +13,18 @@ type MonthYear = { year: number; month: number };
 
 const BLANK: CertDraft = { title: "", issuer: "", date: "", description: "", imageUrl: "", link: "", sortOrder: 0 };
 const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const MONTHS_FULL  = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 const inp = "w-full bg-[#0A0A0B] border border-[#26262B] rounded-lg px-3 py-2 text-white text-xs font-mono focus:outline-none focus:border-[#00D964] transition-colors placeholder-[#374151]";
 const ta  = `${inp} resize-y min-h-[72px]`;
 
 function fmtDisplay(my: MonthYear): string { return `${MONTHS_SHORT[my.month]} ${my.year}`; }
-function fmtStored(my: MonthYear): string  { return `${MONTHS_FULL[my.month]} ${my.year}`; }
+// Stored as ISO (matches how certifications.date is actually saved in the DB, e.g. "2025-09-09")
+// so both this picker and the public in-progress logic in CertificateMain.tsx agree on one format.
+function fmtStored(my: MonthYear): string  { return `${my.year}-${String(my.month + 1).padStart(2, "0")}-01`; }
 
 function parseStored(str: string): MonthYear | null {
   if (!str || str === "Present") return null;
-  const d = new Date(`${str} 1`);
+  const d = new Date(str);
   if (isNaN(d.getTime())) return null;
   return { year: d.getFullYear(), month: d.getMonth() };
 }

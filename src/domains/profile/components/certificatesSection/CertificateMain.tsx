@@ -5,24 +5,36 @@ import Image from "next/image";
 import { ExternalLink, Award, X, ZoomIn } from "lucide-react";
 import type { CertificationRow } from "@/domains/profile/services/profile.service";
 
-function formatCertDate(raw: string): string {
-  if (!raw) return "";
-  if (/[A-Za-z]/.test(raw)) return raw.trim();
-  const isoMatch = raw.match(/^(\d{4})-(\d{2})/);
-  if (isoMatch) {
-    const d = new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, 1);
-    return d.toLocaleString("default", { month: "long", year: "numeric" });
-  }
-  return raw;
+// certifications.date is either a single date ("2025-09-09") or a range built by the admin's
+// DateRangePicker ("2023-09-01 – Present" or "2023-09-01 – 2025-10-01"). Both sides of a range
+// are ISO strings except the literal word "Present", which native Date can't parse.
+function splitDateRange(raw: string): { fromRaw: string; toRaw: string | null } {
+  const parts = raw.split(" – ");
+  return { fromRaw: parts[0]?.trim() ?? "", toRaw: parts[1]?.trim() || null };
 }
 
-/** A cert is "in progress" only if its date is missing or genuinely in the future —
- * not simply because it lacks a public verification link. Plenty of completed training
- * programs don't issue a shareable credential URL, and treating that as "unfinished" is
- * misleading to anyone reading the certifications list. */
+function formatDatePart(raw: string): string {
+  if (raw === "Present") return "Present";
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? raw : d.toLocaleString("default", { month: "long", year: "numeric" });
+}
+
+function formatCertDate(raw: string): string {
+  if (!raw) return "";
+  const { fromRaw, toRaw } = splitDateRange(raw);
+  const from = formatDatePart(fromRaw);
+  return toRaw ? `${from} – ${formatDatePart(toRaw)}` : from;
+}
+
+/** A cert is "in progress" if its date range ends in "Present", or its (single/end) date is
+ * genuinely in the future — not simply because it lacks a public verification link. Plenty of
+ * completed training programs don't issue a shareable credential URL, and treating that as
+ * "unfinished" is misleading to anyone reading the certifications list. */
 function isCertInProgress(raw: string): boolean {
   if (!raw) return true;
-  const d = new Date(raw);
+  const { fromRaw, toRaw } = splitDateRange(raw);
+  if (toRaw === "Present") return true;
+  const d = new Date(toRaw ?? fromRaw);
   if (Number.isNaN(d.getTime())) return false;
   return d.getTime() > Date.now();
 }

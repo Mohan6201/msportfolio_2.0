@@ -174,8 +174,11 @@ export default function ResumeStudio() {
       setResumeData(result.structuredData);
       const list = await loadResumes();
       setResumes(list);
-      if (!selected && list.length > 0) await selectResume(list[0]);
-      else if (selected) await selectResume(selected);
+      // Select the resume this upload actually created — not list[0]/`selected`, which can
+      // point at a different (possibly older or version-less) resume once a user has more
+      // than one row, silently reverting the UI to "no resume" right after a real success.
+      const uploaded = list.find(r => r.id === result.resumeId);
+      if (uploaded) await selectResume(uploaded);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
     } finally {

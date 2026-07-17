@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/accountAuth";
-import { createResume } from "@/domains/resume/services/resume.service";
 import { resumeUploadFlow } from "@/ai/workflows/resumeUploadFlow";
 
 export const maxDuration = 60;
@@ -25,10 +24,9 @@ export async function POST(req: NextRequest) {
   }
 
   const bytes = await file.arrayBuffer();
-  const resume = await createResume(session!.user.id, resumeTitle);
 
   try {
-    const result = await resumeUploadFlow(session!.user.id, resume.id, bytes, file.type);
+    const result = await resumeUploadFlow(session!.user.id, resumeTitle, bytes, file.type);
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

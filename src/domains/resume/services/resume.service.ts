@@ -15,7 +15,7 @@ export type CoverLetter = typeof coverLetters.$inferSelect;
 // ── Resumes ───────────────────────────────────────────────────────────────────
 
 export async function listResumes(userId: string): Promise<Resume[]> {
-  return db.select().from(resumes).where(eq(resumes.userId, userId));
+  return db.select().from(resumes).where(eq(resumes.userId, userId)).orderBy(desc(resumes.createdAt));
 }
 
 export async function getResume(id: number, userId: string): Promise<Resume | null> {

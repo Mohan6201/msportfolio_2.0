@@ -4,10 +4,16 @@ import { google, createGoogleGenerativeAI } from "@ai-sdk/google";
 // was first wired up (confirmed via https://aistudio.google.com/rate-limit) — every
 // AI feature site-wide was silently failing with a Gemini quota error. gemini-2.5-flash
 // and text-embedding-004 are both fully retired now too ("no longer available to new
-// users" / 404). gemini-flash-latest is Google's self-updating alias for the current
-// recommended flash model, which avoids this exact breakage recurring every time Google
-// retires a dated model name.
-const MODEL_ID = "gemini-flash-latest";
+// users" / 404). gemini-flash-latest itself then started returning a raw 503
+// "This model is currently experiencing high demand" — confirmed via a direct REST call
+// against the primary key, the background key, AND plain generateText (no schema, no
+// file), so it's a genuine Google-side outage of that alias, not a quota issue on either
+// key. gemini-flash-lite-latest is a separate self-updating alias that was responding
+// 200 (verified with both generateText and a generateObject schema call) when
+// gemini-flash-latest was down — still avoids the "dated model retires" problem, and the
+// lite tier tends to have more available capacity than the full flash model during a
+// demand spike like this one.
+const MODEL_ID = "gemini-flash-lite-latest";
 const EMBED_MODEL_ID = "gemini-embedding-001";
 
 // Real-time, visitor-facing traffic: chat widget, resume ATS/tailor/cover-letter,

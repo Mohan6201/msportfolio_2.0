@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: "MS Portfolio",
+    title: "MS Portfolio 2.0",
     statusBarStyle: "black-translucent",
   },
   formatDetection: {

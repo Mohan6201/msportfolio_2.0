@@ -43,7 +43,7 @@ function ScoreIcon({ pct }: { pct: number }) {
   return <XCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#EF4444" }} />;
 }
 
-type RightTab = "ats" | "cover" | "optimize" | "jdmatch" | "versions";
+type RightTab = "preview" | "ats" | "cover" | "optimize" | "jdmatch" | "versions";
 
 type BulletPair = { original: string; suggested: string };
 type ExperienceOptimization = {
@@ -71,8 +71,9 @@ export default function ResumeStudio() {
   // Template
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateKey>("minimal");
 
-  // Right panel
-  const [activeTab, setActiveTab] = useState<RightTab>("ats");
+  // Right panel — defaults to the live preview so uploading/switching templates has an
+  // immediately visible effect instead of only mattering at export/print time.
+  const [activeTab, setActiveTab] = useState<RightTab>("preview");
 
   // ATS
   const [analyzing,    setAnalyzing]    = useState(false);
@@ -430,7 +431,7 @@ export default function ResumeStudio() {
                 </div>
                 <div className="flex items-center gap-3 mt-3">
                   <button
-                    onClick={() => window.print()}
+                    onClick={() => setActiveTab("preview")}
                     className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1.5 rounded-md border transition-colors"
                     style={{ borderColor: "#26262B", color: "#6B7280", backgroundColor: "#0A0A0B" }}
                   >
@@ -548,8 +549,8 @@ export default function ResumeStudio() {
 
           {/* Tab bar */}
           <div className="flex items-end gap-4 sm:gap-6 border-b mb-6 overflow-x-auto" style={{ borderColor: "#26262B" }}>
-            {(["ats", "cover", "optimize", "jdmatch", "versions"] as const).map(tab => {
-              const labels = { ats: "ATS Score", cover: "Cover Letter", optimize: "Optimize", jdmatch: "JD Match", versions: "Versions" };
+            {(["preview", "ats", "cover", "optimize", "jdmatch", "versions"] as const).map(tab => {
+              const labels = { preview: "Preview", ats: "ATS Score", cover: "Cover Letter", optimize: "Optimize", jdmatch: "JD Match", versions: "Versions" };
               const isActive = activeTab === tab;
               return (
                 <button
@@ -590,6 +591,35 @@ export default function ResumeStudio() {
               <p className="text-sm font-mono max-w-xs leading-relaxed" style={{ color: "#6B7280" }}>
                 Upload your resume on the left to unlock ATS scoring, cover letter generation, and optimisation suggestions.
               </p>
+            </div>
+
+          ) : activeTab === "preview" ? (
+            /* ── Live Preview tab ──────────────────────────────────────────
+               Renders the exact same TemplateComponent used for print/export, just
+               visible on-screen instead of hidden — switching templates in the picker
+               updates this immediately, so template choice finally has a visible effect
+               before you ever hit Export. */
+            <div className="rounded-lg overflow-hidden" style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}>
+              <div className="flex items-center justify-between px-4 py-2.5 border-b" style={{ borderColor: "#26262B" }}>
+                <span className="text-[11px] font-mono" style={{ color: "#6B7280" }}>
+                  Live preview — {TEMPLATES.find(t => t.key === selectedTemplate)?.name ?? "Template"}
+                </span>
+                <button
+                  onClick={() => window.print()}
+                  className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-md transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: "#00D964", color: "#0A0A0B" }}
+                >
+                  <Download className="w-3 h-3" /> Export to PDF
+                </button>
+              </div>
+              <div
+                className="overflow-auto flex justify-center py-8 px-4"
+                style={{ backgroundColor: "#1a1a1e", maxHeight: "80vh" }}
+              >
+                <div className="shadow-2xl" style={{ transform: "scale(0.85)", transformOrigin: "top center" }}>
+                  {TemplateComponent && resumeData && <TemplateComponent data={resumeData} />}
+                </div>
+              </div>
             </div>
 
           ) : activeTab === "ats" ? (

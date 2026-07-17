@@ -20,7 +20,11 @@ export default function AnimatedCounter({ target, suffix = "", prefix = "", dura
           started.current = true;
           const start = performance.now();
           const tick = (now: number) => {
-            const elapsed = now - start;
+            // Clamp to >= 0: on the first frame, the rAF timestamp can occasionally land
+            // slightly before the `performance.now()` captured above (a known timing quirk,
+            // more likely under scroll-induced main-thread load), making `elapsed` briefly
+            // negative — which without the clamp flows through to `Math.floor(negative) === -1`.
+            const elapsed = Math.max(now - start, 0);
             const progress = Math.min(elapsed / duration, 1);
             const eased = 1 - Math.pow(1 - progress, 3);
             setCount(Math.floor(eased * target));

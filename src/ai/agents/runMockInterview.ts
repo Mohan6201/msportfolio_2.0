@@ -1,6 +1,7 @@
 import { generateObject } from "ai";
 import { z } from "zod";
-import { EXTRACT_MODEL } from "@/ai/providers/gateway";
+import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
+import { withFallback } from "@/ai/lib/withFallback";
 
 const answerEvalSchema = z.object({
   score: z.number().min(0).max(10),
@@ -17,10 +18,7 @@ export async function evaluateAnswer(
   userAnswer: string,
   category: string
 ): Promise<AnswerEval> {
-  const { object } = await generateObject({
-    model: EXTRACT_MODEL,
-    schema: answerEvalSchema,
-    prompt: `You are a senior ${category} interview coach.
+  const prompt = `You are a senior ${category} interview coach.
 
 Question: ${question}
 
@@ -33,8 +31,12 @@ Evaluate the candidate's answer:
 - Give concise, constructive feedback (2-3 sentences)
 - List key points that were missing or incorrect (max 4)
 - List specific strengths shown in the answer (max 3)
-Be direct and honest. Don't inflate scores.`,
-  });
+Be direct and honest. Don't inflate scores.`;
+
+  const { object } = await withFallback([
+    () => generateObject({ model: EXTRACT_MODEL, schema: answerEvalSchema, prompt }),
+    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: answerEvalSchema, prompt }),
+  ]);
   return object;
 }
 
@@ -56,10 +58,7 @@ export async function generateSessionFeedback(
   const avgScore = questionScores.reduce((s, q) => s + q.score, 0) / questionScores.length;
   const scoreText = questionScores.map((q, i) => `Q${i + 1}: "${q.question}" — Score: ${q.score}/10 — ${q.feedback}`).join("\n");
 
-  const { object } = await generateObject({
-    model: EXTRACT_MODEL,
-    schema: sessionFeedbackSchema,
-    prompt: `You are evaluating a ${category} interview practice session.
+  const prompt = `You are evaluating a ${category} interview practice session.
 
 Individual question results:
 ${scoreText}
@@ -72,7 +71,11 @@ Generate an overall session feedback report:
 - summary: 2 sentences on overall performance
 - strongAreas: topics/areas they performed well in
 - improvementAreas: topics they need to study more
-- recommendation: one concrete next step`,
-  });
+- recommendation: one concrete next step`;
+
+  const { object } = await withFallback([
+    () => generateObject({ model: EXTRACT_MODEL, schema: sessionFeedbackSchema, prompt }),
+    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: sessionFeedbackSchema, prompt }),
+  ]);
   return object;
 }

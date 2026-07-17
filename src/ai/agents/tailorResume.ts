@@ -1,6 +1,7 @@
 import { generateObject } from "ai";
-import { EXTRACT_MODEL } from "@/ai/providers/gateway";
+import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
 import { resumeDataSchema, type ResumeData } from "@/ai/schemas/resumeExtraction";
+import { withFallback } from "@/ai/lib/withFallback";
 
 export async function tailorResume(resumeData: ResumeData, jdText?: string): Promise<ResumeData> {
   const prompt = jdText
@@ -35,11 +36,10 @@ ${JSON.stringify(resumeData, null, 2)}
 
 Return the full improved resume in the same structure.`;
 
-  const { object } = await generateObject({
-    model: EXTRACT_MODEL,
-    schema: resumeDataSchema,
-    prompt,
-  });
+  const { object } = await withFallback([
+    () => generateObject({ model: EXTRACT_MODEL, schema: resumeDataSchema, prompt }),
+    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: resumeDataSchema, prompt }),
+  ]);
 
   return object;
 }

@@ -14,12 +14,20 @@ import { google, createGoogleGenerativeAI } from "@ai-sdk/google";
 // lite tier tends to have more available capacity than the full flash model during a
 // demand spike like this one.
 const MODEL_ID = "gemini-flash-lite-latest";
+// A genuinely different self-updating alias, not just a different name for the same
+// underlying model -- used by withFallback() as a second attempt when the primary alias
+// itself is the thing that's down (as gemini-flash-latest was today), not a quota issue
+// shared by both. Kept in gateway.ts, not withFallback.ts, since it's a model choice, not
+// retry-orchestration logic.
+const FALLBACK_MODEL_ID = "gemini-flash-latest";
 const EMBED_MODEL_ID = "gemini-embedding-001";
 
 // Real-time, visitor-facing traffic: chat widget, resume ATS/tailor/cover-letter,
 // career advisor, interview grading, job match scoring. Uses the primary API key.
 export const CHAT_MODEL = google(MODEL_ID);
+export const CHAT_MODEL_FALLBACK = google(FALLBACK_MODEL_ID);
 export const EXTRACT_MODEL = google(MODEL_ID);
+export const EXTRACT_MODEL_FALLBACK = google(FALLBACK_MODEL_ID);
 export const EMBED_MODEL = google.textEmbeddingModel(EMBED_MODEL_ID);
 
 // Background/batch work: KT document indexing (upload-triggered and the catch-up

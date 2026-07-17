@@ -1,6 +1,7 @@
 import { generateObject } from "ai";
 import { z } from "zod";
-import { EXTRACT_MODEL } from "@/ai/providers/gateway";
+import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
+import { withFallback } from "@/ai/lib/withFallback";
 
 const architectureSchema = z.object({
   title: z.string(),
@@ -22,10 +23,7 @@ const architectureSchema = z.object({
 export type AWSArchitecture = z.infer<typeof architectureSchema>;
 
 export async function generateAWSArchitecture(requirements: string): Promise<AWSArchitecture> {
-  const { object } = await generateObject({
-    model: EXTRACT_MODEL,
-    schema: architectureSchema,
-    prompt: `You are an AWS Solutions Architect. A user has the following requirements:
+  const prompt = `You are an AWS Solutions Architect. A user has the following requirements:
 
 "${requirements}"
 
@@ -38,7 +36,11 @@ Design a practical, cost-effective AWS architecture. Be specific about which exa
 - security: key security practices (IAM roles, security groups, WAF, secrets manager, etc.)
 - scaling: scaling strategy (Auto Scaling Groups, ECS task scaling, RDS read replicas, etc.)
 - estimatedMonthlyCost: rough total monthly cost estimate (e.g. "$120-180/month on t3.small instances")
-- diagramAscii: a simple ASCII diagram of the architecture (use arrows →, boxes with [Service], max 15 lines)`,
-  });
+- diagramAscii: a simple ASCII diagram of the architecture (use arrows →, boxes with [Service], max 15 lines)`;
+
+  const { object } = await withFallback([
+    () => generateObject({ model: EXTRACT_MODEL, schema: architectureSchema, prompt }),
+    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: architectureSchema, prompt }),
+  ]);
   return object;
 }

@@ -1,7 +1,8 @@
 import { generateObject } from "ai";
-import { EXTRACT_MODEL } from "@/ai/providers/gateway";
+import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
 import { careerRoadmapSchema, type CareerRoadmap } from "@/ai/schemas/careerRoadmap";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+import { withFallback } from "@/ai/lib/withFallback";
 
 type JobMatchSummary = {
   jobTitle: string;
@@ -22,10 +23,7 @@ export async function runCareerAdvisor(
 ): Promise<CareerRoadmap> {
   const targetRole = preferences.targetRoles[0] ?? resumeData.experiences[0]?.jobTitle ?? "Senior DevOps Engineer";
 
-  const { object } = await generateObject({
-    model: EXTRACT_MODEL,
-    schema: careerRoadmapSchema,
-    prompt: `You are a senior career coach specialising in DevOps, Cloud, and SRE careers.
+  const prompt = `You are a senior career coach specialising in DevOps, Cloud, and SRE careers.
 
 Candidate Profile:
 - Current Role: ${resumeData.experiences[0]?.jobTitle ?? "N/A"} at ${resumeData.experiences[0]?.company ?? "N/A"}
@@ -43,8 +41,12 @@ Target:
 Recent Job Match Analysis (${recentMatches.length} jobs scored):
 ${recentMatches.slice(0, 5).map((m) => `- "${m.jobTitle}": ${m.matchScore}/100, gaps: ${m.skillGaps.join(", ")}`).join("\n") || "No matches yet"}
 
-Build a realistic, actionable career roadmap. Be specific about skill gaps and timeline. The keyMessage should be a one-line positioning statement the candidate can use in interviews and their LinkedIn headline.`,
-  });
+Build a realistic, actionable career roadmap. Be specific about skill gaps and timeline. The keyMessage should be a one-line positioning statement the candidate can use in interviews and their LinkedIn headline.`;
+
+  const { object } = await withFallback([
+    () => generateObject({ model: EXTRACT_MODEL, schema: careerRoadmapSchema, prompt }),
+    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: careerRoadmapSchema, prompt }),
+  ]);
 
   return object;
 }

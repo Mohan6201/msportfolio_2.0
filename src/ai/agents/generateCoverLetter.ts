@@ -1,6 +1,7 @@
 import { generateText } from "ai";
-import { EXTRACT_MODEL } from "@/ai/providers/gateway";
+import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+import { withFallback } from "@/ai/lib/withFallback";
 
 export async function generateCoverLetter(
   resumeData: ResumeData,
@@ -8,9 +9,7 @@ export async function generateCoverLetter(
   company: string,
   jdText?: string
 ): Promise<string> {
-  const { text } = await generateText({
-    model: EXTRACT_MODEL,
-    prompt: `Write a professional, compelling cover letter for the following candidate and job.
+  const prompt = `Write a professional, compelling cover letter for the following candidate and job.
 
 Candidate Resume Summary:
 - Name: ${resumeData.contact.fullName}
@@ -28,8 +27,12 @@ Guidelines:
 - Body: 2 most relevant achievements with impact/numbers from the resume; how they address the role's key needs
 - Closing: clear call to action, enthusiasm for the company specifically
 - Do NOT use generic phrases like "I am writing to express my interest" or "I believe I would be a great fit"
-- Output only the letter body (no subject line, no date, no address blocks)`,
-  });
+- Output only the letter body (no subject line, no date, no address blocks)`;
+
+  const { text } = await withFallback([
+    () => generateText({ model: EXTRACT_MODEL, prompt }),
+    () => generateText({ model: EXTRACT_MODEL_FALLBACK, prompt }),
+  ]);
 
   return text;
 }

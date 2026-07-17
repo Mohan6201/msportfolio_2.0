@@ -1,6 +1,7 @@
 import { generateObject } from "ai";
 import { z } from "zod";
-import { EXTRACT_MODEL } from "@/ai/providers/gateway";
+import { EXTRACT_MODEL, EXTRACT_MODEL_FALLBACK } from "@/ai/providers/gateway";
+import { withFallback } from "@/ai/lib/withFallback";
 
 const evaluationSchema = z.object({
   projectName: z.string(),
@@ -18,10 +19,7 @@ const evaluationSchema = z.object({
 export type ProjectEvaluation = z.infer<typeof evaluationSchema>;
 
 export async function evaluateProject(input: string): Promise<ProjectEvaluation> {
-  const { object } = await generateObject({
-    model: EXTRACT_MODEL,
-    schema: evaluationSchema,
-    prompt: `You are a senior DevOps/Cloud technical recruiter and engineering manager with 15+ years of experience evaluating portfolios and projects.
+  const prompt = `You are a senior DevOps/Cloud technical recruiter and engineering manager with 15+ years of experience evaluating portfolios and projects.
 
 Evaluate the following project/portfolio input:
 
@@ -40,8 +38,12 @@ Provide a thorough technical assessment:
 - matchingRoles: 3–5 specific job titles this person could realistically target (e.g. "DevOps Engineer", "AWS Solutions Architect", "SRE")
 - estimatedSalaryRange: market salary range this profile could realistically command (e.g. "£45,000–£60,000 / $60,000–$85,000")
 
-Be specific and honest. Don't pad with generic compliments — give actionable, expert-level feedback.`,
-  });
+Be specific and honest. Don't pad with generic compliments — give actionable, expert-level feedback.`;
+
+  const { object } = await withFallback([
+    () => generateObject({ model: EXTRACT_MODEL, schema: evaluationSchema, prompt }),
+    () => generateObject({ model: EXTRACT_MODEL_FALLBACK, schema: evaluationSchema, prompt }),
+  ]);
 
   return object;
 }

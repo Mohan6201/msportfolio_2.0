@@ -56,7 +56,10 @@ export default function LiveProjectPreview({
   const showLive = embeddable && !failed && inView;
 
   return (
-    <div ref={containerRef} className="absolute inset-0 bg-black/20">
+    // Raw black throughout this component, not the theme's `black` token (which is white in
+    // light mode) — this is a scrim/placeholder behind a photo or live embed, not page chrome,
+    // so it needs to stay dark regardless of the site's own light/dark theme.
+    <div ref={containerRef} className="absolute inset-0 bg-[#000]/20">
       {showLive && (
         <iframe
           src={liveUrl}
@@ -79,8 +82,8 @@ export default function LiveProjectPreview({
         />
       )}
       {showLive && !loaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <span className="text-xs font-mono text-lightGrey animate-pulse">Loading live preview…</span>
+        <div className="absolute inset-0 flex items-center justify-center bg-[#000]/40 backdrop-blur-sm">
+          <span className="text-xs font-mono text-[#7a8fa6] animate-pulse">Loading live preview…</span>
         </div>
       )}
     </div>

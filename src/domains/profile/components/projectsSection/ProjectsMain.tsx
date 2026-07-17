@@ -21,22 +21,30 @@ function ProjectCard({ project, index }: { project: ParsedProject; index: number
           fallbackImageUrl={project.imageUrl}
           alt={project.name}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
+        {/* Scrim over the card image/iframe so the overlay text and controls below stay legible —
+            intentionally raw black (not the theme's `black` token, which is white in light mode)
+            since this is darkening a photo/live-embed, not part of the page's own surface color. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#000]/80 via-[#000]/30 to-transparent pointer-events-none" />
 
-        <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/40 backdrop-blur-[2px]">
+        <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-[#000]/40 backdrop-blur-[2px]">
           <a href={project.link} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan text-black text-sm font-mono font-bold hover:bg-lightCyan transition-colors shadow-cyanShadow">
             <ExternalLink className="w-3.5 h-3.5" /> Live Demo
           </a>
+          {/* Raw white, not the theme's `white` token (near-black in light mode) — this sits on
+              the always-dark scrim above, not the page background. */}
           {project.githubUrl && (
             <a href={project.githubUrl} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-sm font-mono hover:bg-white/20 transition-colors">
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#fff]/10 border border-[#fff]/20 text-[#fff] text-sm font-mono hover:bg-[#fff]/20 transition-colors">
               <Github className="w-3.5 h-3.5" /> Source
             </a>
           )}
         </div>
 
-        <div className="absolute top-3 right-3 px-2 py-0.5 rounded-lg bg-black/60 text-xs font-mono text-lightGrey border border-white/10">
+        {/* Text color fixed too, not just the background — it sits over a photo/live-embed in
+            both themes, so it can't follow the page's own light/dark text swap without going
+            illegible in light mode. */}
+        <div className="absolute top-3 right-3 px-2 py-0.5 rounded-lg bg-[#000]/60 text-xs font-mono text-[#7a8fa6] border border-white/10">
           {project.year}
         </div>
       </div>

@@ -60,12 +60,10 @@ export async function checkEmbeddable(url: string | null | undefined): Promise<b
 
     const result = !blocked;
     cache.set(url, { value: result, ts: Date.now() });
-    console.log(`[checkEmbeddable] ${url} -> ${result} (status=${res.status} xfo="${xfo}" csp-frame-ancestors=${csp.includes("frame-ancestors")})`);
     return result;
-  } catch (err) {
+  } catch {
     // Timed out, network error, or the site is down — safest default is the static screenshot.
     cache.set(url, { value: false, ts: Date.now() });
-    console.log(`[checkEmbeddable] ${url} -> false (ERROR: ${err instanceof Error ? err.name + ": " + err.message : String(err)})`);
     return false;
   }
 }

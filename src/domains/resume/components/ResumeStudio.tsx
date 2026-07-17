@@ -8,6 +8,7 @@ import {
 import type { Resume, ResumeVersion } from "@/domains/resume/services/resume.service";
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
 import type { AtsScore } from "@/ai/schemas/atsScore";
+import { computeInstantAtsScore } from "@/domains/resume/lib/instantAtsScore";
 import { TEMPLATES, type TemplateKey } from "./templates";
 import JDMatcher from "./JDMatcher";
 import VersionList from "./VersionList";
@@ -75,9 +76,12 @@ export default function ResumeStudio() {
   // immediately visible effect instead of only mattering at export/print time.
   const [activeTab, setActiveTab] = useState<RightTab>("preview");
 
-  // ATS
+  // ATS — atsResult is populated instantly (computeInstantAtsScore, no network/AI call) the
+  // moment resume data loads; runAtsAnalysis() optionally replaces it with a deeper AI pass.
+  // atsSource tracks which one is currently shown so the UI can label it honestly.
   const [analyzing,    setAnalyzing]    = useState(false);
   const [atsResult,    setAtsResult]    = useState<AtsScore | null>(null);
+  const [atsSource,    setAtsSource]    = useState<"instant" | "ai" | null>(null);
   const [lastAnalyzed, setLastAnalyzed] = useState<Date | null>(null);
   const [suggestions,  setSuggestions]  = useState<{ text: string; checked: boolean }[]>([]);
 
@@ -119,11 +123,23 @@ export default function ResumeStudio() {
     }
   }, []);
 
+  // Recomputes the instant ATS baseline any time resumeData changes, regardless of which code
+  // path set it (select, upload, version switch, apply-optimization) — one source of truth
+  // instead of calling computeInstantAtsScore at every individual setResumeData call site.
+  useEffect(() => {
+    if (resumeData) {
+      setAtsResult(computeInstantAtsScore(resumeData));
+      setAtsSource("instant");
+    } else {
+      setAtsResult(null);
+      setAtsSource(null);
+    }
+  }, [resumeData]);
+
   async function selectResume(resume: Resume) {
     setLoading(true);
     setSelected(resume);
     setUploadError("");
-    setAtsResult(null);
     setSuggestions([]);
     setTailoredData(null);
     setTailorError("");
@@ -221,6 +237,7 @@ export default function ResumeStudio() {
       }
       const { result } = await res.json();
       setAtsResult(result);
+      setAtsSource("ai");
       setLastAnalyzed(new Date());
       if (result.improvements?.length) {
         setSuggestions(result.improvements.map((text: string) => ({ text, checked: false })));
@@ -659,45 +676,38 @@ export default function ResumeStudio() {
                     ))}
                   </div>
                 </>
-              ) : !atsResult ? (
-                /* Run button state */
-                <div className="space-y-3">
+              ) : atsResult ? (
+                /* Results — atsResult is populated the instant a resume loads (computeInstantAtsScore,
+                   no AI/network call), so there's no separate "click to run" gate to get here. */
+                <>
                   {atsError && (
                     <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
                       <XCircle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#EF4444" }} />
                       <p className="text-[12px] font-mono" style={{ color: "#EF4444" }}>{atsError}</p>
                     </div>
                   )}
-                  <div
-                    className="rounded-lg p-10 flex flex-col items-center justify-center text-center"
-                    style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
-                  >
-                    <p className="text-white font-bold mb-2">Run ATS Analysis</p>
-                    <p className="text-[12px] font-mono mb-5 max-w-sm" style={{ color: "#6B7280" }}>
-                      Analyzes your resume against common ATS parsing rules and DevOps keywords
-                    </p>
-                    <button
-                      onClick={runAtsAnalysis}
-                      className="px-5 py-2.5 rounded-lg font-bold text-[13px] font-mono transition-opacity hover:opacity-90"
-                      style={{ backgroundColor: "#00D964", color: "#0A0A0B" }}
-                    >
-                      Run ATS Scan
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                /* Results */
-                <>
                   {/* Overall score */}
                   <div
                     className="rounded-lg p-5 flex items-center justify-between"
                     style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
                   >
                     <div>
-                      <p className="font-mono font-bold" style={{ fontSize: "40px", color: "#FFFFFF", lineHeight: 1 }}>
-                        {atsResult.overallScore}
-                        <span className="text-xl" style={{ color: "#6B7280" }}> / 100</span>
-                      </p>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="font-mono font-bold" style={{ fontSize: "40px", color: "#FFFFFF", lineHeight: 1 }}>
+                          {atsResult.overallScore}
+                          <span className="text-xl" style={{ color: "#6B7280" }}> / 100</span>
+                        </p>
+                        <span
+                          className="text-[10px] font-mono px-2 py-0.5 rounded-full"
+                          style={
+                            atsSource === "ai"
+                              ? { backgroundColor: "rgba(0,217,100,0.1)", color: "#00D964", border: "1px solid rgba(0,217,100,0.2)" }
+                              : { backgroundColor: "rgba(107,114,128,0.1)", color: "#9CA3AF", border: "1px solid rgba(107,114,128,0.2)" }
+                          }
+                        >
+                          {atsSource === "ai" ? "AI-verified" : "Instant estimate"}
+                        </span>
+                      </div>
                       <p className="text-[12px] font-mono mt-1" style={{ color: scoreColor(atsResult.overallScore) }}>
                         {atsResult.overallScore >= 80 ? "Good — minor improvements possible" :
                          atsResult.overallScore >= 65 ? "Fair — some improvements needed" :
@@ -707,9 +717,13 @@ export default function ResumeStudio() {
                     <button
                       onClick={runAtsAnalysis}
                       className="flex items-center gap-1.5 text-[11px] font-mono px-3 py-1.5 rounded-md transition-colors"
-                      style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B", color: "#6B7280" }}
+                      style={
+                        atsSource === "ai"
+                          ? { backgroundColor: "#0A0A0B", border: "1px solid #26262B", color: "#6B7280" }
+                          : { backgroundColor: "#00D964", color: "#0A0A0B", border: "none" }
+                      }
                     >
-                      <RotateCcw className="w-3 h-3" /> Re-analyze
+                      <RotateCcw className="w-3 h-3" /> {atsSource === "ai" ? "Re-analyze" : "Get AI Insights"}
                     </button>
                   </div>
 
@@ -806,7 +820,7 @@ export default function ResumeStudio() {
                     </div>
                   </div>
                 </>
-              )}
+              ) : null}
             </div>
 
           ) : activeTab === "cover" ? (

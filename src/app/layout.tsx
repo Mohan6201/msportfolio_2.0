@@ -37,9 +37,19 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/icons/Actual_Logo.ico",    type: "image/x-icon", sizes: "any" },
+      { url: "/icons/favicon-32x32.png",  type: "image/png",    sizes: "32x32" },
+      { url: "/icons/favicon-16x16.png",  type: "image/png",    sizes: "16x16" },
     ],
     shortcut: "/icons/Actual_Logo.ico",
     apple: [{ url: "/icons/apple-touch.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "MS Portfolio",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
   },
   openGraph: {
     title: "MS Portfolio | Mohana Srinivasan",

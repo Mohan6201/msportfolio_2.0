@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { profiles, socialLinks, skills, experiences, certifications, projects, settings } from "@/db/schema/profile";
+import { checkEmbeddable } from "@/lib/checkEmbeddable";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -19,6 +20,8 @@ export type ParsedExperience = Omit<ExperienceRow, "tech" | "responsibilities"> 
 export type ParsedProject = Omit<ProjectRow, "tech" | "responsibilities"> & {
   tech: string[];
   responsibilities: string[];
+  /** Whether project.link can be safely embedded in an iframe (checked server-side via response headers). */
+  embeddable: boolean;
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -110,10 +113,14 @@ export async function getProjects(profileId: number): Promise<ParsedProject[]> {
     .from(projects)
     .where(eq(projects.profileId, profileId))
     .orderBy(projects.sortOrder);
-  return rows.map((r) => ({
+
+  const embeddableFlags = await Promise.all(rows.map((r) => checkEmbeddable(r.link)));
+
+  return rows.map((r, i) => ({
     ...r,
     tech: parseJSON<string[]>(r.tech, []),
     responsibilities: parseJSON<string[]>(r.responsibilities, []),
+    embeddable: embeddableFlags[i],
   }));
 }
 

@@ -1,9 +1,9 @@
 "use client";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import { FiGithub as Github } from "react-icons/fi";
 import type { ParsedProject } from "@/domains/profile/services/profile.service";
+import LiveProjectPreview from "./LiveProjectPreview";
 
 function ProjectCard({ project, index }: { project: ParsedProject; index: number }) {
   return (
@@ -15,14 +15,13 @@ function ProjectCard({ project, index }: { project: ParsedProject; index: number
       className="glass glass-hover rounded-2xl overflow-hidden border border-white/5 group"
     >
       <div className="relative h-48 overflow-hidden">
-        <Image
-          src={project.imageUrl}
+        <LiveProjectPreview
+          liveUrl={project.link}
+          embeddable={project.embeddable}
+          fallbackImageUrl={project.imageUrl}
           alt={project.name}
-          fill
-          sizes="(min-width: 1536px) 25vw, (min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
-          className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
 
         <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/40 backdrop-blur-[2px]">
           <a href={project.link} target="_blank" rel="noopener noreferrer"

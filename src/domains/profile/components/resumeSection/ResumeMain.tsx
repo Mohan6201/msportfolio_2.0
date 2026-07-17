@@ -1,6 +1,11 @@
 "use client";
 import { motion } from "framer-motion";
-import ResumePreview from "./ResumePreview";
+import dynamic from "next/dynamic";
+
+// react-pdf's pdfjs import evaluates `new DOMMatrix()` at module load time — a browser-only
+// API. "use client" alone doesn't stop Next.js from still server-rendering this component for
+// the initial HTML, so it must be excluded from SSR entirely or every page load 500s.
+const ResumePreview = dynamic(() => import("./ResumePreview"), { ssr: false });
 
 interface ResumeMainProps {
   resumeUrl: string | null;

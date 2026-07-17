@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { Plus, Pencil, Trash2, Check, X, Loader2, Briefcase } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Plus, Pencil, Trash2, Check, X, Loader2, Briefcase, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 
 type Exp = {
   id: number; jobTitle: string; company: string; companyUrl: string | null;
@@ -8,6 +8,7 @@ type Exp = {
   tech: string; responsibilities: string; sortOrder: number;
 };
 type ExpDraft = Omit<Exp, "id">;
+type MonthYear = { year: number; month: number };
 
 const BLANK: ExpDraft = { jobTitle: "", company: "", companyUrl: "", startDate: "", endDate: null, isCurrent: false, tech: "[]", responsibilities: "[]", sortOrder: 0 };
 const inp = "w-full bg-[#0A0A0B] border border-[#26262B] rounded-lg px-3 py-2 text-white text-xs font-mono focus:outline-none focus:border-[#00D964] transition-colors placeholder-[#374151]";
@@ -15,6 +16,104 @@ const ta  = `${inp} resize-y min-h-[80px]`;
 
 const parseArr = (v: string) => { try { return (JSON.parse(v) as string[]).join("\n"); } catch { return ""; } };
 const toArr = (v: string): string[] => v.split("\n").map(s => s.trim()).filter(Boolean);
+
+// Stored format must match parseExperienceDate() in profile.service.ts: "MMM YYYY", e.g. "SEP 2025".
+const MONTHS_SHORT = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+
+function fmtExpDate(my: MonthYear): string { return `${MONTHS_SHORT[my.month]} ${my.year}`; }
+function parseExpDate(str: string | null | undefined): MonthYear | null {
+  if (!str) return null;
+  const m = str.trim().toUpperCase().match(/^([A-Z]{3})\s+(\d{4})$/);
+  if (!m) return null;
+  const idx = MONTHS_SHORT.indexOf(m[1]);
+  return idx === -1 ? null : { year: Number(m[2]), month: idx };
+}
+
+// ─── MonthYearPicker popup (calendar-style month/year select) ─────────────────
+function MonthYearPicker({ value, disabled, onSelect, onClear }: {
+  value: MonthYear | null; disabled?: boolean;
+  onSelect: (my: MonthYear) => void; onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [viewYear, setViewYear] = useState(value?.year ?? new Date().getFullYear());
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    if (open) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  useEffect(() => { if (value) setViewYear(value.year); }, [value]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => { if (!disabled) setOpen(o => !o); }}
+        disabled={disabled}
+        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border text-xs font-mono transition-colors focus:outline-none"
+        style={{
+          backgroundColor: "#0A0A0B",
+          borderColor: open ? "#00D964" : "#26262B",
+          color: disabled ? "#374151" : value ? "#fff" : "#6B7280",
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.4 : 1,
+        }}
+      >
+        <span>{disabled ? "Present" : value ? fmtExpDate(value) : "Select month"}</span>
+        <Calendar className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#6B7280" }} />
+      </button>
+
+      {open && (
+        <div
+          className="absolute z-50 top-full mt-1.5 left-0 rounded-xl overflow-hidden"
+          style={{ width: "240px", backgroundColor: "#16161A", border: "1px solid #2a2a30", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}
+        >
+          <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid #26262B" }}>
+            <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded-lg transition-colors hover:bg-[#26262B]" style={{ color: "#6B7280" }}>
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-white text-sm font-bold font-mono">{viewYear}</span>
+            <button type="button" onClick={() => setViewYear(y => y + 1)} className="p-1 rounded-lg transition-colors hover:bg-[#26262B]" style={{ color: "#6B7280" }}>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-1 p-3">
+            {MONTHS_SHORT.map((m, i) => {
+              const isSelected = value?.year === viewYear && value?.month === i;
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => { onSelect({ year: viewYear, month: i }); setTimeout(() => setOpen(false), 180); }}
+                  className="py-2 rounded-lg text-[11px] font-mono transition-all"
+                  style={{ backgroundColor: isSelected ? "#00D964" : "transparent", color: isSelected ? "#0A0A0B" : "#9CA3AF", fontWeight: isSelected ? 700 : 400 }}
+                  onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#26262B"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = isSelected ? "#00D964" : "transparent"; }}
+                >
+                  {m}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-2 px-3 pb-3">
+            <button type="button" onClick={() => { onClear(); setOpen(false); }} className="flex-1 py-1.5 rounded-lg text-[11px] font-mono transition-colors hover:border-[#374151]" style={{ border: "1px solid #26262B", color: "#6B7280", backgroundColor: "transparent" }}>
+              Clear
+            </button>
+            <button type="button" onClick={() => setOpen(false)} className="flex-1 py-1.5 rounded-lg text-[11px] font-mono font-bold" style={{ backgroundColor: "#00D964", color: "#0A0A0B", border: "none" }}>
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ExpForm({ form, onChange, onSave, onCancel, saving }: {
   form: ExpDraft; onChange: (f: ExpDraft) => void;
@@ -41,11 +140,20 @@ function ExpForm({ form, onChange, onSave, onCancel, saving }: {
         </div>
         <div>
           <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-1.5">Start Date</label>
-          <input className={inp} value={form.startDate} onChange={s("startDate")} placeholder="e.g. SEP 2023" />
+          <MonthYearPicker
+            value={parseExpDate(form.startDate)}
+            onSelect={my => onChange({ ...form, startDate: fmtExpDate(my) })}
+            onClear={() => onChange({ ...form, startDate: "" })}
+          />
         </div>
         <div>
           <label className="block text-[11px] text-[#6B7280] font-mono uppercase tracking-widest mb-1.5">End Date</label>
-          <input className={inp} value={form.endDate ?? ""} onChange={s("endDate")} placeholder="Leave blank if current" disabled={form.isCurrent} />
+          <MonthYearPicker
+            value={parseExpDate(form.endDate)}
+            disabled={form.isCurrent}
+            onSelect={my => onChange({ ...form, endDate: fmtExpDate(my) })}
+            onClear={() => onChange({ ...form, endDate: null })}
+          />
         </div>
         <div className="flex items-center gap-2 pt-5">
           <input type="checkbox" id="isCurrent" checked={form.isCurrent}

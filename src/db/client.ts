@@ -1,5 +1,10 @@
+import { setDefaultResultOrder } from "node:dns";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
+
+// Vercel's serverless runtime resolves the Turso host IPv6-first and intermittently stalls
+// (documented ~1-in-4 connect failures from this exact host). Forcing IPv4 first fixes it.
+setDefaultResultOrder("ipv4first");
 import * as legacySchema from "./schema/legacy";
 import * as profileSchema from "./schema/profile";
 import * as authSchema from "./schema/auth";

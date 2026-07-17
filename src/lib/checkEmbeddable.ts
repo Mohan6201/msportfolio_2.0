@@ -1,3 +1,5 @@
+import { setDefaultResultOrder } from "node:dns";
+
 /**
  * Server-side check for whether a project's live URL can be embedded in an <iframe>.
  *
@@ -7,6 +9,12 @@
  * showing a blank/broken embed to a recruiter — if we're not sure it will render, we fall back to
  * the static screenshot instead.
  */
+
+// Vercel's serverless runtime resolves external hostnames IPv6-first and stalls until timeout
+// on hosts that don't answer cleanly over IPv6 (same root cause as the documented Turso
+// connectivity flakiness from this environment) — every project fetch was timing out and
+// silently falling back to the screenshot. Forcing IPv4 first fixes it.
+setDefaultResultOrder("ipv4first");
 
 const SITE_HOSTS = ["m-s-r-portfolio.vercel.app", "localhost"];
 
@@ -33,7 +41,7 @@ export async function checkEmbeddable(url: string | null | undefined): Promise<b
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3500);
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(url, {
       method: "GET",
       redirect: "follow",

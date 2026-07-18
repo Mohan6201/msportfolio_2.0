@@ -1,14 +1,31 @@
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+import ResumeBlock from "./ResumeBlock";
+
+// Real, derivable metrics — replaces a previous version of this template that hardcoded
+// made-up numbers ("-75%", "100+") unrelated to the actual candidate's data.
+function computeAtAGlance(data: ResumeData) {
+  const years = data.experiences
+    .map((e) => parseInt((e.startDate.match(/\d{4}/) ?? [])[0] ?? "", 10))
+    .filter((y) => !Number.isNaN(y));
+  const yearsExperience = years.length > 0 ? new Date().getFullYear() - Math.min(...years) : null;
+  const metrics: { label: string; value: string }[] = [];
+  if (yearsExperience !== null && yearsExperience > 0) metrics.push({ label: "Years experience", value: `${yearsExperience}+` });
+  if (data.experiences.length > 0) metrics.push({ label: "Roles held", value: String(data.experiences.length) });
+  if (data.certifications.length > 0) metrics.push({ label: "Certifications", value: String(data.certifications.length) });
+  if (data.skills.length > 0) metrics.push({ label: "Skill areas", value: String(data.skills.length) });
+  return metrics;
+}
 
 export default function CorporateTemplate({ data }: { data: ResumeData }) {
-  const { contact, summary, experiences, education, skills, certifications } = data;
+  const { contact, summary, experiences, education, skills, certifications, projects } = data;
   const allSkills = skills.flatMap((g) => g.items);
+  const atAGlance = computeAtAGlance(data);
 
   return (
     <div
       id="resume-print-area"
       className="bg-[#fff] text-gray-900 font-sans text-[11px] leading-relaxed max-w-[900px] mx-auto flex"
-      style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+      style={{ fontFamily: "Arial, Helvetica, sans-serif", WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
     >
       {/* Left Sidebar */}
       <div className="w-[240px] bg-[#1e3a5f] text-[#fff] flex-shrink-0 p-6 flex flex-col gap-5">
@@ -61,25 +78,22 @@ export default function CorporateTemplate({ data }: { data: ResumeData }) {
           </div>
         )}
 
-        {/* At a glance */}
-        <div>
-          <p className="text-[9px] uppercase tracking-widest text-[#7ec8e3] font-bold mb-2 border-b border-[#2a4a7f] pb-1">
-            AT A GLANCE
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { label: "Build time", value: "-75%" },
-              { label: "Pipelines", value: "100+" },
-              { label: "ECS services", value: "10+" },
-              { label: "AWS accounts", value: "3" },
-            ].map((m, i) => (
-              <div key={i} className="bg-[#2a4a7f] rounded p-2 text-center">
-                <p className="text-[#7ec8e3] text-[14px] font-bold">{m.value}</p>
-                <p className="text-[8px] text-gray-400">{m.label}</p>
-              </div>
-            ))}
+        {/* At a glance — real, computed metrics only; omitted entirely when there's nothing honest to show */}
+        {atAGlance.length > 0 && (
+          <div>
+            <p className="text-[9px] uppercase tracking-widest text-[#7ec8e3] font-bold mb-2 border-b border-[#2a4a7f] pb-1">
+              AT A GLANCE
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {atAGlance.map((m, i) => (
+                <div key={i} className="bg-[#2a4a7f] rounded p-2 text-center">
+                  <p className="text-[#7ec8e3] text-[14px] font-bold">{m.value}</p>
+                  <p className="text-[8px] text-gray-400">{m.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Contact */}
         <div className="mt-auto">
@@ -109,7 +123,7 @@ export default function CorporateTemplate({ data }: { data: ResumeData }) {
 
         <CorpSection title="PROFESSIONAL EXPERIENCE">
           {experiences.map((exp, i) => (
-            <div key={i} className="mb-4">
+            <ResumeBlock key={i} className="mb-4">
               <div className="flex justify-between items-baseline mb-0.5">
                 <span className="font-bold text-gray-900 text-[12px]">{exp.jobTitle}</span>
                 <span className="text-gray-500 text-[9px]">{exp.startDate} – {exp.isCurrent ? "Present" : (exp.endDate ?? "")}</span>
@@ -125,9 +139,26 @@ export default function CorporateTemplate({ data }: { data: ResumeData }) {
                   </li>
                 ))}
               </ul>
-            </div>
+            </ResumeBlock>
           ))}
         </CorpSection>
+
+        {projects.length > 0 && (
+          <CorpSection title="PROJECTS">
+            {projects.map((p, i) => (
+              <ResumeBlock key={i} className="mb-3">
+                <div className="flex justify-between items-baseline">
+                  <span className="font-bold text-gray-900 text-[11px]">{p.name}</span>
+                  {p.url && <span className="text-gray-500 text-[9px]">{p.url}</span>}
+                </div>
+                <p className="text-gray-700 mt-0.5">{p.description}</p>
+                {p.technologies.length > 0 && (
+                  <p className="text-[#1e3a5f] text-[9px] mt-0.5">{p.technologies.join(" · ")}</p>
+                )}
+              </ResumeBlock>
+            ))}
+          </CorpSection>
+        )}
       </div>
     </div>
   );

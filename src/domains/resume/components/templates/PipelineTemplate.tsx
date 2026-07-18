@@ -1,13 +1,15 @@
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+import ResumeBlock from "./ResumeBlock";
 
 export default function PipelineTemplate({ data }: { data: ResumeData }) {
-  const { contact, summary, experiences, education, skills, certifications } = data;
+  const { contact, summary, experiences, education, skills, certifications, projects } = data;
   const allSkills = skills.flatMap((g) => g.items);
 
   return (
     <div
       id="resume-print-area"
       className="bg-[#0a0e1a] text-gray-100 font-mono text-[11px] leading-relaxed max-w-[900px] mx-auto min-h-[1100px] flex flex-col"
+      style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
     >
       <div className="flex flex-1">
         {/* Left Sidebar */}
@@ -76,7 +78,7 @@ export default function PipelineTemplate({ data }: { data: ResumeData }) {
               <span className="text-gray-600">2</span> EXPERIENCE
             </h2>
             {experiences.map((exp, i) => (
-              <div key={i} className="mb-5">
+              <ResumeBlock key={i} className="mb-5">
                 <div className="flex items-baseline justify-between mb-0.5">
                   <span className="text-[#fff] font-bold text-[12px]">{exp.jobTitle}</span>
                   <span className="text-gray-500 text-[9px]">
@@ -101,16 +103,34 @@ export default function PipelineTemplate({ data }: { data: ResumeData }) {
                     ))}
                   </div>
                 )}
-              </div>
+              </ResumeBlock>
             ))}
           </div>
-        </div>
-      </div>
 
-      {/* Footer */}
-      <div className="border-t border-[#1a2540] px-7 py-2 text-[9px] text-gray-600 flex justify-between">
-        <span>// page 1</span>
-        <span>{contact.fullName?.toLowerCase()} · {experiences[0]?.jobTitle?.toLowerCase()}</span>
+          {projects.length > 0 && (
+            <div className="mt-6">
+              <h2 className="text-[#3b82f6] font-bold text-xs mb-3 flex items-center gap-2">
+                <span className="text-gray-600">3</span> PROJECTS
+              </h2>
+              {projects.map((p, i) => (
+                <ResumeBlock key={i} className="mb-4">
+                  <div className="flex items-baseline justify-between mb-0.5">
+                    <span className="text-[#fff] font-bold text-[11px]">{p.name}</span>
+                    {p.url && <span className="text-gray-500 text-[9px]">{p.url}</span>}
+                  </div>
+                  <p className="text-gray-300">{p.description}</p>
+                  {p.technologies.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {p.technologies.map((t, j) => (
+                        <span key={j} className="text-[9px] bg-[#1a2540] border border-[#2a3560] rounded px-1 py-0.5 text-gray-400">{t}</span>
+                      ))}
+                    </div>
+                  )}
+                </ResumeBlock>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

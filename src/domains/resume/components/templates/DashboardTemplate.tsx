@@ -1,12 +1,31 @@
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+import ResumeBlock from "./ResumeBlock";
+
+// Real, derivable metrics — replaces a previous version of this template that hardcoded
+// made-up numbers ("-75%", "0 DT") unrelated to the actual candidate's data.
+function computeMetrics(data: ResumeData) {
+  const years = data.experiences
+    .map((e) => parseInt((e.startDate.match(/\d{4}/) ?? [])[0] ?? "", 10))
+    .filter((y) => !Number.isNaN(y));
+  const yearsExperience = years.length > 0 ? new Date().getFullYear() - Math.min(...years) : null;
+  const metrics: { label: string; value: string }[] = [];
+  if (yearsExperience !== null && yearsExperience > 0) metrics.push({ label: "YEARS EXP", value: `${yearsExperience}+` });
+  if (data.experiences.length > 0) metrics.push({ label: "ROLES", value: String(data.experiences.length) });
+  if (data.certifications.length > 0) metrics.push({ label: "CERTS", value: String(data.certifications.length) });
+  if (data.skills.length > 0) metrics.push({ label: "SKILL AREAS", value: String(data.skills.length) });
+  if (data.projects.length > 0) metrics.push({ label: "PROJECTS", value: String(data.projects.length) });
+  return metrics;
+}
 
 export default function DashboardTemplate({ data }: { data: ResumeData }) {
-  const { contact, summary, experiences, education, skills, certifications } = data;
+  const { contact, summary, experiences, education, skills, certifications, projects } = data;
+  const metrics = computeMetrics(data);
 
   return (
     <div
       id="resume-print-area"
       className="bg-[#0a0e1a] text-gray-100 font-sans text-[11px] leading-relaxed max-w-[900px] mx-auto"
+      style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
     >
       {/* Header */}
       <div className="bg-[#060a14] border-b border-[#1a2540] px-8 pt-7 pb-5">
@@ -27,21 +46,17 @@ export default function DashboardTemplate({ data }: { data: ResumeData }) {
           </div>
         </div>
 
-        {/* Metric cards */}
-        <div className="flex gap-3 mt-5">
-          {[
-            { label: "BUILD TIME", value: "-75%" },
-            { label: "MIGRATIONS", value: "0 DT" },
-            { label: "PIPELINES", value: "100+" },
-            { label: "ECS SERVICES", value: "10+" },
-            { label: "AWS ACCTS", value: "3" },
-          ].map((m, i) => (
-            <div key={i} className="bg-[#1a2540] border border-[#2a3560] rounded-lg px-4 py-2 text-center flex-1">
-              <p className="text-[8px] text-gray-500 uppercase tracking-widest">{m.label}</p>
-              <p className="text-[16px] font-bold text-[#3b82f6] font-mono">{m.value}</p>
-            </div>
-          ))}
-        </div>
+        {/* Metric cards — real, computed metrics only; omitted entirely when nothing honest to show */}
+        {metrics.length > 0 && (
+          <div className="flex gap-3 mt-5">
+            {metrics.map((m, i) => (
+              <div key={i} className="bg-[#1a2540] border border-[#2a3560] rounded-lg px-4 py-2 text-center flex-1">
+                <p className="text-[8px] text-gray-500 uppercase tracking-widest">{m.label}</p>
+                <p className="text-[16px] font-bold text-[#3b82f6] font-mono">{m.value}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="p-8">
@@ -56,7 +71,7 @@ export default function DashboardTemplate({ data }: { data: ResumeData }) {
           <SectionTitle icon="◈" title="EXPERIENCE TIMELINE" />
           <div className="space-y-5 mt-2">
             {experiences.map((exp, i) => (
-              <div key={i} className="flex gap-4">
+              <ResumeBlock key={i} className="flex gap-4">
                 <div className="flex flex-col items-center pt-1">
                   <div className="w-2 h-2 rounded-full bg-[#3b82f6] flex-shrink-0" />
                   {i < experiences.length - 1 && <div className="w-px flex-1 bg-[#1a2540] mt-1" />}
@@ -80,10 +95,33 @@ export default function DashboardTemplate({ data }: { data: ResumeData }) {
                     ))}
                   </ul>
                 </div>
-              </div>
+              </ResumeBlock>
             ))}
           </div>
         </div>
+
+        {projects.length > 0 && (
+          <div className="mb-6">
+            <SectionTitle icon="◈" title="PROJECTS" />
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              {projects.map((p, i) => (
+                <ResumeBlock key={i} className="bg-[#0f1520] border border-[#1a2540] rounded-lg p-3">
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-gray-100 font-bold">{p.name}</span>
+                  </div>
+                  <p className="text-gray-400 text-[10px] mt-1">{p.description}</p>
+                  {p.technologies.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {p.technologies.map((t, j) => (
+                        <span key={j} className="text-[9px] bg-[#1a2540] rounded px-1.5 py-0.5 text-gray-300">{t}</span>
+                      ))}
+                    </div>
+                  )}
+                </ResumeBlock>
+              ))}
+            </div>
+          </div>
+        )}
 
         {skills.length > 0 && (
           <div className="mb-6">

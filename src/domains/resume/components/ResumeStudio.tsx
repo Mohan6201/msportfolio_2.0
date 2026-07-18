@@ -9,20 +9,20 @@ import type { Resume, ResumeVersion } from "@/domains/resume/services/resume.ser
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
 import type { AtsScore } from "@/ai/schemas/atsScore";
 import { computeInstantAtsScore } from "@/domains/resume/lib/instantAtsScore";
-import { TEMPLATES, type TemplateKey } from "./templates";
+import { generateResumeText } from "@/domains/resume/lib/generateResumeText";
+import { TEMPLATES, type TemplateKey, type AtsSafeTier } from "./templates";
+import TemplateThumbnail from "./templates/TemplateThumbnail";
+import PaginatedResumePreview from "./PaginatedResumePreview";
 import JDMatcher from "./JDMatcher";
 import VersionList from "./VersionList";
 
-// Template display config — friendly names + colored header bars for thumbnails
-const TEMPLATE_DISPLAY: { key: TemplateKey; label: string; color: string }[] = [
-  { key: "minimal",   label: "Minimal",   color: "#00D964" },
-  { key: "pipeline",  label: "Classic",   color: "#3B82F6" },
-  { key: "blueprint", label: "Compact",   color: "#8B5CF6" },
-  { key: "corporate", label: "Technical", color: "#F59E0B" },
-  { key: "sarath",    label: "Executive", color: "#EC4899" },
-  { key: "dashboard", label: "Sidebar",   color: "#06B6D4" },
-  { key: "terminal",  label: "Clean",     color: "#9CA3AF" },
-];
+// Short labels deliberately — these badges sit inside a 2-column thumbnail grid in a fixed
+// 256px sidebar (~120px per card), so "ATS-Optimized" was visibly cramped/truncated there.
+const ATS_TIER_STYLE: Record<AtsSafeTier, { label: string; color: string; bg: string }> = {
+  safe:     { label: "ATS-Safe", color: "#00D964", bg: "rgba(0,217,100,0.1)" },
+  caution:  { label: "Caution",  color: "#F59E0B", bg: "rgba(245,158,11,0.1)" },
+  creative: { label: "Creative", color: "#9CA3AF", bg: "rgba(107,114,128,0.1)" },
+};
 
 const SECTION_LABELS: Record<string, string> = {
   contactInfo:    "Contact Info",
@@ -69,8 +69,14 @@ export default function ResumeStudio() {
   const [dragging,       setDragging]       = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Template
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateKey>("minimal");
+  // Template — default comes from TEMPLATES[0] (the safest-for-ATS entry, per the array's
+  // documented ordering in templates/index.ts) rather than a separately hardcoded key string,
+  // so "the default template" can't drift out of sync with "the first template in the list" the
+  // way this file's old TEMPLATE_DISPLAY array drifted from templates/index.ts's TEMPLATES.
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateKey>(TEMPLATES[0].key);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [exportingDocx, setExportingDocx] = useState(false);
+  const [exportError, setExportError] = useState("");
 
   // Right panel — defaults to the live preview so uploading/switching templates has an
   // immediately visible effect instead of only mattering at export/print time.
@@ -342,6 +348,44 @@ export default function ResumeStudio() {
     }
   }
 
+  function downloadBlob(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportTxt() {
+    if (!resumeData) return;
+    downloadBlob(new Blob([generateResumeText(resumeData)], { type: "text/plain" }), "resume.txt");
+    setExportMenuOpen(false);
+  }
+
+  async function exportDocx() {
+    if (!resumeData) return;
+    setExportingDocx(true);
+    setExportError("");
+    try {
+      const res = await fetch("/api/account/resume/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ format: "docx", resumeData }),
+      });
+      if (!res.ok) throw new Error("DOCX export failed");
+      downloadBlob(await res.blob(), "resume.docx");
+      setExportMenuOpen(false);
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "DOCX export failed. Please try again.");
+    } finally {
+      setExportingDocx(false);
+    }
+  }
+
+  function exportPdf() {
+    window.print();
+    setExportMenuOpen(false);
+  }
+
   const hasResume = !!resumeData;
   const lastAnalyzedStr = lastAnalyzed
     ? lastAnalyzed.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) +
@@ -501,19 +545,27 @@ export default function ResumeStudio() {
             <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={onFileInputChange} />
           </div>
 
-          {/* Template grid */}
+          {/* Template grid — real live-rendered thumbnails (TemplateThumbnail), not the fake
+              colored-bar placeholders this used to show. Ordered by ATS-parsing risk (see
+              templates/index.ts), safest first, with a visible tier badge on each. */}
           <div>
             <p className="text-[10px] font-mono uppercase tracking-widest mb-2.5" style={{ color: "#6B7280" }}>
               Template
             </p>
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-2 gap-2">
-              {TEMPLATE_DISPLAY.map(t => {
+            {/* 2 cols on mobile, 3 on tablet/full-width (sm — before the sidebar becomes a
+                fixed-width column at lg), back to 2 at lg/xl/2xl — the sidebar stays a fixed
+                256px (w-64) from lg upward and never grows, so 3 columns there would squeeze
+                each real live-rendered thumbnail down to ~70px, illegibly small. */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2.5">
+              {TEMPLATES.map(t => {
                 const isSel = selectedTemplate === t.key;
+                const tier = ATS_TIER_STYLE[t.atsSafe];
                 return (
                   <button
                     key={t.key}
                     onClick={() => setSelectedTemplate(t.key)}
-                    className="relative flex flex-col rounded-md overflow-hidden transition-all"
+                    title={t.description}
+                    className="relative flex flex-col rounded-md overflow-hidden transition-all text-left"
                     style={{ border: `2px solid ${isSel ? "#00D964" : "#26262B"}` }}
                   >
                     {isSel && (
@@ -524,18 +576,22 @@ export default function ResumeStudio() {
                         <Check className="w-2.5 h-2.5 text-black" strokeWidth={3} />
                       </div>
                     )}
-                    {/* Colored header bar */}
-                    <div style={{ height: "48px", backgroundColor: t.color, opacity: isSel ? 1 : 0.65 }} />
-                    {/* Text-line simulators */}
-                    <div className="px-1.5 py-1.5 flex flex-col gap-1" style={{ backgroundColor: "#f5f5f5" }}>
-                      <div className="h-1 rounded-full bg-gray-300 w-full" />
-                      <div className="h-1 rounded-full bg-gray-200 w-4/5" />
-                      <div className="h-1 rounded-full bg-gray-100 w-3/5" />
+                    {/* Real live-rendered thumbnail, fixed-aspect so the page shape reads correctly */}
+                    <div className="relative w-full" style={{ aspectRatio: "816 / 700" }}>
+                      <TemplateThumbnail templateKey={t.key} component={t.component} />
                     </div>
-                    {/* Label */}
-                    <div className="px-1.5 py-1" style={{ backgroundColor: "#16161A" }}>
-                      <span className="text-[10px] font-mono" style={{ color: isSel ? "#00D964" : "#6B7280" }}>
-                        {t.label}
+                    {/* Label + ATS tier badge — stacked, not side-by-side: at ~120px per card
+                        (2-column grid in a fixed 256px sidebar) fighting for horizontal room
+                        truncated both the name and the badge. */}
+                    <div className="px-1.5 py-1.5 flex flex-col gap-1" style={{ backgroundColor: "#16161A" }}>
+                      <span className="text-[10px] font-mono truncate" style={{ color: isSel ? "#00D964" : "#E0E0E0" }}>
+                        {t.name}
+                      </span>
+                      <span
+                        className="text-[8px] font-mono px-1 py-0.5 rounded-full whitespace-nowrap self-start"
+                        style={{ color: tier.color, backgroundColor: tier.bg }}
+                      >
+                        {tier.label}
                       </span>
                     </div>
                   </button>
@@ -544,21 +600,37 @@ export default function ResumeStudio() {
             </div>
           </div>
 
-          {/* Export button */}
-          <button
-            onClick={hasResume ? () => window.print() : undefined}
-            disabled={!hasResume}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-[14px] transition-all"
-            style={{
-              backgroundColor: hasResume ? "#00D964" : "#16161A",
-              color:           hasResume ? "#0A0A0B" : "#374151",
-              cursor:          hasResume ? "pointer" : "not-allowed",
-              border:          hasResume ? "none"    : "1px solid #26262B",
-            }}
-          >
-            <Download className="w-4 h-4" />
-            Export to PDF
-          </button>
+          {/* Export menu — PDF (existing print flow), DOCX, and TXT */}
+          <div className="relative">
+            <button
+              onClick={hasResume ? () => setExportMenuOpen(v => !v) : undefined}
+              disabled={!hasResume}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-[14px] transition-all"
+              style={{
+                backgroundColor: hasResume ? "#00D964" : "#16161A",
+                color:           hasResume ? "#0A0A0B" : "#374151",
+                cursor:          hasResume ? "pointer" : "not-allowed",
+                border:          hasResume ? "none"    : "1px solid #26262B",
+              }}
+            >
+              <Download className="w-4 h-4" />
+              Export
+              <ChevronDown className="w-3.5 h-3.5" style={{ transform: exportMenuOpen ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
+            </button>
+            {exportMenuOpen && hasResume && (
+              <div
+                className="absolute left-0 right-0 bottom-full mb-2 rounded-lg overflow-hidden z-20 shadow-2xl"
+                style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
+              >
+                <ExportMenuItem label="PDF" hint="Visual, template-matched" onClick={exportPdf} />
+                <ExportMenuItem label="DOCX" hint="Word · ATS-safe" onClick={exportDocx} loading={exportingDocx} />
+                <ExportMenuItem label="TXT" hint="Plain text · ATS-safe" onClick={exportTxt} />
+              </div>
+            )}
+            {exportError && (
+              <p className="text-[11px] font-mono mt-2" style={{ color: "#EF4444" }}>{exportError}</p>
+            )}
+          </div>
         </div>
 
         {/* ── RIGHT PANEL ─────────────────────────────────────────────── */}
@@ -612,30 +684,50 @@ export default function ResumeStudio() {
 
           ) : activeTab === "preview" ? (
             /* ── Live Preview tab ──────────────────────────────────────────
-               Renders the exact same TemplateComponent used for print/export, just
-               visible on-screen instead of hidden — switching templates in the picker
-               updates this immediately, so template choice finally has a visible effect
-               before you ever hit Export. */
+               PaginatedResumePreview renders the exact same TemplateComponent used for
+               print/export, genuinely paginated (real page count, real page breaks — not the
+               single continuously-scrolling div with a hardcoded scale this used to be) and
+               responsive to any viewport width. Switching templates in the picker updates this
+               immediately. */
             <div className="rounded-lg overflow-hidden" style={{ backgroundColor: "#0A0A0B", border: "1px solid #26262B" }}>
-              <div className="flex items-center justify-between px-4 py-2.5 border-b" style={{ borderColor: "#26262B" }}>
+              <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 border-b" style={{ borderColor: "#26262B" }}>
                 <span className="text-[11px] font-mono" style={{ color: "#6B7280" }}>
                   Live preview — {TEMPLATES.find(t => t.key === selectedTemplate)?.name ?? "Template"}
                 </span>
-                <button
-                  onClick={() => window.print()}
-                  className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-md transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: "#00D964", color: "#0A0A0B" }}
-                >
-                  <Download className="w-3 h-3" /> Export to PDF
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setExportMenuOpen(v => !v)}
+                    className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-md transition-opacity hover:opacity-90"
+                    style={{ backgroundColor: "#00D964", color: "#0A0A0B" }}
+                  >
+                    <Download className="w-3 h-3" /> Export
+                    <ChevronDown className="w-3 h-3" style={{ transform: exportMenuOpen ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
+                  </button>
+                  {exportMenuOpen && (
+                    <div
+                      className="absolute right-0 top-full mt-2 rounded-lg overflow-hidden z-20 shadow-2xl min-w-[180px]"
+                      style={{ backgroundColor: "#16161A", border: "1px solid #26262B" }}
+                    >
+                      <ExportMenuItem label="PDF" hint="Visual, template-matched" onClick={exportPdf} />
+                      <ExportMenuItem label="DOCX" hint="Word · ATS-safe" onClick={exportDocx} loading={exportingDocx} />
+                      <ExportMenuItem label="TXT" hint="Plain text · ATS-safe" onClick={exportTxt} />
+                    </div>
+                  )}
+                </div>
               </div>
+              {exportError && (
+                <div className="flex items-center gap-2 px-4 py-2 border-b" style={{ borderColor: "#26262B", backgroundColor: "rgba(239,68,68,0.08)" }}>
+                  <XCircle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#EF4444" }} />
+                  <p className="text-[12px] font-mono" style={{ color: "#EF4444" }}>{exportError}</p>
+                </div>
+              )}
               <div
                 className="overflow-auto flex justify-center py-8 px-4"
                 style={{ backgroundColor: "#1a1a1e", maxHeight: "80vh" }}
               >
-                <div className="shadow-2xl" style={{ transform: "scale(0.85)", transformOrigin: "top center" }}>
-                  {TemplateComponent && resumeData && <TemplateComponent data={resumeData} />}
-                </div>
+                {TemplateComponent && resumeData && (
+                  <PaginatedResumePreview component={TemplateComponent} data={resumeData} />
+                )}
               </div>
             </div>
 
@@ -1164,5 +1256,31 @@ export default function ResumeStudio() {
         document.body
       )}
     </>
+  );
+}
+
+function ExportMenuItem({
+  label,
+  hint,
+  onClick,
+  loading,
+}: {
+  label: string;
+  hint: string;
+  onClick: () => void;
+  loading?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={loading}
+      className="w-full flex items-center justify-between gap-3 px-3.5 py-2.5 text-left transition-colors hover:bg-white/5 disabled:opacity-50"
+    >
+      <div>
+        <p className="text-[12px] font-mono font-bold text-white">{label}</p>
+        <p className="text-[10px] font-mono" style={{ color: "#6B7280" }}>{hint}</p>
+      </div>
+      {loading && <Loader2 className="w-3.5 h-3.5 animate-spin flex-shrink-0" style={{ color: "#00D964" }} />}
+    </button>
   );
 }

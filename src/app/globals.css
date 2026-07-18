@@ -571,3 +571,9 @@ body {
 .input-field { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius: 0.75rem; padding: 0.5rem 0.75rem; color: #fff; font-family: var(--font-mono); font-size: 0.75rem; outline: none; transition: border-color 0.2s; }
 .input-field:focus { border-color: rgba(0,212,255,0.4); }
 .input-field option { background: #090d1a; }
+
+/* Resume PDF export (#resume-print-root in ResumeStudio.tsx) — page size/margins previously
+   relied entirely on browser/OS print-dialog defaults since no @page rule existed at all. */
+@media print {
+  @page { size: letter; margin: 0; }
+}

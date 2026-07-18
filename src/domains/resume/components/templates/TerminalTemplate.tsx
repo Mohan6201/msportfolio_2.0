@@ -1,12 +1,14 @@
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+import ResumeBlock from "./ResumeBlock";
 
 export default function TerminalTemplate({ data }: { data: ResumeData }) {
-  const { contact, summary, experiences, skills, certifications } = data;
+  const { contact, summary, experiences, education, skills, certifications, projects } = data;
 
   return (
     <div
       id="resume-print-area"
       className="bg-[#0d1117] text-gray-100 font-mono text-[11px] leading-relaxed max-w-[900px] mx-auto"
+      style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
     >
       {/* Terminal title bar */}
       <div className="bg-[#1c2128] border-b border-[#30363d] px-4 py-2 flex items-center gap-2">
@@ -48,7 +50,7 @@ export default function TerminalTemplate({ data }: { data: ResumeData }) {
           <TermCmd dir="~/work" cmd="ls -la ./experience" />
           <div className="mt-3 space-y-5">
             {experiences.map((exp, i) => (
-              <div key={i}>
+              <ResumeBlock key={i}>
                 <div className="flex items-baseline justify-between">
                   <span className="text-[#58a6ff] font-bold text-[12px]">{exp.jobTitle}</span>
                   <span className="text-gray-500 text-[9px]">{exp.startDate} – {exp.isCurrent ? "Present" : (exp.endDate ?? "")}</span>
@@ -71,10 +73,34 @@ export default function TerminalTemplate({ data }: { data: ResumeData }) {
                     ))}
                   </div>
                 )}
-              </div>
+              </ResumeBlock>
             ))}
           </div>
         </div>
+
+        {projects.length > 0 && (
+          <div className="mb-5">
+            <TermCmd dir="~/projects" cmd="ls -la ./side-projects" />
+            <div className="mt-3 space-y-4">
+              {projects.map((p, i) => (
+                <ResumeBlock key={i}>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-[#58a6ff] font-bold text-[11px]">{p.name}</span>
+                    {p.url && <span className="text-gray-500 text-[9px]">{p.url}</span>}
+                  </div>
+                  <p className="text-gray-300 mt-0.5">{p.description}</p>
+                  {p.technologies.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {p.technologies.map((t, j) => (
+                        <span key={j} className="text-[9px] bg-[#21262d] border border-[#30363d] rounded px-1.5 py-0.5 text-[#58a6ff]">{t}</span>
+                      ))}
+                    </div>
+                  )}
+                </ResumeBlock>
+              ))}
+            </div>
+          </div>
+        )}
 
         {skills.length > 0 && (
           <div className="mb-5">
@@ -108,8 +134,21 @@ export default function TerminalTemplate({ data }: { data: ResumeData }) {
           </div>
         )}
 
-        <div className="border-t border-[#30363d] pt-2 text-[9px] text-gray-600 flex justify-between">
-          <span>$ echo $PAGE # 1/2</span>
+        {education.length > 0 && (
+          <div className="mb-5">
+            <TermCmd dir="~/education" cmd="cat degrees.md" />
+            <div className="mt-2 space-y-1">
+              {education.map((e, i) => (
+                <div key={i} className="flex justify-between text-[10px]">
+                  <span className="text-gray-200">{e.degree} · {e.institution}</span>
+                  <span className="text-gray-500">{e.endDate ?? ""}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="border-t border-[#30363d] pt-2 text-[9px] text-gray-600 flex justify-end">
           <span>{contact.fullName?.toLowerCase()} · {experiences[0]?.jobTitle?.toLowerCase()}</span>
         </div>
       </div>

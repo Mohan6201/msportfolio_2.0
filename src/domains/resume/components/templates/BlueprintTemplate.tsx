@@ -1,7 +1,8 @@
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+import ResumeBlock from "./ResumeBlock";
 
 export default function BlueprintTemplate({ data }: { data: ResumeData }) {
-  const { contact, summary, experiences, education, skills, certifications } = data;
+  const { contact, summary, experiences, education, skills, certifications, projects } = data;
   const allSkills = skills.flatMap((g) => g.items);
 
   return (
@@ -16,6 +17,8 @@ export default function BlueprintTemplate({ data }: { data: ResumeData }) {
           linear-gradient(90deg, rgba(26,42,74,0.06) 1px, transparent 1px)
         `,
         backgroundSize: "20px 20px",
+        WebkitPrintColorAdjust: "exact",
+        printColorAdjust: "exact",
       }}
     >
       {/* Blueprint header strip */}
@@ -52,7 +55,7 @@ export default function BlueprintTemplate({ data }: { data: ResumeData }) {
 
         <BlueprintSection title="EXPERIENCE" comment="deployment.log">
           {experiences.map((exp, i) => (
-            <div key={i} className="mb-4 border-l-2 border-[#1a2a4a]/20 pl-3">
+            <ResumeBlock key={i} className="mb-4 border-l-2 border-[#1a2a4a]/20 pl-3">
               <div className="flex items-baseline justify-between">
                 <span className="font-bold text-[#1a2a4a] text-[12px]">{exp.jobTitle}</span>
                 <span className="text-[#1a2a4a]/50 text-[9px]">{exp.startDate} – {exp.isCurrent ? "Present" : (exp.endDate ?? "")}</span>
@@ -71,9 +74,26 @@ export default function BlueprintTemplate({ data }: { data: ResumeData }) {
                   <span className="font-bold">TOOLS:</span> {exp.technologies.join(" · ")}
                 </p>
               )}
-            </div>
+            </ResumeBlock>
           ))}
         </BlueprintSection>
+
+        {projects.length > 0 && (
+          <BlueprintSection title="PROJECTS" comment="projects.yaml">
+            {projects.map((p, i) => (
+              <ResumeBlock key={i} className="mb-3 border-l-2 border-[#1a2a4a]/20 pl-3">
+                <div className="flex items-baseline justify-between">
+                  <span className="font-bold text-[#1a2a4a] text-[11px]">{p.name}</span>
+                  {p.url && <span className="text-[#1a2a4a]/50 text-[9px]">{p.url}</span>}
+                </div>
+                <p className="text-[#1a2a4a]/80">{p.description}</p>
+                {p.technologies.length > 0 && (
+                  <p className="text-[9px] text-[#2a4a7f] mt-0.5">{p.technologies.join(" · ")}</p>
+                )}
+              </ResumeBlock>
+            ))}
+          </BlueprintSection>
+        )}
 
         {/* Pipeline flow diagram */}
         <BlueprintSection title="DELIVERY ARCHITECTURE" comment="pipeline.tf">
@@ -129,8 +149,7 @@ export default function BlueprintTemplate({ data }: { data: ResumeData }) {
       </div>
 
       {/* Footer */}
-      <div className="bg-[#1a2a4a] text-[#fff] px-6 py-2 flex justify-between text-[8px] text-gray-400">
-        <span>SHEET 1 OF 2</span>
+      <div className="bg-[#1a2a4a] text-[#fff] px-6 py-2 flex justify-end text-[8px] text-gray-400">
         <span>{contact.fullName?.toUpperCase()} · {experiences[0]?.jobTitle?.toUpperCase()}</span>
       </div>
     </div>

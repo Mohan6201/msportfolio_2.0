@@ -1,7 +1,8 @@
 import type { ResumeData } from "@/ai/schemas/resumeExtraction";
+import ResumeBlock from "./ResumeBlock";
 
 export default function SarathStyleTemplate({ data }: { data: ResumeData }) {
-  const { contact, summary, experiences, education, skills, certifications } = data;
+  const { contact, summary, experiences, education, skills, certifications, projects } = data;
   const allSkills = skills.flatMap((g) => g.items);
   const currentExp = experiences[0];
 
@@ -9,7 +10,7 @@ export default function SarathStyleTemplate({ data }: { data: ResumeData }) {
     <div
       id="resume-print-area"
       className="bg-[#fff] text-gray-900 font-sans text-[11px] leading-relaxed max-w-[900px] mx-auto"
-      style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+      style={{ fontFamily: "Arial, Helvetica, sans-serif", WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
     >
       {/* Bold header */}
       <div className="bg-[#1a1a2e] text-[#fff] px-8 py-6">
@@ -50,7 +51,7 @@ export default function SarathStyleTemplate({ data }: { data: ResumeData }) {
 
         <SarathSection title="PROFESSIONAL EXPERIENCE">
           {experiences.map((exp, i) => (
-            <div key={i} className="mb-5 grid grid-cols-3 gap-4">
+            <ResumeBlock key={i} className="mb-5 grid grid-cols-3 gap-4">
               {/* Main content */}
               <div className="col-span-2">
                 <div className="flex items-baseline justify-between mb-0.5">
@@ -75,9 +76,26 @@ export default function SarathStyleTemplate({ data }: { data: ResumeData }) {
                   </div>
                 )}
               </div>
-            </div>
+            </ResumeBlock>
           ))}
         </SarathSection>
+
+        {projects.length > 0 && (
+          <SarathSection title="PROJECTS">
+            {projects.map((p, i) => (
+              <ResumeBlock key={i} className="mb-3">
+                <div className="flex items-baseline justify-between">
+                  <span className="font-bold text-[11px] text-gray-900">{p.name}</span>
+                  {p.url && <span className="text-gray-500 text-[9px]">{p.url}</span>}
+                </div>
+                <p className="text-gray-700 leading-snug mt-0.5">{p.description}</p>
+                {p.technologies.length > 0 && (
+                  <p className="text-[#1a1a2e] text-[9px] mt-0.5">{p.technologies.join(" | ")}</p>
+                )}
+              </ResumeBlock>
+            ))}
+          </SarathSection>
+        )}
 
         {certifications.length > 0 && (
           <SarathSection title="CERTIFICATIONS">
